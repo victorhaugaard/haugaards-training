@@ -3,6 +3,7 @@ import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { useDrag } from '../lib/drag'
 import type { TrainingCard } from '../types'
 import { ZoneBar } from './ZoneBar'
+import { tr } from '../i18n/core'
 
 interface Props {
   onPick?: (c: TrainingCard) => void
@@ -14,7 +15,7 @@ export function CardLibrary({ onPick }: Props) {
     <div className="library">
       {CARD_GROUPS.map((g) => (
         <section key={g} className="lib-group">
-          <h4>{g}</h4>
+          <h4>{tr(g)}</h4>
           {CARDS.filter((c) => c.group === g).map((c) => (
             <div
               key={c.id}
@@ -31,9 +32,9 @@ export function CardLibrary({ onPick }: Props) {
             >
               <span className="stripe" style={{ background: CATEGORY_COLOR[c.category] }} />
               <div className="tcard-main">
-                <div className="chip-title">{c.name}</div>
+                <div className="chip-title">{tr(c.name)}</div>
                 <div className="chip-meta">
-                  {fmtDuration(sessionMinutes(c))} · {c.hint}
+                  {fmtDuration(sessionMinutes(c))} · {tr(c.hint)}
                 </div>
                 <ZoneBar zones={c.zones} nonZone={c.nonZone} thin />
               </div>

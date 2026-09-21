@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Person, RunMode } from '../types'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
+import { tr } from '../i18n/core'
 
 export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number; runMode: RunMode }
 
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
-  const [name, setName] = useState('Pappa')
+  const [name, setName] = useState(tr('Pappa'))
   const [mode, setMode] = useState<NewPerson['mode']>('copy')
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
@@ -22,7 +23,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
 
   return (
     <Modal
-      title="Lägg till person"
+      title={tr('Lägg till person')}
       onClose={onClose}
       footer={
         <>
@@ -32,36 +33,36 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
             disabled={!name.trim()}
             onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours, runMode }), onClose())}
           >
-            Skapa
+            {tr('Skapa')}
           </button>
         </>
       }
     >
       <label className="field">
-        <span>Namn</span>
+        <span>{tr('Namn')}</span>
         <input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
       </label>
       <div className="field">
-        <span>Startplan</span>
+        <span>{tr('Startplan')}</span>
         <Segmented
           value={mode}
           onChange={setMode}
           options={[
-            ['copy', 'Baserad på annan'],
-            ['generate', 'Autogenerera'],
-            ['empty', 'Tom'],
+            ['copy', tr('Baserad på annan')],
+            ['generate', tr('Autogenerera')],
+            ['empty', tr('Tom')],
           ]}
         />
       </div>
       {mode !== 'empty' && (
         <div className="field">
-          <span>Löpning</span>
+          <span>{tr('Löpning')}</span>
           <Segmented
             value={runMode}
             onChange={setRunMode}
             options={[
-              ['none', 'Ingen (skonsamt)'],
-              ['little', 'Lite då och då'],
+              ['none', tr('Ingen (skonsamt)')],
+              ['little', tr('Lite då och då')],
             ]}
           />
         </div>
@@ -69,7 +70,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
       {mode === 'copy' && (
         <>
           <label className="field">
-            <span>Baserad på</span>
+            <span>{tr('Baserad på')}</span>
             <select value={basedOn} onChange={(e) => setBasedOn(e.target.value)}>
               {people.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -79,14 +80,14 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
             </select>
           </label>
           <label className="field">
-            <span>Volym relativt förlagan: {scale}%</span>
+            <span>{tr('Volym relativt förlagan: {n}%', { n: scale })}</span>
             <input type="range" min={40} max={120} step={5} value={scale} onChange={(e) => setScale(+e.target.value)} />
           </label>
         </>
       )}
       {mode === 'generate' && (
         <label className="field">
-          <span>Timmar per vecka i snitt: {hours} h</span>
+          <span>{tr('Timmar per vecka i snitt: {h} h', { h: hours })}</span>
           <input type="range" min={4} max={15} step={0.5} value={hours} onChange={(e) => setHours(+e.target.value)} />
         </label>
       )}

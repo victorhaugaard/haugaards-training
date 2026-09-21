@@ -7,6 +7,7 @@ import { useZones } from '../lib/zones'
 import { CoachNote } from './CoachNote'
 import { EditModal } from './EditModal'
 import { Modal } from './Modal'
+import { tr } from '../i18n/core'
 
 interface Props {
   session: Session
@@ -39,29 +40,29 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
   const zoneTotal = s.zones.reduce((a, b) => a + b, 0)
   const rows = [
     ...s.zones.map((m, i) => ({ label: labels[i], name: names[i], m, color: `var(--z${i + 1})` })),
-    ...(s.nonZone > 0 ? [{ label: '', name: s.sport === 'Rörlighet' ? 'Rörlighet' : 'Styrka', m: s.nonZone, color: 'var(--c-strength)' }] : []),
+    ...(s.nonZone > 0 ? [{ label: '', name: tr(s.sport === 'Rörlighet' ? 'Rörlighet' : 'Styrka'), m: s.nonZone, color: 'var(--c-nonzone)' }] : []),
   ].filter((r) => r.m > 0)
 
   return (
     <Modal
-      title={s.title}
+      title={tr(s.title)}
       onClose={onClose}
       actions={
-        <button className="btn small" onClick={() => setEditing(true)} aria-label="Redigera pass">
-          ✎ Redigera
+        <button className="btn small" onClick={() => setEditing(true)} aria-label={tr('Redigera pass')}>
+          {tr('✎ Redigera')}
         </button>
       }
       footer={
         <>
           <button className={'btn ' + (s.done ? '' : 'primary')} onClick={onToggle}>
-            {s.done ? '✓ Genomfört · ångra' : 'Markera som genomfört'}
+            {tr(s.done ? '✓ Genomfört · ångra' : 'Markera som genomfört')}
           </button>
         </>
       }
     >
       <div className="sc-meta">
         <span className="sc-dot" style={{ background: CATEGORY_COLOR[s.category] }} />
-        {cap(fullDate(s.date))} · {s.sport}
+        {cap(fullDate(s.date))} · {tr(s.sport)}
         {s.category !== 'rest' && <> · {fmtDuration(total)}</>}
       </div>
 
@@ -77,7 +78,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
               <em>{fmtDuration(r.m)}</em>
             </div>
           ))}
-          {zoneTotal > 0 && s.nonZone === 0 && <div className="sc-note">Totalt {fmtDuration(total)}</div>}
+          {zoneTotal > 0 && s.nonZone === 0 && <div className="sc-note">{tr('Totalt {d}', { d: fmtDuration(total) })}</div>}
         </div>
       )}
 
@@ -85,8 +86,8 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
 
       {s.notes && (
         <div className="sc-notes">
-          <span className="stat-label">Anteckningar</span>
-          <p>{s.notes}</p>
+          <span className="stat-label">{tr('Anteckningar')}</span>
+          <p>{tr(s.notes)}</p>
         </div>
       )}
     </Modal>

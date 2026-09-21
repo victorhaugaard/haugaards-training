@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { daysUntil } from '../lib/dates'
 import { RACES } from '../lib/races'
 import { Ring } from './Ring'
+import { tr, LANGS, getLang } from '../i18n/core'
+import { useLang } from '../i18n'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -17,12 +19,13 @@ const FEATURES = [
 ]
 
 export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: boolean }) {
+  const { setLang } = useLang()
   const [imgOk, setImgOk] = useState(true)
   return (
     <div className="landing">
       <nav className="l-nav">
         <span className="l-brand">HAUGAARDS</span>
-        <div className="l-races" aria-label="Dagar kvar till tävlingarna">
+        <div className="l-races" aria-label={tr('Dagar kvar till tävlingarna')}>
           {RACES.map((r) => (
             <span key={r.id} title={`${r.name} ${r.date}`}>
               <em>{r.short}</em>
@@ -30,25 +33,31 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
             </span>
           ))}
         </div>
+        <div className="l-lang" aria-label={tr('Språk')}>
+          {LANGS.map(([code, label]) => (
+            <button key={code} className={code === getLang() ? 'on' : ''} onClick={() => setLang(code)} title={label}>
+              {code.toUpperCase()}
+            </button>
+          ))}
+        </div>
         <button className="l-link" onClick={onEnter}>
-          {signedIn ? 'Öppna planen' : 'Logga in'}
+          {tr(signedIn ? 'Öppna planen' : 'Logga in')}
         </button>
       </nav>
 
       <header className="l-hero">
         <div className="l-copy">
-          <p className="l-eyebrow">Säsongen 2026/2027</p>
+          <p className="l-eyebrow">{tr('Säsongen 2026/2027')}</p>
           <h1>
-            Välkommen till
+            {tr('Välkommen till')}
             <br />
-            Haugaards träningsplan
+            {tr('Haugaards träningsplan')}
           </h1>
           <p className="l-lead">
-            En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så
-            det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsiesertal och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.
+            {tr('En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsiesertal och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.')}
           </p>
           <button className="l-cta" onClick={onEnter}>
-            Öppna planen <span>→</span>
+            {tr('Öppna planen')} <span>→</span>
           </button>
         </div>
 
@@ -70,9 +79,9 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
           <article key={p.big}>
             <Ring value={p.value} size={52} stroke={4} color="#4d84ff" />
             <div>
-              <div className="l-big">{p.big}</div>
-              <div className="l-label">{p.label}</div>
-              <p>{p.text}</p>
+              <div className="l-big">{tr(p.big)}</div>
+              <div className="l-label">{tr(p.label)}</div>
+              <p>{tr(p.text)}</p>
             </div>
           </article>
         ))}
@@ -80,7 +89,7 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
 
       <section className="l-features">
         {FEATURES.map((f) => (
-          <span key={f}>{f}</span>
+          <span key={f}>{tr(f)}</span>
         ))}
       </section>
     </div>

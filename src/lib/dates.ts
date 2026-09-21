@@ -1,3 +1,5 @@
+import { locale } from '../i18n/core'
+
 export const iso = (d: Date) => {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
@@ -52,7 +54,7 @@ export const weekNumber = (s: string) => {
   return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7)
 }
 
-const fmt = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('sv-SE', o)
+const fmt = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale(), o)
 export const weekdayLong = (s: string) => fmt({ weekday: 'long' }).format(parse(s))
 export const weekdayShort = (s: string) => fmt({ weekday: 'short' }).format(parse(s))
 export const dayMonth = (s: string) => fmt({ day: 'numeric', month: 'short' }).format(parse(s))

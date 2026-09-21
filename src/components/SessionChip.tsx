@@ -4,6 +4,7 @@ import { useDrag } from '../lib/drag'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { ZoneBar } from './ZoneBar'
+import { tr } from '../i18n/core'
 
 interface Props {
   session: Session
@@ -32,14 +33,14 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
       }}
       onDragEnd={end}
       onClick={() => onOpen(s)}
-      title={`${s.title} · ${fmtDuration(minutes)}`}
+      title={`${tr(s.title)} · ${fmtDuration(minutes)}`}
     >
       <span className="stripe" style={{ background: CATEGORY_COLOR[s.category] }} />
       {/* Bocken glider in vid hover och knuffar texten åt höger (som Trello) */}
       <span className="check-slot">
         <button
           className={'check' + (s.done ? ' on' : '')}
-          aria-label={s.done ? 'Markera som ogjort' : 'Markera som gjort'}
+          aria-label={tr(s.done ? 'Markera som ogjort' : 'Markera som gjort')}
           onClick={(e) => {
             e.stopPropagation()
             onToggle(s.id)
@@ -51,25 +52,25 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
         </button>
       </span>
       <div className="chip-main">
-        <div className="chip-title">{s.title}</div>
+        <div className="chip-title">{tr(s.title)}</div>
         {!compact && (
           <>
             <div className="chip-meta">
-              {s.category === 'rest' ? 'Vila' : `${fmtDuration(minutes)} · ${s.sport}`}
+              {s.category === 'rest' ? tr('Vila') : `${fmtDuration(minutes)} · ${tr(s.sport)}`}
               {card?.home && (
                 <button
                   className="loc"
-                  title="Växla mellan gym och hemma"
+                  title={tr('Växla mellan gym och hemma')}
                   onClick={(e) => {
                     e.stopPropagation()
                     onPatch(s.id, { location: loc === 'gym' ? 'home' : 'gym' })
                   }}
                 >
-                  {loc === 'gym' ? 'Gym' : 'Hemma'}
+                  {tr(loc === 'gym' ? 'Gym' : 'Hemma')}
                 </button>
               )}
             </div>
-            {detail && card && <div className="chip-detail">{fillZones((loc === 'home' && card.home ? card.home : card.coach).purpose, labels)}</div>}
+            {detail && card && <div className="chip-detail">{fillZones(tr((loc === 'home' && card.home ? card.home : card.coach).purpose), labels)}</div>}
             <ZoneBar zones={s.zones} nonZone={s.nonZone} thin />
           </>
         )}

@@ -6,6 +6,7 @@ import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { Segmented } from './Segmented'
 import { Modal } from './Modal'
 import { ZoneBar } from './ZoneBar'
+import { tr } from '../i18n/core'
 
 interface Props {
   session: Session
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onBack }: Props) {
-  const [s, setS] = useState(session)
+  const [s, setS] = useState({ ...session, title: tr(session.title) })
   const { labels, names } = useZones()
   const card = cardById(session.cardId)
   const set = <K extends keyof Session>(k: K, v: Session[K]) => setS((x) => ({ ...x, [k]: v }))
@@ -29,25 +30,28 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onB
 
   return (
     <Modal
-      title="Redigera pass"
+      title={tr('Redigera pass')}
       onClose={onClose}
       footer={
         <>
           <button className="btn danger" onClick={() => (onDelete(), onClose())}>
-            Ta bort
+            {tr('Ta bort')}
           </button>
           <button className="btn" onClick={() => (onDuplicate(), onClose())}>
-            Duplicera
+            {tr('Duplicera')}
           </button>
           <span className="spacer" />
           <button className="btn" onClick={onBack}>
-            Avbryt
+            {tr('Avbryt')}
           </button>
           <button
             className="btn primary"
             onClick={() => {
               onSave({
-                title: s.title.trim() || 'Pass',
+                title: (() => {
+                  const t = s.title.trim() || tr('Pass')
+                  return card && t === tr(card.name) ? card.name : t // behåll svenska grundnamnet så att det kan översättas
+                })(),
                 sport: s.sport,
                 date: s.date,
                 zones: s.zones,
@@ -59,33 +63,35 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onB
               onBack()
             }}
           >
-            Spara
+            {tr('Spara')}
           </button>
         </>
       }
     >
       <label className="field">
-        <span>Namn</span>
+        <span>{tr('Namn')}</span>
         <input value={s.title} onChange={(e) => set('title', e.target.value)} />
       </label>
       <div className="row">
         <label className="field">
-          <span>Typ</span>
+          <span>{tr('Typ')}</span>
           <select value={s.sport} onChange={(e) => set('sport', e.target.value as Sport)}>
             {SPORTS.map((x) => (
-              <option key={x}>{x}</option>
+              <option key={x} value={x}>
+                {tr(x)}
+              </option>
             ))}
           </select>
         </label>
         <label className="field">
-          <span>Datum</span>
+          <span>{tr('Datum')}</span>
           <input type="date" value={s.date} onChange={(e) => e.target.value && set('date', e.target.value)} />
         </label>
       </div>
 
       <div className="field">
         <span>
-          Minuter per zon · totalt <b>{fmtDuration(sessionMinutes(s))}</b>
+          {tr('Minuter per zon · totalt')} <b>{fmtDuration(sessionMinutes(s))}</b>
         </span>
         <div className="zone-inputs">
           {labels.map((l, i) => (
@@ -100,30 +106,30 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onB
       </div>
       {card?.home && (
         <div className="field">
-          <span>Plats</span>
+          <span>{tr('Plats')}</span>
           <Segmented
             value={s.location ?? 'gym'}
             onChange={(l) => set('location', l)}
             options={[
-              ['gym', 'Gym'],
-              ['home', 'Hemma'],
+              ['gym', tr('Gym')],
+              ['home', tr('Hemma')],
             ]}
           />
         </div>
       )}
       {(s.nonZone > 0 || s.sport === 'Styrka' || s.sport === 'Rörlighet') && (
         <label className="field">
-          <span>Tid för styrka och rörlighet (minuter)</span>
+          <span>{tr('Tid för styrka och rörlighet (minuter)')}</span>
           <input type="number" min={0} step={5} value={s.nonZone} onChange={(e) => set('nonZone', Math.max(0, +e.target.value || 0))} />
         </label>
       )}
 
       <label className="field">
-        <span>Anteckningar</span>
+        <span>{tr('Anteckningar')}</span>
         <textarea rows={3} value={s.notes} onChange={(e) => set('notes', e.target.value)} />
       </label>
       <label className="inline">
-        <input type="checkbox" checked={s.done} onChange={(e) => set('done', e.target.checked)} /> Genomfört
+        <input type="checkbox" checked={s.done} onChange={(e) => set('done', e.target.checked)} /> {tr('Genomfört')}
       </label>
     </Modal>
   )

@@ -22,6 +22,8 @@ import { PickerModal } from './components/PickerModal'
 import { PersonModal, type NewPerson } from './components/PersonModal'
 import { GenerateModal } from './components/GenerateModal'
 import { Modal } from './components/Modal'
+import { tr, LANGS, type Lang } from './i18n/core'
+import { useLang } from './i18n'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -42,6 +44,7 @@ const readPage = () => {
 }
 
 export function App() {
+  useLang() // renderar om hela appen när språket byts
   const auth = useAuth()
   const [page, setPage] = useState<'landing' | 'app'>(readPage)
   useEffect(() => {
@@ -74,10 +77,10 @@ function Login({ onSignIn }: { onSignIn: () => Promise<void> }) {
     <div className="splash">
       <div className="login">
         <div className="logo" />
-        <h1>Träning</h1>
-        <p className="muted">Logga in för att se och planera träningen.</p>
+        <h1>{tr('Träning')}</h1>
+        <p className="muted">{tr('Logga in för att se och planera träningen.')}</p>
         <button className="btn primary big" onClick={() => onSignIn().catch((e: Error) => setErr(e.message))}>
-          Fortsätt med Google
+          {tr('Fortsätt med Google')}
         </button>
         {err && <p className="error">{err}</p>}
       </div>
@@ -92,10 +95,10 @@ function Planner({ auth }: { auth: AuthState }) {
     return (
       <div className="splash">
         <div className="login">
-          <h1>Ingen åtkomst</h1>
+          <h1>{tr('Ingen åtkomst')}</h1>
           <p className="muted">{status.error}</p>
           <button className="btn" onClick={() => auth.signOut()}>
-            Logga ut
+            {tr('Logga ut')}
           </button>
         </div>
       </div>
@@ -139,14 +142,14 @@ function Workspace({
 
   const title =
     view === 'overview'
-      ? 'Översikt'
+      ? tr('Översikt')
       : view === 'day'
       ? cap(fullDate(cursor))
       : view === 'week'
-        ? `Vecka ${weekNumber(cursor)}`
+        ? tr('Vecka {n}', { n: weekNumber(cursor) })
         : cap(monthYear(cursor))
   const subtitle =
-    view === 'overview' ? 'Alla månader' : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])} · ${PHASE_LABEL[phaseFor(addDays(range[0], 3))]}` : view === 'day' ? PHASE_LABEL[phaseFor(cursor)] : ''
+    view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])} · ${tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? tr(PHASE_LABEL[phaseFor(cursor)]) : ''
 
   const handleDrop = (e: DragEvent, date: string, beforeId?: string) => {
     e.preventDefault()
@@ -192,7 +195,7 @@ function Workspace({
       </div>
       <header className="topbar">
         <div className="people">
-          <a className="brand" href="#/" title="Startsida">
+          <a className="brand" href="#/" title={tr('Startsida')}>
             H
           </a>
           {state.people.map((p) => (
@@ -204,20 +207,20 @@ function Workspace({
               {p.name}
             </button>
           ))}
-          <button className="pill ghost" onClick={() => setDialog('person')} aria-label="Lägg till person">
+          <button className="pill ghost" onClick={() => setDialog('person')} aria-label={tr('Lägg till person')}>
             +
           </button>
         </div>
         <div className="nav">
           {view !== 'overview' && (
             <>
-              <button className="icon-btn" onClick={() => step(-1)} aria-label="Föregående">
+              <button className="icon-btn" onClick={() => step(-1)} aria-label={tr('Föregående')}>
                 ‹
               </button>
               <button className="btn small" onClick={() => setCursor(today())}>
-                Idag
+                {tr('Idag')}
               </button>
-              <button className="icon-btn" onClick={() => step(1)} aria-label="Nästa">
+              <button className="icon-btn" onClick={() => step(1)} aria-label={tr('Nästa')}>
                 ›
               </button>
             </>
@@ -228,19 +231,19 @@ function Workspace({
           </div>
         </div>
         <div className="right">
-          <Segmented value={view} options={VIEWS} onChange={setView} />
+          <Segmented value={view} options={VIEWS.map(([v, l]) => [v, tr(l)] as [View, string])} onChange={setView} />
           {view !== 'overview' && (
-            <button className="icon-btn" onClick={() => setLibOpen((o) => !o)} aria-label="Visa/dölj träningskort" title="Träningskort">
+            <button className="icon-btn" onClick={() => setLibOpen((o) => !o)} aria-label={tr('Visa/dölj träningskort')} title={tr('Träningskort')}>
               ▤
             </button>
           )}
-          <button className="icon-btn" onClick={() => setDialog('menu')} aria-label="Meny">
+          <button className="icon-btn" onClick={() => setDialog('menu')} aria-label={tr('Meny')}>
             ⋯
           </button>
         </div>
       </header>
 
-      {view !== 'overview' && <StatsBar sessions={inRange} label={view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad'} />}
+      {view !== 'overview' && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
 
       <div className={'layout' + (libOpen ? ' with-lib' : '')}>
         <main className="main" key={view + (view === 'overview' ? '' : cursor)}>
@@ -262,8 +265,8 @@ function Workspace({
         </main>
         {libOpen && view !== 'overview' && (
           <aside className="side">
-            <h3>Träningskort</h3>
-            <p className="muted small">Dra till en dag – eller tryck på + i en dag.</p>
+            <h3>{tr('Träningskort')}</h3>
+            <p className="muted small">{tr('Dra till en dag – eller tryck på + i en dag.')}</p>
             <CardLibrary />
           </aside>
         )}
@@ -292,7 +295,7 @@ function Workspace({
       )}
       {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} onGenerate={regenerate} onClose={() => setDialog(null)} />}
       {dialog === 'guide' && (
-        <Modal wide title={`Om planen · ${person.name}`} onClose={() => setDialog(null)}>
+        <Modal wide title={tr('Om planen · {name}', { name: person.name })} onClose={() => setDialog(null)}>
           <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} />
         </Modal>
       )}
@@ -306,13 +309,13 @@ function Workspace({
           onGuide={() => setDialog('guide')}
           planCount={mine.length}
           onClearPlan={() => {
-            if (confirm(`Radera hela planen för ${person.name}? ${mine.length} pass tas bort, även genomförda. Det går inte att ångra.`)) {
+            if (confirm(tr('Radera hela planen för {name}? {n} pass tas bort, även genomförda. Det går inte att ångra.', { name: person.name, n: mine.length }))) {
               dispatch({ type: 'clearPlan', personId: person.id })
               setDialog(null)
             }
           }}
           onDeletePerson={() => {
-            if (confirm(`Ta bort ${person.name} och hela planen?`)) dispatch({ type: 'deletePerson', id: person.id })
+            if (confirm(tr('Ta bort {name} och hela planen?', { name: person.name }))) dispatch({ type: 'deletePerson', id: person.id })
             setDialog(null)
           }}
           onLoad={(s) => dispatch({ type: 'load', state: s })}
@@ -341,6 +344,7 @@ interface MenuProps {
 function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
+  const { lang, setLang } = useLang()
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -358,54 +362,58 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, pl
       onLoad(s)
       onClose()
     } catch {
-      alert('Filen kunde inte läsas.')
+      alert(tr('Filen kunde inte läsas.'))
     }
   }
 
   return (
-    <Modal title="Meny" onClose={onClose}>
+    <Modal title={tr('Meny')} onClose={onClose}>
       <div className="field">
-        <span>Intensitetszoner</span>
+        <span>{tr('Intensitetszoner')}</span>
         <Segmented
           value={zones.system}
           onChange={(v: ZoneSystem) => zones.setSystem(v)}
-          options={(Object.keys(ZONE_SYSTEMS) as ZoneSystem[]).map((k) => [k, ZONE_SYSTEMS[k].title])}
+          options={(Object.keys(ZONE_SYSTEMS) as ZoneSystem[]).map((k) => [k, tr(ZONE_SYSTEMS[k].title)])}
         />
         <span className="hint">
           {zones.system === 'no'
-            ? 'Norska Olympiatoppen-skalan: I1 lugn, I2 distans, I3 tempo, I4 tröskel, I5 max.'
-            : 'Engelska: Z2 = lugn jogg, Z2+ = övre aerob/steady, sedan Z3 tempo, Z4 tröskel, Z5 VO₂max.'}
+            ? tr('Norska Olympiatoppen-skalan: I1 lugn, I2 distans, I3 tempo, I4 tröskel, I5 max.')
+            : tr('Engelska: Z2 = lugn jogg, Z2+ = övre aerob/steady, sedan Z3 tempo, Z4 tröskel, Z5 VO₂max.')}
         </span>
+      </div>
+      <div className="field">
+        <span>{tr('Språk')}</span>
+        <Segmented value={lang} onChange={(l: Lang) => setLang(l)} options={LANGS} />
       </div>
       <div className="menu">
         <button className="btn" onClick={onGuide}>
-          Om planen för {personName}
+          {tr('Om planen för {name}', { name: personName })}
         </button>
         <button className="btn" onClick={onGenerate}>
-          Autogenerera plan för {personName}
+          {tr('Autogenerera plan för {name}', { name: personName })}
         </button>
         <button className="btn danger" disabled={!planCount} onClick={onClearPlan}>
-          Radera hela planen för {personName}
+          {tr('Radera hela planen för {name}', { name: personName })}
         </button>
         <button className="btn" onClick={exportJson}>
-          Exportera allt (JSON)
+          {tr('Exportera allt (JSON)')}
         </button>
         <button className="btn" onClick={() => file.current?.click()}>
-          Importera (JSON)
+          {tr('Importera (JSON)')}
         </button>
         <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} />
         {auth.enabled && (
           <button className="btn" onClick={() => auth.signOut()}>
-            Logga ut{auth.user?.email ? ` (${auth.user.email})` : ''}
+            {tr('Logga ut')}{auth.user?.email ? ` (${auth.user.email})` : ''}
           </button>
         )}
         {canDelete && (
           <button className="btn danger" onClick={onDeletePerson}>
-            Ta bort {personName}
+            {tr('Ta bort {name}', { name: personName })}
           </button>
         )}
       </div>
-      <p className="muted small">{auth.enabled ? 'Datan synkas via Firebase och delas med alla som är inloggade.' : 'Data sparas i den här webbläsaren (Firebase är inte kopplat). Använd export/import för att flytta mellan enheter.'}</p>
+      <p className="muted small">{tr(auth.enabled ? 'Datan synkas via Firebase och delas med alla som är inloggade.' : 'Data sparas i den här webbläsaren (Firebase är inte kopplat). Använd export/import för att flytta mellan enheter.')}</p>
     </Modal>
   )
 }

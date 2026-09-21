@@ -21,18 +21,19 @@
   --sheen: rgba(150, 190, 255, 0.1);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-lift: 0 14px 36px -8px rgba(47, 107, 255, 0.45), 0 4px 10px rgba(0, 0, 0, 0.5);
-  /* zoner: blått som ökar mot vitt */
-  --z1: #2b4c9c;
-  --z2: #3a6ae0;
-  --z3: #5b8dff;
-  --z4: #a3c0ff;
-  --z5: #ffffff;
-  /* passtyper */
-  --c-easy: #3f9b86;
-  --c-quality: #c2a24f;
-  --c-hard: #c25a55;
-  --c-strength: #8a78c9;
-  --c-race: #d98b4f;
+  /* zoner: värmeskala från kallt till hett, samma i alla vyer */
+  --z1: #4a9df8;
+  --z2: #3fcf8e;
+  --z3: #f5cf47;
+  --z4: #f39a3d;
+  --z5: #ef4b4b;
+  --c-nonzone: #8b95b0;
+  /* passtyper: hålls borta från zonernas värmefärger */
+  --c-easy: #5b8fe0;
+  --c-quality: #9a82dc;
+  --c-hard: #d9679f;
+  --c-strength: #45b5c4;
+  --c-race: #d8b25a;
   --c-other: #737b8f;
   --c-rest: #5a6b93;
   --radius: 14px;
@@ -1296,7 +1297,7 @@ button.col-title:hover,
   border-radius: 8px;
 }
 .cy-bar i.rest {
-  background: var(--z4);
+  background: var(--z2);
 }
 .cycle span {
   color: var(--muted);
@@ -1828,4 +1829,22 @@ button.col-title:hover,
   .chip-pad {
     animation: none !important;
   }
+}
+
+.l-lang {
+  display: flex;
+  gap: 2px;
+}
+.l-lang button {
+  border: 0;
+  background: transparent;
+  color: rgba(242, 244, 245, 0.55);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  padding: 5px 8px;
+  border-radius: 999px;
+}
+.l-lang button.on {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
 }

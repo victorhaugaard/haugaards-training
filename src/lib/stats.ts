@@ -1,4 +1,5 @@
 import type { Session, Zones } from '../types'
+import { getLang } from '../i18n/core'
 
 export const sessionMinutes = (s: Pick<Session, 'zones' | 'nonZone'>) =>
   s.zones.reduce((a, b) => a + b, 0) + s.nonZone
@@ -36,4 +37,4 @@ export const fmtDuration = (min: number) => {
   return m ? `${h} h ${m} min` : `${h} h`
 }
 
-export const fmtHours = (min: number) => `${(min / 60).toFixed(1).replace('.', ',')} h`
+export const fmtHours = (min: number) => `${(min / 60).toFixed(1).replace('.', getLang() === 'en' ? '.' : ',')} h`

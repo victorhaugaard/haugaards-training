@@ -2,6 +2,7 @@ import type { Location, TrainingCard } from '../types'
 import { fillZones } from '../lib/cards'
 import { useZones } from '../lib/zones'
 import { Segmented } from './Segmented'
+import { tr } from '../i18n/core'
 
 interface Props {
   card: TrainingCard
@@ -12,18 +13,18 @@ interface Props {
 export function CoachNote({ card, location, onLocation }: Props) {
   const { labels } = useZones()
   const c = location === 'home' && card.home ? card.home : card.coach
-  const f = (t: string) => fillZones(t, labels)
+  const f = (t: string) => fillZones(tr(t), labels)
   return (
     <div className="coach">
       <div className="coach-head">
-        <span className="stat-label">Coach</span>
+        <span className="stat-label">{tr('Coach')}</span>
         {card.home && onLocation && (
           <Segmented
             value={location ?? 'gym'}
             onChange={onLocation}
             options={[
-              ['gym', 'Gym'],
-              ['home', 'Hemma'],
+              ['gym', tr('Gym')],
+              ['home', tr('Hemma')],
             ]}
           />
         )}
@@ -35,7 +36,7 @@ export function CoachNote({ card, location, onLocation }: Props) {
         ))}
       </ol>
       <p className="coach-tip">
-        <b>Tips:</b> {f(c.tip)}
+        <b>{tr('Tips:')}</b> {f(tr(c.tip))}
       </p>
     </div>
   )

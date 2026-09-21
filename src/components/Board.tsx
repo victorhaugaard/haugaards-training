@@ -4,6 +4,7 @@ import { cap, dayMonth, fullDate, monthGrid, parse, today, weekdayLong, weekdayS
 import { useDrag } from '../lib/drag'
 import { fmtHours } from '../lib/stats'
 import { SessionChip } from './SessionChip'
+import { tr } from '../i18n/core'
 
 interface Props {
   view: View
@@ -150,8 +151,8 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
           )
         })}
       </div>
-      <button className="add" onClick={() => onAdd(date)} aria-label="Lägg till pass">
-        {compact ? '+' : '+ Lägg till pass'}
+      <button className="add" onClick={() => onAdd(date)} aria-label={tr('Lägg till pass')}>
+        {compact ? '+' : tr('+ Lägg till pass')}
       </button>
     </div>
   )

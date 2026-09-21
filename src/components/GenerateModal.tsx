@@ -5,6 +5,7 @@ import { PLAN_END, generatePlan } from '../lib/generator'
 import { Modal } from './Modal'
 import { PlanGuide } from './PlanGuide'
 import { Segmented } from './Segmented'
+import { tr } from '../i18n/core'
 
 export interface GenerateChoice {
   start: string
@@ -33,47 +34,47 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
   return (
     <Modal
       wide
-      title={`Autogenerera plan · ${name}`}
+      title={tr('Autogenerera plan · {name}', { name })}
       onClose={onClose}
       footer={
         <>
           <span className="muted small">
-            {fresh ? 'Hela den gamla planen raderas, även genomförda pass.' : 'Genomförda pass behålls. Övriga pass från startdatumet ersätts.'}
+            {tr(fresh ? 'Hela den gamla planen raderas, även genomförda pass.' : 'Genomförda pass behålls. Övriga pass från startdatumet ersätts.')}
           </span>
           <span className="spacer" />
           <button className="btn primary" onClick={() => (onGenerate({ start, end, hours, runMode, fresh }), onClose())}>
-            Generera
+            {tr('Generera')}
           </button>
         </>
       }
     >
       <div className="row">
         <label className="field">
-          <span>Från</span>
+          <span>{tr('Från')}</span>
           <input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
         </label>
         <label className="field">
-          <span>Till</span>
+          <span>{tr('Till')}</span>
           <input type="date" value={end} min={addDays(start, 7)} onChange={(e) => setEnd(e.target.value)} />
         </label>
       </div>
       <label className="field">
-        <span>Timmar per vecka i snitt: {hours} h</span>
+        <span>{tr('Timmar per vecka i snitt: {h} h', { h: hours })}</span>
         <input type="range" min={8} max={15} step={0.5} value={hours} onChange={(e) => setHours(+e.target.value)} />
       </label>
       <div className="field">
-        <span>Löpning</span>
+        <span>{tr('Löpning')}</span>
         <Segmented
           value={runMode}
           onChange={setRunMode}
           options={[
-            ['none', 'Ingen (skonsamt)'],
-            ['little', 'Lite då och då'],
+            ['none', tr('Ingen (skonsamt)')],
+            ['little', tr('Lite då och då')],
           ]}
         />
       </div>
       <label className="inline">
-        <input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> Börja om: radera hela den gamla planen först
+        <input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> {tr('Börja om: radera hela den gamla planen först')}
       </label>
       <PlanGuide sessions={preview} runMode={runMode} />
     </Modal>

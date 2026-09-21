@@ -3,6 +3,8 @@ import type { RunMode, Session } from '../types'
 import { CYCLE, PHASES } from '../lib/generator'
 import { startOfWeek } from '../lib/dates'
 import { fmtHours } from '../lib/stats'
+import { getLang, tr } from '../i18n/core'
+import { rich } from '../i18n'
 
 const GROUPS: [string, (s: Session) => boolean][] = [
   ['Cykel', (s) => s.sport === 'Cykel'],
@@ -13,6 +15,7 @@ const GROUPS: [string, (s: Session) => boolean][] = [
   ['Styrka & rörlighet', (s) => s.sport === 'Styrka' || s.sport === 'Rörlighet'],
 ]
 
+const dec = (n: number) => n.toFixed(1).replace('.', getLang() === 'en' ? '.' : ',')
 const mins = (s: Session) => s.zones.reduce((a, b) => a + b, 0) + s.nonZone
 
 export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; runMode: RunMode }) {
@@ -39,38 +42,32 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
 
   return (
     <div className="guide">
-      <p>
-        Säsongens mål är <b>Gsieser Tal Lauf</b> (20 feb), <b>Vasaloppet</b> (7 mars), <b>Birkebeinerrennet</b> och{' '}
-        <b>Nordenskiöldsloppet</b> (båda 20 mars, så du behöver välja ett av dem). Planen går hela vägen till 20 mars och
-        bygger på hur längdskidelitens höst ser ut: mycket lugn träning som grund, få men välplanerade hårda pass, en riktig
-        vilodag varje vecka och en lättare vecka var fjärde. Uthållighet, långpass och matintag prioriteras, eftersom loppen
-        avgörs av hållbarhet mer än fart.
-      </p>
+      <p>{rich(tr('Säsongens mål är **Gsieser Tal Lauf** (20 feb), **Vasaloppet** (7 mars), **Birkebeinerrennet** och **Nordenskiöldsloppet** (båda 20 mars, så du behöver välja ett av dem). Planen går hela vägen till 20 mars och bygger på hur längdskidelitens höst ser ut: mycket lugn träning som grund, få men välplanerade hårda pass, en riktig vilodag varje vecka och en lättare vecka var fjärde. Uthållighet, långpass och matintag prioriteras, eftersom loppen avgörs av hållbarhet mer än fart.'))}</p>
 
       <div className="tiles">
         <div>
           <b>{fmtHours(st.perWeek)}</b>
-          <span>i snitt per vecka</span>
+          <span>{tr('i snitt per vecka')}</span>
         </div>
         <div>
           <b>{st.lowPct}%</b>
-          <span>av zontiden är lugn</span>
+          <span>{tr('av zontiden är lugn')}</span>
         </div>
         <div>
-          <b>{st.sessionsPerWeek.toFixed(1).replace('.', ',')}</b>
-          <span>pass per vecka</span>
+          <b>{dec(st.sessionsPerWeek)}</b>
+          <span>{tr('pass per vecka')}</span>
         </div>
         <div>
-          <b>{st.qualityPerWeek.toFixed(1).replace('.', ',')}</b>
-          <span>hårda pass per vecka</span>
+          <b>{dec(st.qualityPerWeek)}</b>
+          <span>{tr('hårda pass per vecka')}</span>
         </div>
       </div>
 
-      <h4>Vad du tränar</h4>
+      <h4>{tr('Vad du tränar')}</h4>
       <div className="sportbars">
         {st.bySport.map((g) => (
           <div key={g.label}>
-            <span>{g.label}</span>
+            <span>{tr(g.label)}</span>
             <div className="sb-track">
               <i style={{ width: `${(g.perWeek / st.maxSport) * 100}%` }} />
             </div>
@@ -79,71 +76,72 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
         ))}
       </div>
       <p className="muted small">
-        {runMode === 'none'
-          ? 'Ingen löpning. Allt löpande ersätts av cykel, rullskidor och stakmaskin för att skona knäna.'
-          : 'Ett lugnt löppass per vecka som omväxling. Resten är cykel, rullskidor och stakmaskin.'}{' '}
-        Stakmaskinen (Ercolina, på rullskidor) tar plats i veckorna som teknik, distans, intervaller och kraft. Zwift/Tacx används för
-        tröskel och VO₂max inomhus.
+        {tr(
+          runMode === 'none'
+            ? 'Ingen löpning. Allt löpande ersätts av cykel, rullskidor och stakmaskin för att skona knäna.'
+            : 'Ett lugnt löppass per vecka som omväxling. Resten är cykel, rullskidor och stakmaskin.',
+        )}{' '}
+        {tr('Stakmaskinen (Ercolina, på rullskidor) tar plats i veckorna som teknik, distans, intervaller och kraft. Zwift/Tacx används för tröskel och VO₂max inomhus.')}
       </p>
 
-      <h4>Faserna</h4>
+      <h4>{tr('Faserna')}</h4>
       <ol className="phases">
         {PHASES.map((p, i) => (
           <li key={p.id}>
             <span className="ph-n">{i + 1}</span>
             <div>
-              <strong>{p.label}</strong> <em>{p.span}</em>
-              <p>{p.text}</p>
+              <strong>{tr(p.label)}</strong> <em>{tr(p.span)}</em>
+              <p>{tr(p.text)}</p>
             </div>
           </li>
         ))}
       </ol>
 
-      <h4>Veckans rytm</h4>
+      <h4>{tr('Veckans rytm')}</h4>
       <ul className="rhythm">
         <li>
-          <b>Mån</b> Vilodag. Kroppen bygger upp det du tränade i helgen.
+          <b>{tr('Mån')}</b> {tr('Vilodag. Kroppen bygger upp det du tränade i helgen.')}
         </li>
         <li>
-          <b>Tis och lör</b> Kvalitet: tröskel, VO₂ eller stakmaskin. Kroppen ska vara utvilad.
+          <b>{tr('Tis och lör')}</b> {tr('Kvalitet: tröskel, VO₂ eller stakmaskin. Kroppen ska vara utvilad.')}
         </li>
         <li>
-          <b>Tor</b> Lättare kvalitet, tempo eller fartlek, och styrka för överkroppen. Släpps i vilovecka.
+          <b>{tr('Tor')}</b> {tr('Lättare kvalitet, tempo eller fartlek, och styrka för överkroppen. Släpps i vilovecka.')}
         </li>
         <li>
-          <b>Sön</b> Långpass, växelvis rullskidor och cykel.
+          <b>{tr('Sön')}</b> {tr('Långpass, växelvis rullskidor och cykel.')}
         </li>
         <li>
-          <b>Ons och fre</b> Lugn bas, styrka (gym eller hemma) och rörlighet.
+          <b>{tr('Ons och fre')}</b> {tr('Lugn bas, styrka (gym eller hemma) och rörlighet.')}
         </li>
       </ul>
 
-      <h4>Före och efter tävling</h4>
+      <h4>{tr('Före och efter tävling')}</h4>
       <ul className="rhythm">
         <li>
-          <b>6 dagar innan</b> Lugna pass och två korta skärpepass, styrkan pausas.
+          <b>{tr('6 dagar innan')}</b> {tr('Lugna pass och två korta skärpepass, styrkan pausas.')}
         </li>
         <li>
-          <b>Dagen innan</b> Vila. Sov, ät kolhydrater och förbered utrustningen.
+          <b>{tr('Dagen innan')}</b> {tr('Vila. Sov, ät kolhydrater och förbered utrustningen.')}
         </li>
         <li>
-          <b>Efter loppet</b> En vilodag och därefter lugn träning. Efter de långa loppen två vilodagar.
+          <b>{tr('Efter loppet')}</b> {tr('En vilodag och därefter lugn träning. Efter de långa loppen två vilodagar.')}
         </li>
       </ul>
 
-      <h4>Belastning över fyra veckor</h4>
+      <h4>{tr('Belastning över fyra veckor')}</h4>
       <div className="cycle">
         {CYCLE.map((c, i) => (
           <div key={i}>
             <div className="cy-bar">
               <i style={{ height: `${(c / 1.14) * 100}%` }} className={i === 3 ? 'rest' : ''} />
             </div>
-            <span>{i === 3 ? 'Vila' : `Vecka ${i + 1}`}</span>
+            <span>{i === 3 ? tr('Vila') : tr('Vecka {n}', { n: i + 1 })}</span>
             <b>{Math.round(c * 100)}%</b>
           </div>
         ))}
       </div>
-      <p className="muted small">Tre veckor med ökande volym och sedan en lättare vecka. Då tar kroppen upp träningseffekten.</p>
+      <p className="muted small">{tr('Tre veckor med ökande volym och sedan en lättare vecka. Då tar kroppen upp träningseffekten.')}</p>
     </div>
   )
 }

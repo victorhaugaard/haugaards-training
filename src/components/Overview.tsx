@@ -7,6 +7,7 @@ import { computeStats, fmtDuration, fmtHours, type Stats } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { Num } from './Num'
 import { ZoneBar } from './ZoneBar'
+import { tr } from '../i18n/core'
 
 interface Props {
   sessions: Session[]
@@ -28,9 +29,9 @@ function ZoneLegend({ st }: { st: Stats }) {
           <em>{total ? Math.round((z / total) * 100) + '%' : ''}</em>
         </div>
       ))}
-      <div title="Styrka och rörlighet">
-        <i style={{ background: 'var(--c-strength)' }} />
-        <span>Styrka</span>
+      <div title={tr('Styrka & rörlighet')}>
+        <i style={{ background: 'var(--c-nonzone)' }} />
+        <span>{tr('Styrka')}</span>
         <b>{st.nonZone ? fmtHours(st.nonZone) : '–'}</b>
         <em />
       </div>
@@ -68,7 +69,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
     }
   }, [sessions])
 
-  if (!sessions.length) return <p className="muted">Inga pass ännu. Generera en plan i menyn.</p>
+  if (!sessions.length) return <p className="muted">{tr('Inga pass ännu. Generera en plan i menyn.')}</p>
 
   const races = upcomingRaces(sessions)
   const nowWeek = startOfWeek(today())
@@ -81,16 +82,16 @@ export function Overview({ sessions, onOpenMonth }: Props) {
       <section className="ov-card total">
         <div className="ov-head">
           <div>
-            <div className="stat-label">Träningsperioden</div>
+            <div className="stat-label">{tr('Träningsperioden')}</div>
             <div className="ov-big">
               <Num value={all.total} format={fmtHours} />
             </div>
             <div className="stat-sub">
-              {all.count} pass · snitt {fmtHours(all.total / weekCount)} per vecka
+              {tr('{n} pass · snitt {h} per vecka', { n: all.count, h: fmtHours(all.total / weekCount) })}
             </div>
           </div>
           <div className="ov-done">
-            <div className="stat-label">Genomfört</div>
+            <div className="stat-label">{tr('Genomfört')}</div>
             <div className="ov-mid">
               <Num value={all.done} format={fmtHours} />
             </div>
@@ -104,15 +105,15 @@ export function Overview({ sessions, onOpenMonth }: Props) {
       </section>
 
       <section className="ov-card">
-        <div className="stat-label">Timmar per vecka</div>
+        <div className="stat-label">{tr('Timmar per vecka')}</div>
         <div className="weekchart">
           {weeks.map((w) => {
-            const parts: [number, string][] = [...w.st.zones.map((z, i) => [z, `var(--z${i + 1})`] as [number, string]), [w.st.nonZone, 'var(--c-strength)']]
+            const parts: [number, string][] = [...w.st.zones.map((z, i) => [z, `var(--z${i + 1})`] as [number, string]), [w.st.nonZone, 'var(--c-nonzone)']]
             return (
               <div
                 key={w.date}
                 className={'wk' + (w.date === nowWeek ? ' now' : '')}
-                title={`Vecka ${weekNumber(w.date)} · ${fmtDuration(w.st.total)}\n` + w.st.zones.map((z, i) => `${labels[i]} ${fmtDuration(z)}`).join(' · ')}
+                title={tr('Vecka {n} · {dur}', { n: weekNumber(w.date), dur: fmtDuration(w.st.total) }) + '\n' + w.st.zones.map((z, i) => `${labels[i]} ${fmtDuration(z)}`).join(' · ')}
               >
                 <div className="wk-bar" style={{ height: `${(w.st.total / weekMax) * 100}%` }}>
                   {parts.map(([v, c], i) => (v ? <span key={i} style={{ flex: v, background: c }} /> : null)).reverse()}
@@ -122,7 +123,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
             )
           })}
         </div>
-        <div className="stat-sub">Veckonummer längs x-axeln. Färgerna är intensitetszoner.</div>
+        <div className="stat-sub">{tr('Veckonummer längs x-axeln. Färgerna är intensitetszoner.')}</div>
       </section>
 
       <div className="months">
@@ -136,7 +137,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
                 <Num value={m.st.total} format={fmtHours} />
               </div>
               <div className="stat-sub">
-                {m.st.count} pass · {fmtHours(m.st.total / weeksIn)}/vecka
+                {tr('{n} pass · {h}/vecka', { n: m.st.count, h: fmtHours(m.st.total / weeksIn) })}
               </div>
               <ZoneBar zones={zones} nonZone={m.st.nonZone} />
               <ZoneLegend st={m.st} />
@@ -144,7 +145,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
                 <span style={{ width: `${m.st.total ? (m.st.done / m.st.total) * 100 : 0}%` }} />
               </div>
               <div className="stat-sub">
-                {fmtHours(m.st.done)} genomfört
+                {tr('{h} genomfört', { h: fmtHours(m.st.done) })}
               </div>
             </button>
           )

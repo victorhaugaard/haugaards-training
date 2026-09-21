@@ -3,6 +3,7 @@ import { useZones } from '../lib/zones'
 import { computeStats, fmtDuration, fmtHours } from '../lib/stats'
 import { Num } from './Num'
 import { Ring } from './Ring'
+import { tr } from '../i18n/core'
 
 export function StatsBar({ sessions, label }: { sessions: Session[]; label: string }) {
   const { labels, names } = useZones()
@@ -18,19 +19,19 @@ export function StatsBar({ sessions, label }: { sessions: Session[]; label: stri
         <div className="stat-big">
           <Num value={st.total} format={fmtHours} />
         </div>
-        <div className="stat-sub">{st.count} pass</div>
+        <div className="stat-sub">{tr('{n} pass', { n: st.count })}</div>
       </div>
       <div className="stat-block done-block">
         <Ring value={st.total ? st.done / st.total : 0} size={56} stroke={5}>
           <span>{pct}%</span>
         </Ring>
         <div>
-          <div className="stat-label">Genomfört</div>
+          <div className="stat-label">{tr('Genomfört')}</div>
           <div className="stat-big">
             <Num value={st.done} format={fmtHours} />
           </div>
           <div className="stat-sub">
-            {st.doneCount}/{st.count} pass
+            {tr('{a}/{b} pass', { a: st.doneCount, b: st.count })}
           </div>
         </div>
       </div>
@@ -45,11 +46,11 @@ export function StatsBar({ sessions, label }: { sessions: Session[]; label: stri
             <div className="zone-pct">{zoneTotal ? Math.round((z / zoneTotal) * 100) + '%' : ''}</div>
           </div>
         ))}
-        <div className="zone-col" title={`Styrka/rörlighet: ${fmtDuration(st.nonZone)}`}>
+        <div className="zone-col" title={tr('Styrka/rörlighet: {d}', { d: fmtDuration(st.nonZone) })}>
           <div className="zone-track">
-            <span style={{ height: `${(st.nonZone / max) * 100}%`, background: 'var(--c-strength)' }} />
+            <span style={{ height: `${(st.nonZone / max) * 100}%`, background: 'var(--c-nonzone)' }} />
           </div>
-          <div className="zone-name">Styrka</div>
+          <div className="zone-name">{tr('Styrka')}</div>
           <div className="zone-val">{st.nonZone ? fmtHours(st.nonZone) : '–'}</div>
           <div className="zone-pct" />
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { tr } from '../i18n/core'
 
 interface Props {
   title: string
@@ -23,7 +24,7 @@ export function Modal({ title, onClose, children, footer, wide, actions }: Props
           <h2>{title}</h2>
           <div className="modal-actions">
             {actions}
-            <button className="icon-btn" onClick={onClose} aria-label="Stäng">
+            <button className="icon-btn" onClick={onClose} aria-label={tr('Stäng')}>
               ✕
             </button>
           </div>
