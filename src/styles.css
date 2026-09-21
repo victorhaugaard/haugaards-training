@@ -4003,7 +4003,7 @@ body {
 .l-logo.small {
   height: 34px;
 }
-.l-copy {
+.l-copyright {
   grid-column: 1 / -1;
   margin: 8px 0 0;
   font-size: 12px;

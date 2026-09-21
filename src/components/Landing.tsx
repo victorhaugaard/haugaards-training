@@ -177,7 +177,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
           <a href="#/privacy">{tr('Integritetspolicy')}</a>
           <a href="#/terms">{tr('Användarvillkor')}</a>
         </div>
-        <p className="l-copy">{tr('© {year} {company}. Alla rättigheter förbehållna.', { year: new Date().getFullYear(), company: LEGAL.company })}</p>
+        <p className="l-copyright">{tr('© {year} {company}. Alla rättigheter förbehållna.', { year: new Date().getFullYear(), company: LEGAL.company })}</p>
       </footer>
     </div>
   )
