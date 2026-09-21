@@ -42,6 +42,7 @@ import { useFeed } from './lib/feed'
 import { findCheers, pickCheer } from './lib/cheers'
 import { StrengthBuilder, type StrengthValue } from './components/StrengthBuilder'
 import { sessionMinutes } from './lib/stats'
+import { TabBar } from './components/TabBar'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -533,6 +534,8 @@ function Workspace({
           </aside>
         )}
       </div>
+
+      <TabBar view={view} onChange={(v) => (v === 'profile' && view !== 'profile' && setBackView(view), setView(v))} />
 
       {editing && (
         <SessionModal

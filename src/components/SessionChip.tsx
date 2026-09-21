@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { Session } from '../types'
 import { CATEGORY_COLOR, cardById, fillZones } from '../lib/cards'
 import { useDrag } from '../lib/drag'
@@ -6,6 +7,7 @@ import { useZones } from '../lib/zones'
 import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
+import { TOUCH, useMedia } from '../lib/useMedia'
 
 interface Props {
   session: Session
@@ -19,6 +21,10 @@ interface Props {
 
 export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle, onContext }: Props) {
   const minutes = sessionMinutes(s)
+  const touch = useMedia(TOUCH)
+  const press = useRef<number>(0)
+  const pressed = useRef(false)
+  const cancelPress = () => window.clearTimeout(press.current)
   const { labels } = useZones()
   const { start, end } = useDrag()
   const card = cardById(s.cardId)
@@ -27,14 +33,34 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
     <div
       className={'chip' + (s.done ? ' done' : '') + (compact ? ' compact' : '')}
       style={{ '--cc': CATEGORY_COLOR[s.category] } as React.CSSProperties}
-      draggable
+      draggable={!touch}
+      onTouchStart={(e) => {
+        // Långtryck öppnar snabbmenyn på mobil
+        if (!onContext) return
+        pressed.current = false
+        const t = e.touches[0]
+        press.current = window.setTimeout(() => {
+          pressed.current = true
+          navigator.vibrate?.(12)
+          onContext(s, t.clientX, t.clientY)
+        }, 480)
+      }}
+      onTouchMove={cancelPress}
+      onTouchEnd={cancelPress}
+      onTouchCancel={cancelPress}
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'session', id: s.id }))
         e.dataTransfer.effectAllowed = 'move'
         start({ kind: 'session', id: s.id, h: e.currentTarget.offsetHeight })
       }}
       onDragEnd={end}
-      onClick={() => onOpen(s)}
+      onClick={() => {
+        if (pressed.current) {
+          pressed.current = false
+          return
+        }
+        onOpen(s)
+      }}
       onContextMenu={(e) => {
         if (!onContext) return
         e.preventDefault()

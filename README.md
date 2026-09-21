@@ -47,3 +47,12 @@ Funktionen kräver inloggning med Firebase och att kontot står i listan. Lokalt
 3. Om ditt projekt är äldre kan bucketen heta `<projekt>.appspot.com`. Sätt då `VITE_FIREBASE_STORAGE_BUCKET` i `.env.local` och i Vercel.
 
 Bilden beskärs till en kvadrat på 256 px och sparas som `avatars/<personId>.jpg`. Utan Firebase sparas den lokalt i webbläsaren.
+
+## Mobil och hemskärm
+
+Appen är anpassad för mobil (flikrad längst ner, dagar under varandra, bottenark för dialoger, långtryck på pass för snabbmenyn) och kan läggas på hemskärmen:
+
+- **iPhone (Safari):** Dela → *Lägg till på hemskärmen*.
+- **Android (Chrome):** menyn ⋮ → *Installera app* eller *Lägg till på startskärmen*.
+
+Ikoner och manifest ligger i `public/` (`manifest.webmanifest`, `icons/`, `apple-touch-icon.png`). Google-inloggning försöker först ett popup-fönster och går annars via omdirigering, vilket behövs på många mobiler.

@@ -5,6 +5,8 @@ import { useDrag } from '../lib/drag'
 import { fmtHours } from '../lib/stats'
 import { SessionChip } from './SessionChip'
 import { tr } from '../i18n/core'
+import { MOBILE, useMedia } from '../lib/useMedia'
+import { CATEGORY_COLOR } from '../lib/cards'
 
 interface Props {
   view: View
@@ -72,6 +74,7 @@ interface ColProps extends Props {
 
 function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, onContext, onAdd, onDropTo, onOpenDay }: ColProps) {
   const [hover, setHover] = useState(false)
+  const mobile = useMedia(MOBILE)
   const listRef = useRef<HTMLDivElement>(null)
   const { drag, over, setOver, end } = useDrag()
 
@@ -98,6 +101,20 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
     }
     return idx
   }
+
+  // Månadsvyn på mobil: bara datum och prickar, tryck öppnar dagen
+  if (compact && mobile)
+    return (
+      <button className={'col cell m-cell' + (isToday ? ' today' : '') + (muted ? ' muted' : '')} onClick={() => onOpenDay(date)} aria-label={dayMonth(date)}>
+        <span className="m-num">{parse(date).getDate()}</span>
+        <span className="m-dots">
+          {list.slice(0, 4).map((s) => (
+            <i key={s.id} className={s.done ? 'done' : ''} style={{ background: CATEGORY_COLOR[s.category] }} />
+          ))}
+        </span>
+        {total > 0 && <span className="m-hours">{fmtHours(total).replace(' h', '')}</span>}
+      </button>
+    )
 
   return (
     <div

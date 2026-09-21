@@ -21,6 +21,7 @@ interface Props {
 // Snabbmeny som visas vid högerklick på ett pass
 export function SessionMenu({ session: s, x, y, onClose, onOpen, onToggleDone, onSetTotal, onMove, onSwap, onDuplicate, onDelete }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  const openedAt = useRef(Date.now())
   const [pos, setPos] = useState({ x, y })
   const [picking, setPicking] = useState(false)
   const minutes = sessionMinutes(s)
@@ -39,17 +40,20 @@ export function SessionMenu({ session: s, x, y, onClose, onOpen, onToggleDone, o
 
   useEffect(() => {
     const close = (e: Event) => {
+      if (Date.now() - openedAt.current < 450) return // släppet efter ett långtryck ska inte stänga menyn
       if (e instanceof KeyboardEvent && e.key !== 'Escape') return
-      if (e instanceof MouseEvent && ref.current?.contains(e.target as Node)) return
+      if (e.type !== 'keydown' && ref.current?.contains(e.target as Node)) return
       onClose()
     }
     window.addEventListener('keydown', close)
     window.addEventListener('mousedown', close)
+    window.addEventListener('touchstart', close)
     window.addEventListener('scroll', onClose, true)
     window.addEventListener('resize', onClose)
     return () => {
       window.removeEventListener('keydown', close)
       window.removeEventListener('mousedown', close)
+      window.removeEventListener('touchstart', close)
       window.removeEventListener('scroll', onClose, true)
       window.removeEventListener('resize', onClose)
     }

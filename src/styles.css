@@ -3573,3 +3573,353 @@ button.col-title:hover,
   left: auto;
   right: 0;
 }
+
+/* ————— Mobil ————— */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabbar {
+  display: none;
+}
+@media (hover: none) {
+  .chip:hover,
+  .tcard:hover,
+  .month-card:hover,
+  .plan-card.clickable:hover {
+    transform: none;
+  }
+  .chip,
+  .tcard {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .app {
+    height: 100vh;
+    height: 100dvh;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* undviker att iOS zoomar in när man skriver */
+  }
+
+  /* topprad: person och meny överst, veckoväxling under */
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 8px;
+    gap: 6px 8px;
+  }
+  .people {
+    overflow-x: auto;
+    scrollbar-width: none;
+    min-width: 0;
+  }
+  .people::-webkit-scrollbar {
+    display: none;
+  }
+  .right .seg {
+    display: none;
+  }
+  .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    gap: 8px;
+  }
+  .pager {
+    flex: 1;
+    justify-content: space-between;
+  }
+  .nav-title {
+    min-width: 0;
+    flex: 1;
+  }
+  .nav-title strong {
+    font-size: 15px;
+  }
+  .nav-title span {
+    font-size: 11px;
+  }
+  .pager-arrow {
+    width: 38px;
+    height: 38px;
+  }
+  .today-btn {
+    padding: 8px 14px;
+  }
+
+  .stats {
+    padding: 12px;
+    gap: 16px;
+  }
+  .stat-big {
+    font-size: 22px;
+  }
+  .zones {
+    gap: 6px;
+  }
+  .zone-col {
+    width: 40px;
+  }
+
+  .main {
+    padding: 10px 12px calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+  .side,
+  .side-tab {
+    display: none;
+  }
+
+  /* vecka: dagarna under varandra, månad: rutnät med prickar */
+  .board.week {
+    grid-template-columns: 1fr;
+  }
+  .month-wrap {
+    min-width: 0;
+  }
+  .month-head {
+    grid-template-columns: repeat(7, 1fr);
+    min-width: 0;
+    padding: 0 0 6px;
+    text-align: center;
+  }
+  .board.month {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .col.cell.m-cell {
+    min-height: 60px;
+    padding: 6px 2px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    border-radius: 10px;
+    color: var(--text);
+    font: inherit;
+  }
+  .m-num {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+  }
+  .m-cell.today .m-num {
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .m-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+    max-width: 30px;
+  }
+  .m-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .m-dots i.done {
+    opacity: 0.4;
+  }
+  .m-hours {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .add {
+    padding: 10px 6px;
+  }
+
+  /* flikrad längst ner */
+  .tabbar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 7;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: rgba(6, 9, 18, 0.86);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid var(--border);
+  }
+  .tabbar button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 6px 0;
+    font-size: 10px;
+    font-weight: 500;
+    border-radius: 12px;
+  }
+  .tabbar svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tabbar button.on {
+    color: var(--text);
+  }
+  .tabbar button.on svg {
+    stroke: var(--accent);
+  }
+  :root[data-theme='mono'] .tabbar button.on svg {
+    stroke: var(--text);
+  }
+
+  /* coachen: liten knapp ovanför flikraden, helskärm när den är öppen */
+  .coach {
+    left: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+  .coach-launcher.open {
+    display: none;
+  }
+  .coach-panel {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-height: none;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgb(8, 12, 24);
+  }
+  .coach-picker {
+    top: calc(64px + env(safe-area-inset-top, 0px));
+  }
+
+  /* dialoger som bottenark */
+  .overlay {
+    place-items: end center;
+    padding: 0;
+  }
+  .modal,
+  .modal.wide {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: 22px 22px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation: sheetUp 0.45s var(--spring);
+  }
+  .modal-foot {
+    flex-wrap: wrap;
+  }
+  .row {
+    flex-wrap: wrap;
+  }
+  .ex-list {
+    max-height: 260px;
+  }
+  .sc-zone {
+    grid-template-columns: 8px 96px 1fr 60px;
+  }
+  .toast {
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100vw - 24px);
+  }
+  .notice {
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+  .ctx {
+    min-width: 220px;
+  }
+
+  /* översikt och profil */
+  .overview,
+  .profile {
+    gap: 12px;
+  }
+  .weekchart {
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .wk {
+    min-width: 14px;
+  }
+  .ov-head {
+    gap: 12px;
+  }
+  .ov-big {
+    font-size: 32px;
+  }
+  .racestrip .race {
+    flex-basis: 150px;
+  }
+  .pf-row {
+    grid-template-columns: 52px 20px 1fr auto;
+  }
+  .pf-plan {
+    display: none;
+  }
+  .plan-card {
+    gap: 12px;
+  }
+
+  /* välkomst och landningssida */
+  .welcome {
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 12px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  }
+  .landing {
+    padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  }
+  .l-nav {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+    gap: 10px 12px;
+  }
+  .l-logo {
+    height: 44px;
+  }
+  .l-races {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .l-hero {
+    min-height: 0;
+    padding-top: 8px;
+  }
+  .l-cta {
+    width: 100%;
+    justify-content: center;
+  }
+  .l-chatwin .l-chat {
+    min-height: 0;
+  }
+  .l-coach-main {
+    flex-direction: column;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+}
