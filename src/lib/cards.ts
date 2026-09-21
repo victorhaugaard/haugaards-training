@@ -261,10 +261,10 @@ export type ZoneSystem = 'no' | 'us'
 
 // Data lagras alltid i fem nivåer (lugn → max). Systemet styr bara namnen.
 // Norska (Olympiatoppen): I1 lugn, I2 distans, I3 tempo, I4 tröskel, I5 max.
-// Engelska/amerikanska: I1 ≈ Z2 (lugn jogg), I2 ≈ övre Z2, I3 ≈ Z3, I4 ≈ Z4, I5 ≈ Z5.
+// Engelska (pulsbaserade, som Garmin/Polar): I1 = Z2 (lugn jogg), I2 = Z3, I3 = Z4, I4 = Z4+, I5 = Z5.
 export const ZONE_SYSTEMS: Record<ZoneSystem, { title: string; labels: string[]; names: string[] }> = {
   no: { title: 'Norska I1–I5', labels: ['I1', 'I2', 'I3', 'I4', 'I5'], names: ['Lugn', 'Distans', 'Tempo', 'Tröskel', 'Max'] },
-  us: { title: 'Engelska Z1–Z5', labels: ['Z2', 'Z2+', 'Z3', 'Z4', 'Z5'], names: ['Lugn jogg', 'Steady', 'Tempo', 'Tröskel', 'VO₂max'] },
+  us: { title: 'Engelska Z2–Z5', labels: ['Z2', 'Z3', 'Z4', 'Z4+', 'Z5'], names: ['Lugn jogg', 'Aerob', 'Tempo', 'Tröskel', 'VO₂max'] },
 }
 
 export const fillZones = (text: string, labels: string[]) => text.replace(/\{z([1-5])\}/g, (_, n) => labels[+n - 1])

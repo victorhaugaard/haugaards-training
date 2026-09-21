@@ -55,6 +55,14 @@ function Text({ text }: { text: string }) {
     <>
       {text.split(/\n{2,}/).map((para, i) => {
         const lines = para.split('\n')
+        if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l)))
+          return (
+            <ol key={i}>
+              {lines.map((l, j) => (
+                <li key={j}>{rich(l.replace(/^\s*\d+[.)]\s+/, ''))}</li>
+              ))}
+            </ol>
+          )
         if (lines.every((l) => /^\s*[-•]\s+/.test(l)))
           return (
             <ul key={i}>
@@ -197,7 +205,7 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
           </header>
 
           <div className="coach-msgs" ref={scroller}>
-            <div className="coach-msg coach">
+            <div className="coach-msg from-coach">
               <Text text={tr('Hej, jag är Coach Smirnov. Fråga mig om träningen, eller be mig ändra planen: flytta pass, lägga till, ta bort eller öka mängden. Vid sjukdom eller skada hjälper jag dig att anpassa den.')} />
             </div>
             {ui.length === 0 && (
@@ -210,7 +218,7 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
               </div>
             )}
             {ui.map((m) => (
-              <div key={m.id} className={'coach-msg ' + m.role}>
+              <div key={m.id} className={'coach-msg ' + (m.role === 'coach' ? 'from-coach' : m.role)}>
                 <Text text={m.text} />
                 {m.actions && m.actions.length > 0 && (
                   <ul className="coach-actions">
@@ -227,7 +235,7 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
               </div>
             ))}
             {busy && (
-              <div className="coach-msg coach typing" aria-label={tr('Coach Smirnov skriver')}>
+              <div className="coach-msg from-coach typing" aria-label={tr('Coach Smirnov skriver')}>
                 <i />
                 <i />
                 <i />

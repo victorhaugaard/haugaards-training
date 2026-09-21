@@ -389,7 +389,7 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, pl
         <span className="hint">
           {zones.system === 'no'
             ? tr('Norska Olympiatoppen-skalan: I1 lugn, I2 distans, I3 tempo, I4 tröskel, I5 max.')
-            : tr('Engelska: Z2 = lugn jogg, Z2+ = övre aerob/steady, sedan Z3 tempo, Z4 tröskel, Z5 VO₂max.')}
+            : tr('Engelska (puls, som Garmin/Polar): Z2 = lugn jogg, Z3 = aerob, Z4 = tempo, Z4+ = tröskel, Z5 = max. I3 och I4 ligger båda i Z4.')}
         </span>
       </div>
       <div className="field">

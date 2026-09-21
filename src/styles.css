@@ -1995,14 +1995,19 @@ button.col-title:hover,
   margin: 0 0 6px;
 }
 .coach-msg p:last-child,
-.coach-msg ul:last-child {
+.coach-msg ul:last-child,
+.coach-msg ol:last-child {
   margin-bottom: 0;
 }
-.coach-msg ul {
+.coach-msg ul,
+.coach-msg ol {
   margin: 0 0 6px;
-  padding-left: 18px;
+  padding-left: 20px;
 }
-.coach-msg.coach {
+.coach-msg p {
+  white-space: pre-line;
+}
+.coach-msg.from-coach {
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.07);
   border-bottom-left-radius: 5px;

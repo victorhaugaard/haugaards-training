@@ -38,9 +38,9 @@ export const UI: [string, string, string][] = [
   ['Intensitetszoner', 'Intensitetssoner', 'Intensity zones'],
   ['Språk', 'Språk', 'Language'],
   ['Norska Olympiatoppen-skalan: I1 lugn, I2 distans, I3 tempo, I4 tröskel, I5 max.', 'Olympiatoppens skala: I1 rolig, I2 distanse, I3 tempo, I4 terskel, I5 maks.', 'Norwegian Olympiatoppen scale: I1 easy, I2 endurance, I3 tempo, I4 threshold, I5 max.'],
-  ['Engelska: Z2 = lugn jogg, Z2+ = övre aerob/steady, sedan Z3 tempo, Z4 tröskel, Z5 VO₂max.', 'Engelsk: Z2 = rolig jogg, Z2+ = øvre aerob/steady, deretter Z3 tempo, Z4 terskel, Z5 VO₂maks.', 'English: Z2 = easy jog, Z2+ = upper aerobic/steady, then Z3 tempo, Z4 threshold, Z5 VO₂max.'],
+  ['Engelska (puls, som Garmin/Polar): Z2 = lugn jogg, Z3 = aerob, Z4 = tempo, Z4+ = tröskel, Z5 = max. I3 och I4 ligger båda i Z4.', 'Engelsk (puls, som Garmin/Polar): Z2 = rolig jogg, Z3 = aerob, Z4 = tempo, Z4+ = terskel, Z5 = maks. I3 og I4 ligger begge i Z4.', 'English (heart rate, like Garmin/Polar): Z2 = easy jog, Z3 = aerobic, Z4 = tempo, Z4+ = threshold, Z5 = max. I3 and I4 both fall in Z4.'],
   ['Norska I1–I5', 'Norske I1–I5', 'Norwegian I1–I5'],
-  ['Engelska Z1–Z5', 'Engelske Z1–Z5', 'English Z1–Z5'],
+  ['Engelska Z2–Z5', 'Engelske Z2–Z5', 'English Z2–Z5'],
   ['Pappa', 'Pappa', 'Dad'],
 
   // ——— Zoner ———
@@ -50,7 +50,7 @@ export const UI: [string, string, string][] = [
   ['Tröskel', 'Terskel', 'Threshold'],
   ['Max', 'Maks', 'Max'],
   ['Lugn jogg', 'Rolig jogg', 'Easy jog'],
-  ['Steady', 'Steady', 'Steady'],
+  ['Aerob', 'Aerob', 'Aerobic'],
   ['VO₂max', 'VO₂maks', 'VO₂max'],
 
   // ——— Idrotter och grupper ———
