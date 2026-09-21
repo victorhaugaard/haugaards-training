@@ -24,6 +24,9 @@ const detect = (): Lang => {
 
 // Standardspråk för vissa konton, används om man inte själv valt språk
 export const DEFAULT_LANG_BY_EMAIL: Record<string, Lang> = { 'ohaug01@gmail.com': 'no' }
+
+// Konton som får en välkomstskärm första gången de loggar in
+export const WELCOME_NAME_BY_EMAIL: Record<string, string> = { 'ohaug01@gmail.com': 'Oivind' }
 export const hasSavedLang = () => {
   try {
     return localStorage.getItem(KEY) !== null

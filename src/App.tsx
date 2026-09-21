@@ -22,7 +22,7 @@ import { PickerModal } from './components/PickerModal'
 import { PersonModal, type NewPerson } from './components/PersonModal'
 import { GenerateModal } from './components/GenerateModal'
 import { Modal } from './components/Modal'
-import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
+import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, WELCOME_NAME_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
 import { useLang } from './i18n'
 import { useTheme } from './lib/theme'
 import { CoachChat } from './components/CoachChat'
@@ -31,6 +31,7 @@ import { ProfileView } from './components/ProfileView'
 import { SessionMenu } from './components/SessionMenu'
 import { Toast, type ToastData } from './components/Toast'
 import { withTotal } from './lib/sessionOps'
+import { Welcome } from './components/Welcome'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -144,6 +145,29 @@ function Workspace({
   const [swapId, setSwapId] = useState<string | null>(null)
   const [toast, setToast] = useState<ToastData | null>(null)
 
+  // Välkomstskärm första gången vissa konton loggar in
+  const email = auth.user?.email?.toLowerCase()
+  const welcomeName = email ? WELCOME_NAME_BY_EMAIL[email] : undefined
+  const welcomeKey = 'haugaards-training:welcomed:' + email
+  const [welcome, setWelcome] = useState(() => {
+    if (!welcomeName) return false
+    try {
+      return !localStorage.getItem(welcomeKey)
+    } catch {
+      return true
+    }
+  })
+  const [nudge, setNudge] = useState(false)
+  const [newName, setNewName] = useState<string | undefined>()
+  const closeWelcome = () => {
+    try {
+      localStorage.setItem(welcomeKey, '1')
+    } catch {
+      /* ignorera */
+    }
+    setWelcome(false)
+  }
+
   const mine = useMemo(() => state.sessions.filter((s) => s.personId === person.id), [state.sessions, person.id])
   const editing = mine.find((s) => s.id === editId)
 
@@ -200,15 +224,15 @@ function Workspace({
     let sessions: Session[] = []
     if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
     if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: PLAN_END, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay })
+      sessions = generatePlan({ personId: id, start: n.start, end: n.end, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay })
     const first = sessions.map((s) => s.date).sort()[0] ?? startOfWeek(today())
     dispatch({
       type: 'addPerson',
       person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay },
       sessions,
       plan: {
-        start: n.mode === 'copy' ? first : startOfWeek(today()),
-        end: PLAN_END,
+        start: n.mode === 'copy' ? first : n.start,
+        end: n.mode === 'copy' ? PLAN_END : n.end,
         runMode: n.runMode,
         restDay: n.restDay,
         source: n.mode === 'copy' ? 'copied' : 'generated',
@@ -257,7 +281,7 @@ function Workspace({
               {p.name}
             </button>
           ))}
-          <button className="pill ghost" onClick={() => setDialog('person')} aria-label={tr('Lägg till person')}>
+          <button className={'pill ghost' + (nudge ? ' pulse' : '')} onClick={() => (setNudge(false), setDialog('person'))} aria-label={tr('Lägg till person')}>
             +
           </button>
         </div>
@@ -370,6 +394,13 @@ function Workspace({
           onPick={(card, _date, location) => dispatch({ type: 'replaceWithCard', id: swapSession.id, card, location })}
         />
       )}
+      {welcome && welcomeName && (
+        <Welcome
+          name={welcomeName}
+          onCreate={() => (closeWelcome(), setNewName(welcomeName), setDialog('person'))}
+          onLookAround={() => (closeWelcome(), setNudge(true))}
+        />
+      )}
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       {pickDate && (
         <PickerModal
@@ -379,7 +410,7 @@ function Workspace({
         />
       )}
       {dialog === 'person' && (
-        <PersonModal people={state.people} activeId={person.id} onCreate={createPerson} onClose={() => setDialog(null)} />
+        <PersonModal people={state.people} activeId={person.id} initialName={newName} onCreate={createPerson} onClose={() => (setDialog(null), setNewName(undefined))} />
       )}
       {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} initialRestDay={person.restDay ?? 0} onGenerate={regenerate} onClose={() => setDialog(null)} />}
       {dialog === 'guide' && (

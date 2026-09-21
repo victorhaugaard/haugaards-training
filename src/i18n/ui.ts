@@ -302,4 +302,15 @@ export const UI: [string, string, string][] = [
   ['Byt mot annat pass…', 'Bytt mot annen økt…', 'Swap for another session…'],
   ['Byt mot annat pass', 'Bytt mot annen økt', 'Swap for another session'],
   ['Byt ut passet', 'Bytt ut økten', 'Replace the session'],
+  // ——— Välkomstskärm ———
+  ['Välkommen, {name}!', 'Velkommen, {name}!', 'Welcome, {name}!'],
+  ['Det här är Haugaards träningsplan. Här planerar du träningen fram till loppen, checkar av passen och ser hur du ligger till. Victor har redan en plan, men du behöver en egen.', 'Dette er Haugaards treningsplan. Her planlegger du treningen frem mot konkurransene, krysser av øktene og ser hvordan du ligger an. Victor har allerede en plan, men du trenger din egen.', "This is the Haugaard training plan. Here you plan your training up to the races, tick off your sessions and see how you are doing. Victor already has a plan, but you need one of your own."],
+  ['Lägg till en ny person', 'Legg til en ny person', 'Add a new person'],
+  ['Tryck på + uppe i vänstra hörnet och skriv ditt namn.', 'Trykk på + øverst i venstre hjørne og skriv navnet ditt.', 'Tap the + in the top left corner and enter your name.'],
+  ['Välj startplan', 'Velg startplan', 'Choose a starting plan'],
+  ['Autogenerera en plan efter dina timmar och din vilodag, eller basera den på Victors.', 'Autogenerer en plan etter timene dine og hviledagen din, eller basér den på Victors.', "Auto-generate a plan from your hours and your rest day, or base it on Victor's."],
+  ['Finjustera med Coach Smirnov', 'Finjuster med Coach Smirnov', 'Fine-tune with Coach Smirnov'],
+  ['Nere till vänster kan du be honom flytta pass, anpassa planen vid sjukdom eller skada och mycket mer.', 'Nederst til venstre kan du be ham flytte økter, tilpasse planen ved sykdom eller skade og mye mer.', 'At the bottom left you can ask him to move sessions, adapt the plan when you are ill or injured and much more.'],
+  ['Skapa min plan', 'Lag min plan', 'Create my plan'],
+  ['Titta runt först', 'Se deg litt rundt først', 'Look around first'],
 ]

@@ -1,30 +1,43 @@
 import { useState } from 'react'
 import type { Person, RunMode } from '../types'
+import { startOfWeek, today } from '../lib/dates'
+import { PLAN_END } from '../lib/generator'
+import { GenerateForm, type GenValue } from './GenerateForm'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
 import { tr } from '../i18n/core'
-import { RestDayField } from './RestDayField'
 
-export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number; runMode: RunMode; restDay: number }
+export type NewPerson = {
+  name: string
+  mode: 'copy' | 'generate' | 'empty'
+  basedOn: string
+  scale: number
+  hours: number
+  runMode: RunMode
+  restDay: number
+  start: string
+  end: string
+}
 
 interface Props {
   people: Person[]
   activeId: string
+  initialName?: string
   onCreate: (p: NewPerson) => void
   onClose: () => void
 }
 
-export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
-  const [name, setName] = useState(tr('Pappa'))
-  const [mode, setMode] = useState<NewPerson['mode']>('copy')
+export function PersonModal({ people, activeId, initialName, onCreate, onClose }: Props) {
+  const [name, setName] = useState(initialName ?? tr('Pappa'))
+  const [mode, setMode] = useState<NewPerson['mode']>(initialName ? 'generate' : 'copy')
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
-  const [hours, setHours] = useState(10)
-  const [runMode, setRunMode] = useState<RunMode>('none')
-  const [restDay, setRestDay] = useState(0)
+  // Skonsamt som förval för nya personer
+  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, fresh: false })
 
   return (
     <Modal
+      wide={mode === 'generate'}
       title={tr('Lägg till person')}
       onClose={onClose}
       footer={
@@ -33,7 +46,9 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           <button
             className="btn primary"
             disabled={!name.trim()}
-            onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours, runMode, restDay }), onClose())}
+            onClick={() =>
+              (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, start: gen.start, end: gen.end }), onClose())
+            }
           >
             {tr('Skapa')}
           </button>
@@ -56,21 +71,19 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           ]}
         />
       </div>
-      {mode !== 'empty' && (
-        <div className="field">
-          <span>{tr('Löpning')}</span>
-          <Segmented
-            value={runMode}
-            onChange={setRunMode}
-            options={[
-              ['none', tr('Ingen (skonsamt)')],
-              ['little', tr('Lite då och då')],
-            ]}
-          />
-        </div>
-      )}
       {mode === 'copy' && (
         <>
+          <div className="field">
+            <span>{tr('Löpning')}</span>
+            <Segmented
+              value={gen.runMode}
+              onChange={(runMode) => setGen((g) => ({ ...g, runMode }))}
+              options={[
+                ['none', tr('Ingen (skonsamt)')],
+                ['little', tr('Lite då och då')],
+              ]}
+            />
+          </div>
           <label className="field">
             <span>{tr('Baserad på')}</span>
             <select value={basedOn} onChange={(e) => setBasedOn(e.target.value)}>
@@ -87,13 +100,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           </label>
         </>
       )}
-      {mode === 'generate' && <RestDayField value={restDay} onChange={setRestDay} />}
-      {mode === 'generate' && (
-        <label className="field">
-          <span>{tr('Timmar per vecka i snitt: {h} h', { h: hours })}</span>
-          <input type="range" min={4} max={15} step={0.5} value={hours} onChange={(e) => setHours(+e.target.value)} />
-        </label>
-      )}
+      {mode === 'generate' && <GenerateForm value={gen} onChange={(p) => setGen((g) => ({ ...g, ...p }))} />}
     </Modal>
   )
 }
