@@ -44,7 +44,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
   const { months, weeks, all, weekMax } = useMemo(() => {
     const byMonth = new Map<string, Session[]>()
     const byWeek = new Map<string, Session[]>()
-    const training = sessions.filter((s) => !s.raceId && s.category !== 'race')
+    const training = sessions.filter((s) => s.category !== 'race')
     for (const s of sessions) {
       const m = byMonth.get(monthKey(s.date)) ?? []
       m.push(s)

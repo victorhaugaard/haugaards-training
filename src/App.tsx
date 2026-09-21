@@ -11,7 +11,7 @@ import type { GenerateChoice } from './components/GenerateModal'
 import { Overview } from './components/Overview'
 import { addDays, addMonths, cap, dayMonth, fullDate, iso, monthYear, parse, startOfWeek, today, weekNumber } from './lib/dates'
 import { cardById } from './lib/cards'
-import { copyPlan, generatePlan, phaseFor, PHASE_LABEL } from './lib/generator'
+import { PLAN_END, copyPlan, generatePlan, phaseFor, PHASE_LABEL } from './lib/generator'
 import { uid } from './lib/id'
 import { Board } from './components/Board'
 import { CardLibrary } from './components/CardLibrary'
@@ -167,7 +167,7 @@ function Workspace({
     let sessions: Session[] = []
     if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
     if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: '2026-12-31', hoursPerWeek: n.hours, runMode: n.runMode })
+      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: PLAN_END, hoursPerWeek: n.hours, runMode: n.runMode })
     dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode }, sessions })
   }
 

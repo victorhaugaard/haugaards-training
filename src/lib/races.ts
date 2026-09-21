@@ -10,7 +10,8 @@ export interface RaceDef {
   place: string
   note: string
   zones: Zones // förslag på minuter per zon, justera efter din måltid
-  long?: boolean // längre nedtrappning och återhämtning
+  long?: boolean // längre lopp: två vilodagar efter
+  taper: 'full' | 'mini' // full för säsongens huvudmål, mini för övriga
 }
 
 // La Sgambeda finns inte med: arrangören har meddelat att loppet läggs ner efter 35 upplagor.
@@ -24,6 +25,7 @@ export const RACES: RaceDef[] = [
     place: 'Gsiesertal, Sydtyrolen',
     note: 'Klassiskt på lördagen, fristil på söndagen. Flytta passet till söndagen om du kör fristil.',
     zones: [20, 10, 30, 70, 10],
+    taper: 'mini',
   },
   {
     id: 'vasaloppet',
@@ -35,6 +37,7 @@ export const RACES: RaceDef[] = [
     note: 'Klassiskt. Justera minuterna efter din måltid.',
     zones: [30, 120, 150, 60, 0],
     long: true,
+    taper: 'mini',
   },
   {
     id: 'birken',
@@ -45,6 +48,7 @@ export const RACES: RaceDef[] = [
     place: 'Rena–Lillehammer',
     note: 'Klassiskt. Går samma dag som Nordenskiöldsloppet, så du behöver välja ett av dem.',
     zones: [25, 45, 80, 60, 0],
+    taper: 'mini',
   },
   {
     id: 'nordenskiold',
@@ -56,6 +60,7 @@ export const RACES: RaceDef[] = [
     note: 'Går samma dag som Birkebeinerrennet, så du behöver välja ett av dem. Justera minuterna efter din måltid.',
     zones: [540, 120, 0, 0, 0],
     long: true,
+    taper: 'full',
   },
 ]
 

@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react'
 import { collection, doc, onSnapshot, writeBatch } from 'firebase/firestore'
 import type { AppState, Person, Session, TrainingCard } from './types'
 import { db } from './firebase'
-import { generatePlan } from './lib/generator'
+import { PLAN_END, generatePlan } from './lib/generator'
 import { uid } from './lib/id'
 
 const KEY = 'haugaards-training:v1'
@@ -28,7 +28,7 @@ const initial = (): AppState => {
   return {
     people: [me],
     activePersonId: me.id,
-    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: '2026-12-31', hoursPerWeek: 12, runMode: 'little' }),
+    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: PLAN_END, hoursPerWeek: 12, runMode: 'little' }),
   }
 }
 

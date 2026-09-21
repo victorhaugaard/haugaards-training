@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { RunMode } from '../types'
 import { addDays, startOfWeek, today } from '../lib/dates'
-import { generatePlan } from '../lib/generator'
+import { PLAN_END, generatePlan } from '../lib/generator'
 import { Modal } from './Modal'
 import { PlanGuide } from './PlanGuide'
 import { Segmented } from './Segmented'
@@ -22,7 +22,7 @@ interface Props {
 
 export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Props) {
   const [start, setStart] = useState(startOfWeek(today()))
-  const [end, setEnd] = useState('2026-12-31')
+  const [end, setEnd] = useState(PLAN_END)
   const [hours, setHours] = useState(12)
   const [runMode, setRunMode] = useState<RunMode>(initialRunMode)
 

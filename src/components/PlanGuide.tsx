@@ -16,7 +16,7 @@ const GROUPS: [string, (s: Session) => boolean][] = [
 const mins = (s: Session) => s.zones.reduce((a, b) => a + b, 0) + s.nonZone
 
 export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; runMode: RunMode }) {
-  const sessions = useMemo(() => all.filter((s) => !s.raceId && s.category !== 'race' && s.category !== 'rest'), [all])
+  const sessions = useMemo(() => all.filter((s) => s.category !== 'race' && s.category !== 'rest'), [all])
   const st = useMemo(() => {
     const weeks = Math.max(1, new Set(sessions.map((s) => startOfWeek(s.date))).size)
     const total = sessions.reduce((a, s) => a + mins(s), 0)
@@ -41,7 +41,7 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
     <div className="guide">
       <p>
         Säsongens mål är <b>Gsieser Tal Lauf</b> (20 feb), <b>Vasaloppet</b> (7 mars), <b>Birkebeinerrennet</b> och{' '}
-        <b>Nordenskiöldsloppet</b> (båda 20 mars, så du behöver välja ett av dem). Planen här är den första etappen, till nyår, och
+        <b>Nordenskiöldsloppet</b> (båda 20 mars, så du behöver välja ett av dem). Planen går hela vägen till 20 mars och
         bygger på hur längdskidelitens höst ser ut: mycket lugn träning som grund, få men välplanerade hårda pass, en riktig
         vilodag varje vecka och en lättare vecka var fjärde. Uthållighet, långpass och matintag prioriteras, eftersom loppen
         avgörs av hållbarhet mer än fart.

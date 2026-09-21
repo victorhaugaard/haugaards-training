@@ -5,7 +5,9 @@ import { addDays, parse, startOfWeek } from './dates'
 import { uid } from './id'
 import { sessionMinutes } from './stats'
 
-export type Phase = 'base' | 'build' | 'specific' | 'sharpen'
+export const PLAN_END = '2027-03-20'
+
+export type Phase = 'base' | 'build' | 'specific' | 'sharpen' | 'winter' | 'season'
 
 export const PHASES: { id: Phase; label: string; span: string; text: string }[] = [
   {
@@ -29,8 +31,20 @@ export const PHASES: { id: Phase; label: string; span: string; text: string }[] 
   {
     id: 'sharpen',
     label: 'Säsongsstart',
-    span: '14 dec – nyår',
-    text: 'Lite lägre volym, mer skärpa. Kvalitetspassen finns kvar och du går in i januari utvilad. Därefter tar nästa etapp mot loppet vid.',
+    span: '14 dec – 31 dec',
+    text: 'Lite lägre volym och mer skärpa. Kvalitetspassen finns kvar och du går in i januari utvilad.',
+  },
+  {
+    id: 'winter',
+    label: 'Vinterblock',
+    span: '1 jan – 7 feb',
+    text: 'Årets största volym på snö, tre veckor upp och en ner. Långpassen är veckans viktigaste och här övar du matintaget. Kvalitet: tröskel, fartlek och korta intervaller.',
+  },
+  {
+    id: 'season',
+    label: 'Tävlingssäsong',
+    span: '8 feb – 20 mars',
+    text: 'Loppen varvas med återhämtning. Före varje lopp trappar du ner, efter varje lopp vilar du. Mellan loppen håller du formen med kvalitet och lugna pass. Nordenskiöldsloppet är huvudmålet.',
   },
 ]
 
@@ -86,6 +100,32 @@ const TEMPLATES: Record<Phase, Slot[]> = {
     { day: 5, card: 'int-short', sport: 'Skidor' },
     { day: 6, card: 'ski-long', w: 2 },
   ],
+  winter: [
+    { day: 0, card: 'rest' },
+    { day: 1, card: 'int-4x8', sport: 'Skidor' },
+    { day: 1, card: 'ski-easy', w: 0.6 },
+    { day: 2, card: 'ski-easy', w: 1.1 },
+    { day: 2, card: 'strength' },
+    { day: 3, card: 'fartlek', sport: 'Skidor', drop: true },
+    { day: 3, card: 'ski-easy', w: 0.6 },
+    { day: 4, card: 'ski-easy', odd: 'erg-long', w: 0.9 },
+    { day: 4, card: 'mobility' },
+    { day: 5, card: 'int-short', sport: 'Skidor' },
+    { day: 6, card: 'ski-long', w: 2.2 },
+  ],
+  season: [
+    { day: 0, card: 'rest' },
+    { day: 1, card: 'int-4x8', sport: 'Skidor' },
+    { day: 1, card: 'ski-easy', w: 0.6 },
+    { day: 2, card: 'ski-easy', w: 1.1 },
+    { day: 2, card: 'strength' },
+    { day: 3, card: 'fartlek', sport: 'Skidor', drop: true },
+    { day: 3, card: 'ski-easy', w: 0.6 },
+    { day: 4, card: 'ski-easy', w: 0.8 },
+    { day: 4, card: 'mobility' },
+    { day: 5, card: 'int-short', sport: 'Skidor', drop: true },
+    { day: 6, card: 'ski-long', w: 1.8 },
+  ],
   sharpen: [
     { day: 0, card: 'rest' },
     { day: 1, card: 'int-4x8', sport: 'Skidor' },
@@ -112,7 +152,7 @@ const LOW_IMPACT: Record<string, string> = {
   'int-hill': 'int-rs',
 }
 
-const PHASE_VOLUME: Record<Phase, number> = { base: 0.97, build: 1.03, specific: 1.0, sharpen: 0.9 }
+const PHASE_VOLUME: Record<Phase, number> = { base: 0.97, build: 1.03, specific: 1.0, sharpen: 0.9, winter: 1.05, season: 0.95 }
 // 3 veckor upp, 1 vecka ned
 export const CYCLE = [0.98, 1.08, 1.14, 0.75]
 
@@ -123,7 +163,9 @@ export const phaseFor = (date: string): Phase => {
   if (k < 1019) return 'base'
   if (k < 1116) return 'build'
   if (k < 1214) return 'specific'
-  return 'sharpen'
+  if (k < 1301) return 'sharpen'
+  if (k < 1408) return 'winter'
+  return 'season'
 }
 
 const round5 = (n: number) => Math.round(n / 5) * 5
@@ -142,6 +184,12 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: Ge
   let weekStart = startOfWeek(start)
   let w = 0
 
+  // Tävlingar och nedtrappning styr sina dagar. Efter ett lopp tas kvalitetspassen bort en stund.
+  const races = raceSessions(personId, start, end)
+  const blocked = new Set(races.map((r) => r.date))
+  const recovering = new Set<string>()
+  for (const r of RACES) for (let i = 1; i <= (r.long ? 7 : 4); i++) recovering.add(addDays(r.date, i))
+
   const resolve = (s: Slot, odd: boolean) => {
     let id = odd && s.odd ? s.odd : s.card
     const c = cardById(id)!
@@ -159,17 +207,22 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: Ge
     const qScale = recovery ? 0.75 : 1
     const isQ = (cat: string) => cat === 'quality' || cat === 'hard'
 
+    // Storleken räknas på hela veckan så att pass inte blåses upp när dagar tas av tävling eller nedtrappning
     const cards = slots.map((s) => ({ s, c: resolve(s, odd) }))
     const fixedMin = cards.filter(({ c }) => !c.flex).reduce((a, { c }) => a + sessionMinutes(c) * (isQ(c.category) ? qScale : 1), 0)
     const flexCards = cards.filter(({ c }) => c.flex)
     const flexWeight = flexCards.reduce((a, { s, c }) => a + (s.w ?? 1) * sessionMinutes(c), 0)
     const flexScale = Math.max(target - fixedMin, flexCards.length * 30) / flexWeight
+    const kept = cards.filter(
+      ({ s, c }) => !blocked.has(addDays(weekStart, s.day)) && !(recovering.has(addDays(weekStart, s.day)) && isQ(c.category)),
+    )
 
     const orderByDay = [0, 0, 0, 0, 0, 0, 0]
-    for (const { s, c } of cards) {
+    for (const { s, c } of kept) {
       const date = addDays(weekStart, s.day)
       if (date < start || date > end) continue
-      const f = c.flex ? flexScale * (s.w ?? 1) : isQ(c.category) ? qScale : 1
+      const soft = recovering.has(date) ? 0.8 : 1
+      const f = (c.flex ? flexScale * (s.w ?? 1) : isQ(c.category) ? qScale : 1) * soft
       out.push({
         id: uid(),
         personId,
@@ -189,7 +242,7 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: Ge
     weekStart = addDays(weekStart, 7)
     w++
   }
-  return [...out, ...raceSessions(personId, start)]
+  return [...out, ...races]
 }
 
 const mk = (personId: string, date: string, cardId: string, extra: Partial<Session> = {}, minutes?: number): Session => {
@@ -212,37 +265,36 @@ const mk = (personId: string, date: string, cardId: string, extra: Partial<Sessi
   }
 }
 
-// Nedtrappning före och återhämtning efter tävling: skärpa, lugna dagar och en riktig vilodag dagen före.
-const taperFor = (r: RaceDef): [number, string, number?][] => [
-  ...(r.long ? ([[-8, 'ski-easy', 90], [-7, 'rest']] as [number, string, number?][]) : []),
-  [-6, 'ski-easy', 60],
-  [-5, 'opener'],
-  [-4, 'ski-easy', 60],
-  [-3, 'ski-easy', 45],
+// Nedtrappning före och återhämtning efter tävling. Huvudmålet trappas ner i åtta dagar, övriga lopp i tre.
+type Step = [number, string, number?]
+const taperFor = (r: RaceDef): Step[] => [
+  ...(r.taper === 'full'
+    ? ([[-8, 'ski-easy', 90], [-7, 'rest'], [-6, 'ski-easy', 60], [-5, 'opener'], [-4, 'ski-easy', 60], [-3, 'ski-easy', 45]] as Step[])
+    : ([[-3, 'ski-easy', 60]] as Step[])),
   [-2, 'opener'],
   [-1, 'rest'],
   [1, 'rest'],
-  ...(r.long ? ([[2, 'rest'], [3, 'ski-easy', 45]] as [number, string, number?][]) : ([[2, 'ski-easy', 45]] as [number, string, number?][])),
+  ...(r.long ? ([[2, 'rest'], [3, 'ski-easy', 45]] as Step[]) : ([[2, 'ski-easy', 45]] as Step[])),
 ]
 
-// Tävlingarna med nedtrappning. Samma dag delar nedtrappning (den längsta vinner).
-export const raceSessions = (personId: string, start: string): Session[] => {
+// Tävlingarna med nedtrappning. Samma dag delar nedtrappning (huvudmålet vinner).
+export const raceSessions = (personId: string, start: string, end: string = PLAN_END): Session[] => {
   const out: Session[] = []
   const taken = new Set<string>()
-  const races = RACES.filter((r) => r.date >= start)
+  const races = RACES.filter((r) => r.date >= start && r.date <= end)
   for (const r of races) {
-    const [zones, notes] = [r.zones, `${r.km} km, ${r.place}. ${r.note}`]
-    const race = mk(personId, r.date, 'race', { title: r.name, sport: 'Tävling', zones, notes, raceId: r.id })
+    const race = mk(personId, r.date, 'race', { title: r.name, sport: 'Tävling', zones: r.zones, notes: `${r.km} km, ${r.place}. ${r.note}`, raceId: r.id })
     out.push({ ...race, order: out.filter((o) => o.date === r.date).length })
   }
   const byDate = new Map<string, RaceDef>()
-  for (const r of races) if (!byDate.get(r.date) || r.long) byDate.set(r.date, r)
-  for (const r of byDate.values()) for (const [off, card, min] of taperFor(r)) {
-    const date = addDays(r.date, off)
-    if (date < start || RACES.some((x) => x.date === date) || taken.has(date)) continue
-    taken.add(date)
-    out.push(mk(personId, date, card, { raceId: r.id }, min))
-  }
+  for (const r of races) if (!byDate.get(r.date) || r.taper === 'full') byDate.set(r.date, r)
+  for (const r of byDate.values())
+    for (const [off, card, min] of taperFor(r)) {
+      const date = addDays(r.date, off)
+      if (date < start || RACES.some((x) => x.date === date) || taken.has(date)) continue
+      taken.add(date)
+      out.push(mk(personId, date, card, { raceId: r.id }, min))
+    }
   return out
 }
 
