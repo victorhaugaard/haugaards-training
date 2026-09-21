@@ -5,6 +5,7 @@ import { Ring } from './Ring'
 import { tr, LANGS, getLang } from '../i18n/core'
 import { useLang } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
+import { COACHES, coachById, readCoach } from '../lib/coaches'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -92,11 +93,19 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
       </section>
 
       <section className="l-coach">
-        <CoachAvatar size={84} />
+        <CoachAvatar coach={coachById(readCoach())} size={84} />
         <div>
-          <div className="l-label">{tr('Coach Smirnov')}</div>
+          <div className="l-label">{tr('Dina coacher')}</div>
           <h2>{tr('Din tränare finns alltid till hands')}</h2>
-          <p>{tr('Blir du sjuk, skadar dig eller får ont om tid? Fråga Coach Smirnov. Han flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.')}</p>
+          <p>{tr('Blir du sjuk, skadar dig eller får ont om tid? Fråga din coach. Coachen flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.')}</p>
+          <div className="l-coach-row">
+            <div className="l-coach-stack">
+              {COACHES.map((c) => (
+                <CoachAvatar key={c.id} coach={c} size={34} />
+              ))}
+            </div>
+            <span>{tr('Välj mellan nio coacher, från Smirnov till Farmor & Farfar.')}</span>
+          </div>
           <div className="l-coach-chips">
             {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q) => (
               <span key={q}>{tr(q)}</span>

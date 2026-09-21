@@ -7,6 +7,7 @@ import { useZones } from '../lib/zones'
 import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
+import { COACHES, coachById, readCoach, relationOf, saveCoach } from '../lib/coaches'
 
 interface Props {
   person: Person
@@ -46,12 +47,12 @@ const trim = (m: ApiMsg[]) => {
 
 const errorText = (code: string) =>
   ({
-    missing_key: 'Coach Smirnov är inte kopplad ännu. ANTHROPIC_API_KEY saknas på servern.',
-    unauthorized: 'Du behöver logga in igen för att prata med Coach Smirnov.',
-    forbidden: 'Ditt konto har inte tillgång till Coach Smirnov.',
-    allowlist_missing: 'Coach Smirnov saknar en lista över tillåtna konton (COACH_ALLOWED_EMAILS).',
-    rate_limited: 'Coach Smirnov har för många frågor just nu. Försök igen om en stund.',
-  })[code] ?? 'Något gick fel med Coach Smirnov. Försök igen.'
+    missing_key: 'Coachen är inte kopplad ännu. ANTHROPIC_API_KEY saknas på servern.',
+    unauthorized: 'Du behöver logga in igen för att prata med coachen.',
+    forbidden: 'Ditt konto har inte tillgång till coachen.',
+    allowlist_missing: 'Coachen saknar en lista över tillåtna konton (COACH_ALLOWED_EMAILS).',
+    rate_limited: 'Coachen har för många frågor just nu. Försök igen om en stund.',
+  })[code] ?? 'Något gick fel med coachen. Försök igen.'
 
 function Text({ text }: { text: string }) {
   return (
@@ -82,6 +83,12 @@ function Text({ text }: { text: string }) {
 
 export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props) {
   const [open, setOpen] = useState(false)
+  const [coachId, setCoachId] = useState(readCoach)
+  const [pick, setPick] = useState(false)
+  const coach = coachById(coachId)
+  const relation = relationOf(person.name)
+  // Hur coachen tilltalar dig: släktnamn för familjecoacherna, annars ditt namn
+  const who = coach.call && relation !== 'other' ? tr(coach.call[relation]) : person.name
   const [ui, setUi] = useState<Ui[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
@@ -109,7 +116,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
     const headers: Record<string, string> = { 'content-type': 'application/json' }
     const token = await getToken?.()
     if (token) headers.authorization = `Bearer ${token}`
-    const r = await fetch('/api/coach', { method: 'POST', headers, body: JSON.stringify({ messages, context, lang: getLang() }) })
+    const r = await fetch('/api/coach', { method: 'POST', headers, body: JSON.stringify({ messages, context, lang: getLang(), persona: coach.id, userName: person.name, relation }) })
     const data = await r.json().catch(() => ({}))
     if (!r.ok) throw new Error(data.error ?? 'error')
     return data as { content: { type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> }[]; stop_reason: string }
@@ -186,13 +193,17 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
   return (
     <div className="coach">
       {open && (
-        <section className="coach-panel" aria-label="Coach Smirnov">
+        <section className="coach-panel" aria-label={coach.name}>
           <header className="coach-head">
-            <CoachAvatar />
-            <div>
-              <strong>Coach Smirnov</strong>
-              <span>{tr('Din tränare, kan ändra planen')}</span>
-            </div>
+            <button className="coach-who" onClick={() => setPick((p) => !p)} aria-expanded={pick}>
+              <CoachAvatar coach={coach} />
+              <div>
+              <strong>
+                {coach.name} <i className="caret">▾</i>
+              </strong>
+              <span>{tr(coach.tagline)}</span>
+              </div>
+            </button>
             <div className="coach-head-actions">
               {ui.length > 0 && (
                 <button
@@ -213,9 +224,38 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
             </div>
           </header>
 
+          {pick && (
+            <div className="coach-picker" role="listbox" aria-label={tr('Välj coach')}>
+              {COACHES.map((c) => (
+                <button
+                  key={c.id}
+                  role="option"
+                  aria-selected={c.id === coach.id}
+                  className={c.id === coach.id ? 'on' : ''}
+                  onClick={() => {
+                    setPick(false)
+                    if (c.id === coach.id) return
+                    setCoachId(c.id)
+                    saveCoach(c.id)
+                    // Nytt samtal med den nya coachen
+                    history.current = []
+                    setUi([])
+                  }}
+                >
+                  <CoachAvatar coach={c} size={34} />
+                  <span>
+                    <strong>{c.name}</strong>
+                    <em>{tr(c.tagline)}</em>
+                  </span>
+                  {c.id === coach.id && <b>✓</b>}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="coach-msgs" ref={scroller}>
             <div className="coach-msg from-coach">
-              <Text text={tr('Hej, jag är Coach Smirnov. Fråga mig om träningen, eller be mig ändra planen: flytta pass, lägga till, ta bort eller öka mängden. Vid sjukdom eller skada hjälper jag dig att anpassa den.')} />
+              <Text text={tr(coach.greeting, { who, name: person.name })} />
             </div>
             {ui.length === 0 && (
               <div className="coach-quick">
@@ -244,7 +284,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
               </div>
             ))}
             {busy && (
-              <div className="coach-msg from-coach typing" aria-label={tr('Coach Smirnov skriver')}>
+              <div className="coach-msg from-coach typing" aria-label={tr('{coach} skriver', { coach: coach.name })}>
                 <i />
                 <i />
                 <i />
@@ -256,7 +296,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
             <textarea
               value={input}
               rows={1}
-              placeholder={tr('Skriv till Coach Smirnov')}
+              placeholder={tr('Skriv till {coach}', { coach: coach.name })}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -271,9 +311,9 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
           </form>
         </section>
       )}
-      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-label="Coach Smirnov">
-        <CoachAvatar />
-        <span className="coach-label">Coach Smirnov</span>
+      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-label={coach.name}>
+        <CoachAvatar coach={coach} />
+        <span className="coach-label">{coach.name}</span>
       </button>
     </div>
   )

@@ -54,8 +54,8 @@ export function Welcome({ name, onCreate, onLookAround }: Props) {
           <li>
             <span className="ph-n">3</span>
             <div>
-              <b>{tr('Finjustera med Coach Smirnov')}</b>
-              <p>{tr('Nere till vänster kan du be honom flytta pass, anpassa planen vid sjukdom eller skada och mycket mer.')}</p>
+              <b>{tr('Finjustera med din coach')}</b>
+              <p>{tr('Nere till vänster kan du välja coach och be den flytta pass, anpassa planen vid sjukdom eller skada och mycket mer.')}</p>
             </div>
           </li>
         </ol>
