@@ -1539,3 +1539,8 @@ button.col-title:hover,
   font-style: normal;
   color: #b58900;
 }
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

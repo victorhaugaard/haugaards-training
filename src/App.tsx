@@ -173,11 +173,11 @@ function Workspace({
 
   const regenerate = (o: GenerateChoice) => {
     dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode } })
-    const doneDays = new Set(mine.filter((s) => s.done).map((s) => s.date))
+    const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
     const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode }).filter(
       (s) => !doneDays.has(s.date),
     )
-    dispatch({ type: 'regenerate', personId: person.id, from: o.start, sessions })
+    dispatch({ type: 'regenerate', personId: person.id, from: o.start, sessions, fresh: o.fresh })
   }
 
   return (
@@ -295,6 +295,13 @@ function Workspace({
           canDelete={state.people.length > 1}
           onGenerate={() => setDialog('generate')}
           onGuide={() => setDialog('guide')}
+          planCount={mine.length}
+          onClearPlan={() => {
+            if (confirm(`Radera hela planen för ${person.name}? ${mine.length} pass tas bort, även genomförda. Det går inte att ångra.`)) {
+              dispatch({ type: 'clearPlan', personId: person.id })
+              setDialog(null)
+            }
+          }}
           onDeletePerson={() => {
             if (confirm(`Ta bort ${person.name} och hela planen?`)) dispatch({ type: 'deletePerson', id: person.id })
             setDialog(null)
@@ -314,12 +321,14 @@ interface MenuProps {
   canDelete: boolean
   onGenerate: () => void
   onGuide: () => void
+  planCount: number
+  onClearPlan: () => void
   onDeletePerson: () => void
   onLoad: (s: AppState) => void
   onClose: () => void
 }
 
-function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
 
@@ -364,6 +373,9 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, on
         </button>
         <button className="btn" onClick={onGenerate}>
           Autogenerera plan för {personName}
+        </button>
+        <button className="btn danger" disabled={!planCount} onClick={onClearPlan}>
+          Radera hela planen för {personName}
         </button>
         <button className="btn" onClick={exportJson}>
           Exportera allt (JSON)

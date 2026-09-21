@@ -11,6 +11,7 @@ export interface GenerateChoice {
   end: string
   hours: number
   runMode: RunMode
+  fresh: boolean // radera hela den gamla planen först
 }
 
 interface Props {
@@ -25,6 +26,7 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
   const [end, setEnd] = useState(PLAN_END)
   const [hours, setHours] = useState(12)
   const [runMode, setRunMode] = useState<RunMode>(initialRunMode)
+  const [fresh, setFresh] = useState(false)
 
   const preview = useMemo(() => generatePlan({ personId: 'preview', start, end, hoursPerWeek: hours, runMode }), [start, end, hours, runMode])
 
@@ -35,9 +37,11 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
       onClose={onClose}
       footer={
         <>
-          <span className="muted small">Genomförda pass behålls. Övriga pass från startdatumet ersätts.</span>
+          <span className="muted small">
+            {fresh ? 'Hela den gamla planen raderas, även genomförda pass.' : 'Genomförda pass behålls. Övriga pass från startdatumet ersätts.'}
+          </span>
           <span className="spacer" />
-          <button className="btn primary" onClick={() => (onGenerate({ start, end, hours, runMode }), onClose())}>
+          <button className="btn primary" onClick={() => (onGenerate({ start, end, hours, runMode, fresh }), onClose())}>
             Generera
           </button>
         </>
@@ -68,6 +72,9 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
           ]}
         />
       </div>
+      <label className="inline">
+        <input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> Börja om: radera hela den gamla planen först
+      </label>
       <PlanGuide sessions={preview} runMode={runMode} />
     </Modal>
   )
