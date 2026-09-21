@@ -4085,3 +4085,7 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.l-chatwin .l-chat {
+  padding: 40px 16px 20px;
+}
