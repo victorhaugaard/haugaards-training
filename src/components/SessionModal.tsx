@@ -91,7 +91,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
         </div>
       )}
 
-      {card && <CoachNote card={card} location={s.location} onLocation={(l) => onPatch({ location: l })} />}
+      {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={(l) => onPatch({ location: l })} />}
 
       {s.notes && (
         <div className="sc-notes">

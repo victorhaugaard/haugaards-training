@@ -26,3 +26,16 @@ Importera repot på Vercel (Framework: Vite) och lägg samma `VITE_FIREBASE_*`-v
 ## Startsidans bild
 
 Lägg en liggande eller stående bild som `public/hero.jpg`. Den visas på startsidan. Saknas filen visas en ringgrafik i stället.
+
+## Coach Smirnov (AI-coach)
+
+Chatten nere till vänster kan svara på frågor och ändra planen (flytta, lägga till, ta bort pass, ändra volym, bygga om planen). Den körs av en serverfunktion, [api/coach.ts](api/coach.ts), så att API-nyckeln aldrig hamnar i webbläsaren. Modellen är `claude-haiku-4-5` (byt med `COACH_MODEL`).
+
+Miljövariabler (i `.env.local` lokalt och under *Environment Variables* i Vercel):
+
+| Variabel | Vad |
+|---|---|
+| `ANTHROPIC_API_KEY` | Nyckel från console.anthropic.com |
+| `COACH_ALLOWED_EMAILS` | Kommaseparerade Google-konton som får använda coachen |
+
+Funktionen kräver inloggning med Firebase och att kontot står i listan. Lokalt fungerar `npm run dev` (Vite kör samma funktion under `/api/coach`).

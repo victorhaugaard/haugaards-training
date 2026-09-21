@@ -21,6 +21,7 @@ export type Action =
   | { type: 'deletePerson'; id: string }
   | { type: 'regenerate'; personId: string; from: string; sessions: Session[]; fresh?: boolean }
   | { type: 'clearPlan'; personId: string }
+  | { type: 'setPersonSessions'; personId: string; sessions: Session[] }
   | { type: 'load'; state: AppState }
   | { type: 'remote'; people: Person[]; sessions: Session[] }
 
@@ -144,6 +145,8 @@ const reducer = (state: AppState, a: Action): AppState => {
           ...a.sessions,
         ],
       }
+    case 'setPersonSessions':
+      return { ...state, sessions: [...state.sessions.filter((s) => s.personId !== a.personId), ...a.sessions] }
     case 'clearPlan':
       return { ...state, sessions: state.sessions.filter((s) => s.personId !== a.personId) }
     case 'load':

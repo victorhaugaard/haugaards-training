@@ -25,6 +25,7 @@ import { Modal } from './components/Modal'
 import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
 import { useLang } from './i18n'
 import { useTheme } from './lib/theme'
+import { CoachChat } from './components/CoachChat'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -195,6 +196,7 @@ function Workspace({
   return (
     <DragProvider>
     <div className="app">
+      <CoachChat person={person} sessions={mine} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
