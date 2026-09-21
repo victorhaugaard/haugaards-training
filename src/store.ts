@@ -1,9 +1,10 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { collection, doc, onSnapshot, writeBatch } from 'firebase/firestore'
-import type { AppState, Location, Person, Session, TrainingCard } from './types'
+import type { AppState, Location, Person, PlanParams, PlanRecord, Session, TrainingCard } from './types'
 import { db } from './firebase'
 import { PLAN_END, generatePlan } from './lib/generator'
 import { uid } from './lib/id'
+import { endActivePlan, ensurePlans, newPlanRecord } from './lib/plans'
 
 const KEY = 'haugaards-training:v1'
 const ACTIVE_KEY = 'haugaards-training:active'
@@ -17,13 +18,17 @@ export type Action =
   | { type: 'toggleDone'; id: string }
   | { type: 'setPerson'; id: string }
   | { type: 'updatePerson'; id: string; patch: Partial<Person> }
-  | { type: 'addPerson'; person: Person; sessions: Session[] }
+  | { type: 'addPerson'; person: Person; sessions: Session[]; plan?: PlanParams }
   | { type: 'deletePerson'; id: string }
-  | { type: 'regenerate'; personId: string; from: string; sessions: Session[]; fresh?: boolean }
+  | { type: 'regenerate'; personId: string; from: string; sessions: Session[]; fresh?: boolean; plan?: PlanParams }
+  | { type: 'newPlan'; personId: string; plan: PlanParams }
+  | { type: 'setPersonPlans'; personId: string; plans: PlanRecord[] }
+  | { type: 'addSession'; session: Session }
+  | { type: 'replaceWithCard'; id: string; card: TrainingCard; location?: Location }
   | { type: 'clearPlan'; personId: string }
   | { type: 'setPersonSessions'; personId: string; sessions: Session[] }
   | { type: 'load'; state: AppState }
-  | { type: 'remote'; people: Person[]; sessions: Session[] }
+  | { type: 'remote'; people: Person[]; sessions: Session[]; plans: PlanRecord[] }
 
 const initial = (): AppState => {
   const me: Person = { id: uid(), name: 'Victor', createdAt: 0, runMode: 'little', restDay: 0 }
@@ -31,6 +36,7 @@ const initial = (): AppState => {
     people: [me],
     activePersonId: me.id,
     sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: PLAN_END, hoursPerWeek: 12, runMode: 'little', restDay: 0 }),
+    plans: [newPlanRecord([], me.id, { start: '2026-09-21', end: PLAN_END, hours: 12, runMode: 'little', restDay: 0, source: 'generated' })],
   }
 }
 
@@ -39,7 +45,7 @@ const load = (): AppState => {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const s = JSON.parse(raw) as AppState
-      if (s.people?.length && Array.isArray(s.sessions)) return s
+      if (s.people?.length && Array.isArray(s.sessions)) return ensurePlans({ ...s, plans: s.plans ?? [] })
     }
   } catch {
     /* ignorera */
@@ -123,19 +129,58 @@ const reducer = (state: AppState, a: Action): AppState => {
         people: [...state.people, a.person],
         activePersonId: a.person.id,
         sessions: [...state.sessions, ...a.sessions],
+        plans: a.plan && a.sessions.length ? [...state.plans, newPlanRecord(state.plans, a.person.id, a.plan)] : state.plans,
       }
+    case 'addSession': {
+      const order = state.sessions.filter((x) => x.personId === a.session.personId && x.date === a.session.date).length
+      return { ...state, sessions: [...state.sessions, { ...a.session, order }] }
+    }
+    case 'replaceWithCard': {
+      const c = a.card
+      return {
+        ...state,
+        sessions: state.sessions.map((s) =>
+          s.id === a.id
+            ? {
+                id: s.id,
+                personId: s.personId,
+                date: s.date,
+                order: s.order,
+                cardId: c.id,
+                title: c.name,
+                sport: c.sport,
+                category: c.category,
+                zones: [...c.zones] as Session['zones'],
+                nonZone: c.nonZone,
+                notes: '',
+                done: false,
+                ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
+              }
+            : s,
+        ),
+      }
+    }
+    case 'newPlan': {
+      const ended = endActivePlan(state.plans, a.personId, state.sessions)
+      return { ...state, plans: [...ended, newPlanRecord(ended, a.personId, a.plan)] }
+    }
+    case 'setPersonPlans':
+      return { ...state, plans: [...state.plans.filter((p) => p.personId !== a.personId), ...a.plans] }
     case 'deletePerson': {
       if (state.people.length <= 1) return state
       const people = state.people.filter((p) => p.id !== a.id)
       return {
         people,
         sessions: state.sessions.filter((s) => s.personId !== a.id),
+        plans: state.plans.filter((p) => p.personId !== a.id),
         activePersonId: state.activePersonId === a.id ? people[0].id : state.activePersonId,
       }
     }
-    case 'regenerate':
+    case 'regenerate': {
+      const ended = a.plan ? endActivePlan(state.plans, a.personId, state.sessions) : state.plans
       return {
         ...state,
+        plans: a.plan ? [...ended, newPlanRecord(ended, a.personId, a.plan)] : state.plans,
         sessions: [
           ...state.sessions.filter((s) =>
             a.fresh
@@ -145,12 +190,17 @@ const reducer = (state: AppState, a: Action): AppState => {
           ...a.sessions,
         ],
       }
+    }
     case 'setPersonSessions':
       return { ...state, sessions: [...state.sessions.filter((s) => s.personId !== a.personId), ...a.sessions] }
     case 'clearPlan':
-      return { ...state, sessions: state.sessions.filter((s) => s.personId !== a.personId) }
+      return {
+        ...state,
+        plans: endActivePlan(state.plans, a.personId, state.sessions),
+        sessions: state.sessions.filter((s) => s.personId !== a.personId),
+      }
     case 'load':
-      return a.state
+      return ensurePlans({ ...a.state, plans: a.state.plans ?? [] })
     case 'remote': {
       const people = [...a.people].sort((x, y) => (x.createdAt ?? 0) - (y.createdAt ?? 0))
       let saved = ''
@@ -160,13 +210,16 @@ const reducer = (state: AppState, a: Action): AppState => {
         /* ignorera */
       }
       const keep = [state.activePersonId, saved].find((id) => people.some((p) => p.id === id))
-      return { people, sessions: a.sessions, activePersonId: keep ?? people[0]?.id ?? '' }
+      return ensurePlans({ people, sessions: a.sessions, plans: a.plans, activePersonId: keep ?? people[0]?.id ?? '' })
     }
   }
 }
 
-const EMPTY: AppState = { people: [], sessions: [], activePersonId: '' }
-const stable = (o: object) => JSON.stringify(o, Object.keys(o).sort())
+const EMPTY: AppState = { people: [], sessions: [], plans: [], activePersonId: '' }
+// Stabil JSON med sorterade nycklar på alla nivåer, används för att upptäcka ändrade dokument
+const sortKeys = (v: unknown): unknown =>
+  Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sortKeys((v as Record<string, unknown>)[k])])) : v
+const stable = (o: object) => JSON.stringify(sortKeys(o))
 
 export interface StoreStatus {
   ready: boolean
@@ -203,22 +256,26 @@ export const useStore = (cloud: boolean) => {
     if (!cloud || !db) return
     let people: Person[] | null = null
     let sessions: Session[] | null = null
+    let plans: PlanRecord[] | null = null
     const push = () => {
-      if (!people || !sessions) return
+      if (!people || !sessions || !plans) return
       synced.current = new Map([
         ...people.map((p) => ['p:' + p.id, stable(p)] as const),
         ...sessions.map((s) => ['s:' + s.id, stable(s)] as const),
+        ...plans.map((l) => ['l:' + l.id, stable(l)] as const),
       ])
       if (!people.length) dispatch({ type: 'load', state: initial() }) // första start: seeda
-      else dispatch({ type: 'remote', people, sessions })
+      else dispatch({ type: 'remote', people, sessions, plans })
       setReady(true)
     }
     const fail = (e: Error) => setError(e.message)
     const u1 = onSnapshot(collection(db, 'people'), (snap) => ((people = snap.docs.map((d) => d.data() as Person)), push()), fail)
     const u2 = onSnapshot(collection(db, 'sessions'), (snap) => ((sessions = snap.docs.map((d) => d.data() as Session)), push()), fail)
+    const u3 = onSnapshot(collection(db, 'plans'), (snap) => ((plans = snap.docs.map((d) => d.data() as PlanRecord)), push()), fail)
     return () => {
       u1()
       u2()
+      u3()
     }
   }, [cloud])
 
@@ -228,6 +285,7 @@ export const useStore = (cloud: boolean) => {
     const next = new Map<string, { path: string; id: string; data: object }>()
     state.people.forEach((p) => next.set('p:' + p.id, { path: 'people', id: p.id, data: p }))
     state.sessions.forEach((s) => next.set('s:' + s.id, { path: 'sessions', id: s.id, data: s }))
+    state.plans.forEach((l) => next.set('l:' + l.id, { path: 'plans', id: l.id, data: l }))
 
     const batches: ReturnType<typeof writeBatch>[] = []
     let batch = writeBatch(db)
@@ -247,12 +305,12 @@ export const useStore = (cloud: boolean) => {
       if (!next.has(k)) {
         synced.current.delete(k)
         const [t, id] = [k[0], k.slice(2)]
-        add((b) => b.delete(doc(db!, t === 'p' ? 'people' : 'sessions', id)))
+        add((b) => b.delete(doc(db!, t === 'p' ? 'people' : t === 'l' ? 'plans' : 'sessions', id)))
       }
     }
     if (n) batches.push(batch)
     batches.forEach((b) => b.commit().catch((e: Error) => setError(e.message)))
-  }, [state.people, state.sessions, ready, cloud])
+  }, [state.people, state.sessions, state.plans, ready, cloud])
 
   return [state, dispatch, { ready, error } as StoreStatus] as const
 }

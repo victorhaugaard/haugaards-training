@@ -51,11 +51,11 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       }
       footer={
         <>
-          {isRest ? (
-            <button className="btn danger" onClick={() => (onDelete(), onClose())}>
-              {tr('Ta bort')}
-            </button>
-          ) : (
+          <button className="btn danger" onClick={() => (onDelete(), onClose())}>
+            {tr('Ta bort')}
+          </button>
+          <span className="spacer" />
+          {!isRest && (
             <button className={'btn ' + (s.done ? '' : 'primary')} onClick={onToggle}>
               {tr(s.done ? '✓ Genomfört · ångra' : 'Markera som genomfört')}
             </button>

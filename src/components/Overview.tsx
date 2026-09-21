@@ -16,7 +16,7 @@ interface Props {
 
 const monthKey = (d: string) => d.slice(0, 7)
 
-function ZoneLegend({ st }: { st: Stats }) {
+export function ZoneLegend({ st }: { st: Pick<Stats, 'zones' | 'nonZone'> }) {
   const { labels, names } = useZones()
   const total = st.zones.reduce((a, b) => a + b, 0)
   return (

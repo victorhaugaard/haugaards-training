@@ -27,6 +27,10 @@ import { useLang } from './i18n'
 import { useTheme } from './lib/theme'
 import { CoachChat } from './components/CoachChat'
 import { CardInfoModal } from './components/CardInfoModal'
+import { ProfileView } from './components/ProfileView'
+import { SessionMenu } from './components/SessionMenu'
+import { Toast, type ToastData } from './components/Toast'
+import { withTotal } from './lib/sessionOps'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -136,6 +140,9 @@ function Workspace({
   const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
   const [libOpen, setLibOpen] = useState(true)
   const [infoCard, setInfoCard] = useState<TrainingCard | null>(null)
+  const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
+  const [swapId, setSwapId] = useState<string | null>(null)
+  const [toast, setToast] = useState<ToastData | null>(null)
 
   const mine = useMemo(() => state.sessions.filter((s) => s.personId === person.id), [state.sessions, person.id])
   const editing = mine.find((s) => s.id === editId)
@@ -152,7 +159,9 @@ function Workspace({
   const inRange = mine.filter((s) => s.date >= range[0] && s.date <= range[1])
 
   const title =
-    view === 'overview'
+    view === 'profile'
+      ? tr('Profil')
+      : view === 'overview'
       ? tr('Översikt')
       : view === 'day'
       ? cap(fullDate(cursor))
@@ -160,7 +169,7 @@ function Workspace({
         ? tr('Vecka {n}', { n: weekNumber(cursor) })
         : cap(monthYear(cursor))
   const subtitle =
-    view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])} · ${tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? tr(PHASE_LABEL[phaseFor(cursor)]) : ''
+    view === 'profile' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])} · ${tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? tr(PHASE_LABEL[phaseFor(cursor)]) : ''
 
   const handleDrop = (e: DragEvent, date: string, beforeId?: string) => {
     e.preventDefault()
@@ -177,13 +186,35 @@ function Workspace({
     }
   }
 
+  const menuSession = menu ? mine.find((s) => s.id === menu.id) : undefined
+  const swapSession = swapId ? mine.find((s) => s.id === swapId) : undefined
+
+  // Ta bort med möjlighet att ångra en stund
+  const deleteWithUndo = (s: Session) => {
+    dispatch({ type: 'delete', id: s.id })
+    setToast({ id: Date.now(), text: tr('Passet togs bort'), undo: () => dispatch({ type: 'addSession', session: s }) })
+  }
+
   const createPerson = (n: NewPerson) => {
     const id = uid()
     let sessions: Session[] = []
     if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
     if (n.mode === 'generate')
       sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: PLAN_END, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay })
-    dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay }, sessions })
+    const first = sessions.map((s) => s.date).sort()[0] ?? startOfWeek(today())
+    dispatch({
+      type: 'addPerson',
+      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay },
+      sessions,
+      plan: {
+        start: n.mode === 'copy' ? first : startOfWeek(today()),
+        end: PLAN_END,
+        runMode: n.runMode,
+        restDay: n.restDay,
+        source: n.mode === 'copy' ? 'copied' : 'generated',
+        ...(n.mode === 'generate' ? { hours: n.hours } : {}),
+      },
+    })
   }
 
   const regenerate = (o: GenerateChoice) => {
@@ -192,13 +223,20 @@ function Workspace({
     const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode, restDay: o.restDay }).filter(
       (s) => !doneDays.has(s.date),
     )
-    dispatch({ type: 'regenerate', personId: person.id, from: o.start, sessions, fresh: o.fresh })
+    dispatch({
+      type: 'regenerate',
+      personId: person.id,
+      from: o.start,
+      sessions,
+      fresh: o.fresh,
+      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, source: 'generated' },
+    })
   }
 
   return (
     <DragProvider>
     <div className="app">
-      <CoachChat person={person} sessions={mine} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} />
+      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
@@ -224,7 +262,7 @@ function Workspace({
           </button>
         </div>
         <div className="nav">
-          {view !== 'overview' && (
+          {view !== 'overview' && view !== 'profile' && (
             <>
               <button className="icon-btn" onClick={() => step(-1)} aria-label={tr('Föregående')}>
                 ‹
@@ -244,22 +282,27 @@ function Workspace({
         </div>
         <div className="right">
           <Segmented value={view} options={VIEWS.map(([v, l]) => [v, tr(l)] as [View, string])} onChange={setView} />
-          {view !== 'overview' && (
+          {view !== 'overview' && view !== 'profile' && (
             <button className="icon-btn" onClick={() => setLibOpen((o) => !o)} aria-label={tr('Visa/dölj träningskort')} title={tr('Träningskort')}>
               ▤
             </button>
           )}
+          <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => setView(view === 'profile' ? 'week' : 'profile')} title={tr('Profil')} aria-label={tr('Profil')}>
+            {person.name.slice(0, 1).toUpperCase()}
+          </button>
           <button className="icon-btn" onClick={() => setDialog('menu')} aria-label={tr('Meny')}>
             ⋯
           </button>
         </div>
       </header>
 
-      {view !== 'overview' && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
+      {view !== 'overview' && view !== 'profile' && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
 
       <div className={'layout' + (libOpen ? ' with-lib' : '')}>
-        <main className="main" key={view + (view === 'overview' ? '' : cursor)}>
-          {view === 'overview' ? (
+        <main className="main" key={view + (view === 'overview' || view === 'profile' ? '' : cursor)}>
+          {view === 'profile' ? (
+            <ProfileView person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} />
+          ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
           ) : (
           <Board
@@ -269,13 +312,14 @@ function Workspace({
             onOpen={(s) => setEditId(s.id)}
             onToggle={(id) => dispatch({ type: 'toggleDone', id })}
             onPatch={(id, patch) => dispatch({ type: 'update', id, patch })}
+            onContext={(s, x, y) => setMenu({ id: s.id, x, y })}
             onAdd={setPickDate}
             onDropTo={handleDrop}
             onOpenDay={(d) => (setCursor(d), setView('day'))}
           />
           )}
         </main>
-        {libOpen && view !== 'overview' && (
+        {libOpen && view !== 'overview' && view !== 'profile' && (
           <aside className="side">
             <h3>{tr('Träningskort')}</h3>
             <p className="muted small">{tr('Dra till en dag, eller tryck på ett kort för att se detaljerna.')}</p>
@@ -291,7 +335,7 @@ function Workspace({
           onClose={() => setEditId(null)}
           onPatch={(patch) => dispatch({ type: 'update', id: editing.id, patch })}
           onToggle={() => dispatch({ type: 'toggleDone', id: editing.id })}
-          onDelete={() => dispatch({ type: 'delete', id: editing.id })}
+          onDelete={() => deleteWithUndo(editing)}
           onDuplicate={() => dispatch({ type: 'duplicate', id: editing.id })}
         />
       )}
@@ -303,6 +347,30 @@ function Workspace({
           onAdd={(card, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
         />
       )}
+      {menu && menuSession && (
+        <SessionMenu
+          session={menuSession}
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
+          onOpen={() => setEditId(menuSession.id)}
+          onToggleDone={() => dispatch({ type: 'toggleDone', id: menuSession.id })}
+          onSetTotal={(total) => dispatch({ type: 'update', id: menuSession.id, patch: withTotal(menuSession, total) })}
+          onMove={(date) => dispatch({ type: 'update', id: menuSession.id, patch: { date } })}
+          onSwap={() => setSwapId(menuSession.id)}
+          onDuplicate={() => dispatch({ type: 'duplicate', id: menuSession.id })}
+          onDelete={() => deleteWithUndo(menuSession)}
+        />
+      )}
+      {swapSession && (
+        <PickerModal
+          swap
+          date={swapSession.date}
+          onClose={() => setSwapId(null)}
+          onPick={(card, _date, location) => dispatch({ type: 'replaceWithCard', id: swapSession.id, card, location })}
+        />
+      )}
+      {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       {pickDate && (
         <PickerModal
           date={pickDate}

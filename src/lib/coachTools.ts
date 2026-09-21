@@ -1,5 +1,5 @@
 // Verktygen Coach Smirnov kan använda. De körs i appen mot personens pass och returnerar en ny lista.
-import type { Category, Person, RunMode, Session, Sport, Zones } from '../types'
+import type { Category, Person, PlanParams, RunMode, Session, Sport, Zones } from '../types'
 import { CARDS, SPORTS, cardById } from './cards'
 import { addDays, parse, startOfWeek, today, weekdayShort } from './dates'
 import { PLAN_END, generatePlan } from './generator'
@@ -19,6 +19,7 @@ export interface ToolOut {
   error?: boolean
   summary?: string
   personPatch?: Partial<Person>
+  newPlan?: PlanParams
 }
 
 const round5 = (n: number) => Math.round(n / 5) * 5
@@ -187,6 +188,7 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
         result: `Regenerated plan from ${start} to ${end}: ${hours} h/week, run_mode ${runMode}, rest_day ${restDay}. ${generated.length} sessions created.`,
         summary: tr('Byggde om planen från {date}', { date: start }),
         personPatch: { runMode, restDay },
+        newPlan: { start, end, hours, runMode, restDay, source: 'coach' },
       }
     }
 

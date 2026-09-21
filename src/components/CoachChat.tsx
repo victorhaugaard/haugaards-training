@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch, type FormEvent } from 'react'
-import type { Person, Session } from '../types'
+import type { Person, PlanParams, PlanRecord, Session } from '../types'
 import type { Action } from '../store'
 import { buildContext } from '../lib/coachContext'
 import { runTool } from '../lib/coachTools'
@@ -10,6 +10,7 @@ import { rich } from '../i18n'
 interface Props {
   person: Person
   sessions: Session[]
+  plans: PlanRecord[]
   dispatch: Dispatch<Action>
   getToken?: () => Promise<string | undefined>
 }
@@ -20,6 +21,7 @@ interface Ui {
   text: string
   actions?: string[]
   undo?: Session[]
+  undoPlans?: PlanRecord[]
   undone?: boolean
 }
 
@@ -77,7 +79,7 @@ function Text({ text }: { text: string }) {
   )
 }
 
-export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
+export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props) {
   const [open, setOpen] = useState(false)
   const [ui, setUi] = useState<Ui[]>([])
   const [input, setInput] = useState('')
@@ -87,8 +89,8 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
   const nextId = useRef(1)
   const scroller = useRef<HTMLDivElement>(null)
   const { labels } = useZones()
-  const latest = useRef({ person, sessions })
-  latest.current = { person, sessions }
+  const latest = useRef({ person, sessions, plans })
+  latest.current = { person, sessions, plans }
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
@@ -120,6 +122,8 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
     setBusy(true)
 
     const startSessions = latest.current.sessions
+    const startPlans = latest.current.plans
+    let newPlan: PlanParams | undefined
     let working = startSessions
     let personPatch: Partial<Person> | undefined
     const actions: string[] = []
@@ -141,9 +145,12 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
               if (out.summary) actions.push(out.summary)
             }
             if (out.personPatch) personPatch = { ...personPatch, ...out.personPatch }
+            if (out.newPlan) newPlan = out.newPlan
             return { type: 'tool_result', tool_use_id: b.id, content: out.result, ...(out.error ? { is_error: true } : {}) }
           })
           messages.push({ role: 'user', content: results })
+          // Planen arkiveras innan passen byts ut
+          if (newPlan) (dispatch({ type: 'newPlan', personId: person.id, plan: newPlan }), (newPlan = undefined))
           dispatch({ type: 'setPersonSessions', personId: person.id, sessions: working })
           if (personPatch) dispatch({ type: 'updatePerson', id: person.id, patch: personPatch })
           continue
@@ -153,7 +160,7 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
       }
       history.current = trim(messages)
       const changed = working !== startSessions
-      push({ role: 'coach', text: reply || tr('Klart.'), actions, undo: changed ? startSessions : undefined })
+      push({ role: 'coach', text: reply || tr('Klart.'), actions, undo: changed ? startSessions : undefined, undoPlans: changed ? startPlans : undefined })
     } catch (e) {
       if (working !== startSessions) dispatch({ type: 'setPersonSessions', personId: person.id, sessions: working })
       push({ role: 'error', text: tr(errorText((e as Error).message)) })
@@ -165,6 +172,7 @@ export function CoachChat({ person, sessions, dispatch, getToken }: Props) {
   const undo = (m: Ui) => {
     if (!m.undo || m.undone) return
     dispatch({ type: 'setPersonSessions', personId: person.id, sessions: m.undo })
+    if (m.undoPlans) dispatch({ type: 'setPersonPlans', personId: person.id, plans: m.undoPlans })
     setUi((l) => l.map((x) => (x.id === m.id ? { ...x, undone: true } : x)))
     pendingNote.current = '[The user undid your last plan changes in the app; the plan is back to how it was before them.]\n'
   }

@@ -14,9 +14,10 @@ interface Props {
   onPatch: (id: string, patch: Partial<Session>) => void
   onOpen: (s: Session) => void
   onToggle: (id: string) => void
+  onContext?: (s: Session, x: number, y: number) => void
 }
 
-export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle }: Props) {
+export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle, onContext }: Props) {
   const minutes = sessionMinutes(s)
   const { labels } = useZones()
   const { start, end } = useDrag()
@@ -34,6 +35,11 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
       }}
       onDragEnd={end}
       onClick={() => onOpen(s)}
+      onContextMenu={(e) => {
+        if (!onContext) return
+        e.preventDefault()
+        onContext(s, e.clientX, e.clientY)
+      }}
       title={`${tr(s.title)} · ${fmtDuration(minutes)}`}
     >
       <span className="stripe" style={{ background: CATEGORY_COLOR[s.category] }} />

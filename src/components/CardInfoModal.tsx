@@ -14,10 +14,12 @@ interface Props {
   onAdd: (card: TrainingCard, date: string, location?: Location) => void
   onClose: () => void
   onBack?: () => void
+  actionLabel?: string // t.ex. vid byte av pass
+  hideDate?: boolean
 }
 
 // Information om ett träningskort, med möjlighet att lägga till det i kalendern
-export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack }: Props) {
+export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actionLabel, hideDate }: Props) {
   const [date, setDate] = useState(defaultDate)
   const [location, setLocation] = useState<Location>('gym')
 
@@ -34,7 +36,7 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack }: Pro
       }
       footer={
         <>
-          <input className="date-input" type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label={tr('Datum')} />
+          {!hideDate && <input className="date-input" type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label={tr('Datum')} />}
           <span className="spacer" />
           <button
             className="btn primary"
@@ -43,7 +45,7 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack }: Pro
               onClose()
             }}
           >
-            {tr('Lägg till i kalendern')}
+            {actionLabel ?? tr('Lägg till i kalendern')}
           </button>
         </>
       }

@@ -65,10 +65,57 @@ export interface Person {
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
 }
 
+// Ett avklarat pass i kompakt form, sparas i historiken när en plan avslutas
+export interface DoneSession {
+  id: string
+  date: string
+  title: string
+  sport: Sport
+  category: Category
+  minutes: number
+  zones: Zones
+  nonZone: number
+}
+
+export interface PlanArchive {
+  plannedTotal: number // alla pass i planen
+  due: number // pass som skulle ha varit gjorda när planen avslutades
+  dueDone: number
+  done: number
+  dueMinutes: number
+  doneMinutes: number
+  completed: DoneSession[]
+}
+
+export interface PlanRecord {
+  id: string
+  personId: string
+  seq: number // Plan 1, Plan 2 ...
+  start: string
+  end: string
+  createdAt: number
+  endedAt?: number // saknas för den plan som körs just nu
+  hours?: number
+  runMode?: RunMode
+  restDay?: number
+  source: 'generated' | 'copied' | 'coach' | 'earlier'
+  archive?: PlanArchive
+}
+
+export interface PlanParams {
+  start: string
+  end: string
+  hours?: number
+  runMode?: RunMode
+  restDay?: number
+  source: PlanRecord['source']
+}
+
 export interface AppState {
   people: Person[]
   sessions: Session[]
+  plans: PlanRecord[]
   activePersonId: string
 }
 
-export type View = 'day' | 'week' | 'month' | 'overview'
+export type View = 'day' | 'week' | 'month' | 'overview' | 'profile'

@@ -13,6 +13,7 @@ interface Props {
   onOpen: (s: Session) => void
   onToggle: (id: string) => void
   onPatch: (id: string, patch: Partial<Session>) => void
+  onContext: (s: Session, x: number, y: number) => void
   onAdd: (date: string) => void
   onDropTo: (e: DragEvent, date: string, beforeId?: string) => void
   onOpenDay: (date: string) => void
@@ -69,7 +70,7 @@ interface ColProps extends Props {
   muted?: boolean
 }
 
-function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, onAdd, onDropTo, onOpenDay }: ColProps) {
+function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, onContext, onAdd, onDropTo, onOpenDay }: ColProps) {
   const [hover, setHover] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
   const { drag, over, setOver, end } = useDrag()
@@ -144,7 +145,7 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
             <div key={s.id} className={'chip-wrap' + (src ? ' src' : '') + (before ? ' gap-before' : '')}>
               <div className="chip-inner">
                 <div className="chip-pad">
-                  <SessionChip session={s} compact={compact} detail={view === 'day'} onPatch={onPatch} onOpen={onOpen} onToggle={onToggle} />
+                  <SessionChip session={s} compact={compact} detail={view === 'day'} onPatch={onPatch} onOpen={onOpen} onToggle={onToggle} onContext={onContext} />
                 </div>
               </div>
             </div>
