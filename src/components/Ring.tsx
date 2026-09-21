@@ -6,7 +6,7 @@ interface Props {
   children?: React.ReactNode
 }
 
-export function Ring({ value, size = 56, stroke = 5, color = 'var(--c-easy)', children }: Props) {
+export function Ring({ value, size = 56, stroke = 5, color = 'var(--accent)', children }: Props) {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   return (

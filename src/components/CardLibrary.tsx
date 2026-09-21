@@ -19,6 +19,7 @@ export function CardLibrary({ onPick }: Props) {
             <div
               key={c.id}
               className="tcard"
+              style={{ '--cc': CATEGORY_COLOR[c.category] } as React.CSSProperties}
               draggable
               onDragStart={(e) => {
                 e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'card', id: c.id }))

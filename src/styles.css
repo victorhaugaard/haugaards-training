@@ -28,13 +28,13 @@
   --z4: #a3c0ff;
   --z5: #ffffff;
   /* passtyper */
-  --c-easy: #2f6bff;
-  --c-quality: #7fa6ff;
-  --c-hard: #dbe6ff;
-  --c-strength: #6b7a9e;
-  --c-race: #ffffff;
-  --c-other: #3a4666;
-  --c-rest: #4a5a82;
+  --c-easy: #3f9b86;
+  --c-quality: #c2a24f;
+  --c-hard: #c25a55;
+  --c-strength: #8a78c9;
+  --c-race: #d98b4f;
+  --c-other: #737b8f;
+  --c-rest: #5a6b93;
   --radius: 14px;
   --spring: cubic-bezier(0.32, 0.72, 0, 1);
   --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -123,7 +123,8 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 5;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
   padding: 10px 20px;
@@ -140,14 +141,22 @@ h3 {
   align-items: center;
   gap: 6px;
 }
+.people {
+  justify-self: start;
+}
+.right {
+  justify-self: end;
+}
 .nav {
-  flex: 1;
-  min-width: 240px;
+  justify-self: center;
+  gap: 8px;
 }
 .nav-title {
   display: flex;
   flex-direction: column;
-  margin-left: 10px;
+  align-items: center;
+  text-align: center;
+  min-width: 190px;
   line-height: 1.2;
 }
 .nav-title strong {
@@ -369,7 +378,7 @@ h3 {
   display: block;
   height: 100%;
   border-radius: 2px;
-  background: var(--c-easy);
+  background: var(--accent);
   transition: width 0.7s var(--spring);
 }
 .zones {
@@ -565,8 +574,9 @@ button.col-title:hover,
   position: relative;
   display: flex;
   align-items: flex-start;
+  --cc: var(--c-other);
   background:
-    linear-gradient(145deg, rgba(80, 130, 255, 0.24), rgba(255, 255, 255, 0.05) 55%, rgba(47, 107, 255, 0.1)),
+    linear-gradient(145deg, color-mix(in srgb, var(--cc) 36%, transparent), rgba(255, 255, 255, 0.04) 58%, color-mix(in srgb, var(--cc) 13%, transparent)),
     rgba(14, 20, 38, 0.62);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
   backdrop-filter: blur(12px) saturate(150%);
@@ -579,7 +589,7 @@ button.col-title:hover,
   box-shadow:
     0 12px 26px -10px rgba(0, 0, 0, 0.75),
     0 3px 8px rgba(0, 0, 0, 0.35),
-    0 10px 28px -14px rgba(47, 107, 255, 0.55),
+    0 10px 28px -14px color-mix(in srgb, var(--cc) 75%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
   transition: transform 0.35s var(--spring), box-shadow 0.35s var(--spring), opacity 0.2s;
 }
@@ -592,7 +602,7 @@ button.col-title:hover,
   box-shadow:
     0 20px 38px -10px rgba(0, 0, 0, 0.8),
     0 6px 12px rgba(0, 0, 0, 0.4),
-    0 14px 38px -10px rgba(47, 107, 255, 0.7),
+    0 14px 38px -10px color-mix(in srgb, var(--cc) 80%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 .chip:active,
@@ -604,6 +614,7 @@ button.col-title:hover,
   transform: scale(0.97);
 }
 .stripe {
+  opacity: 0.85;
   position: absolute;
   left: 0;
   top: 0;
@@ -634,7 +645,7 @@ button.col-title:hover,
   padding: 4px 6px 4px 11px;
   align-items: center;
   border-radius: 8px;
-  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.7), 0 4px 12px -8px rgba(47, 107, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.7), 0 4px 12px -8px color-mix(in srgb, var(--cc) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 .chip.compact .chip-title {
   font-size: 12px;
@@ -712,11 +723,11 @@ button.col-title:hover,
   transition: stroke-dashoffset 0.35s var(--spring) 0.05s;
 }
 .check:hover {
-  border-color: var(--c-easy);
+  border-color: var(--accent);
 }
 .check.on {
-  background: var(--c-easy);
-  border-color: var(--c-easy);
+  background: var(--accent);
+  border-color: var(--accent);
   animation: checkPop 0.4s var(--bounce);
 }
 .check.on svg {
@@ -1002,6 +1013,15 @@ button.col-title:hover,
   font-weight: 700;
 }
 
+@media (max-width: 1000px) {
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+  .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
 @media (max-width: 800px) {
   .side {
     display: none;
@@ -1276,7 +1296,7 @@ button.col-title:hover,
   border-radius: 8px;
 }
 .cy-bar i.rest {
-  background: var(--c-quality);
+  background: var(--z4);
 }
 .cycle span {
   color: var(--muted);
@@ -1519,7 +1539,7 @@ button.col-title:hover,
   animation: fadeUp 0.5s var(--spring) backwards;
 }
 .race.clash {
-  box-shadow: inset 0 0 0 1.5px var(--c-quality), var(--shadow);
+  box-shadow: inset 0 0 0 1.5px var(--accent), var(--shadow);
 }
 .race-days {
   display: flex;

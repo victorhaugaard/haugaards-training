@@ -23,6 +23,7 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
   return (
     <div
       className={'chip' + (s.done ? ' done' : '') + (compact ? ' compact' : '')}
+      style={{ '--cc': CATEGORY_COLOR[s.category] } as React.CSSProperties}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'session', id: s.id }))

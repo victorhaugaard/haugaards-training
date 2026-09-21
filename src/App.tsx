@@ -191,10 +191,10 @@ function Workspace({
         <i />
       </div>
       <header className="topbar">
-        <a className="brand" href="#/" title="Startsida">
-          H
-        </a>
         <div className="people">
+          <a className="brand" href="#/" title="Startsida">
+            H
+          </a>
           {state.people.map((p) => (
             <button
               key={p.id}

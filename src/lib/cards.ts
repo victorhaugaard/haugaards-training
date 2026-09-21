@@ -106,10 +106,10 @@ export const CARDS: TrainingCard[] = [
     how: ['20–30 minuter lugnt', '4–5 × 1 minut i {z4}–{z5} med 2 minuters vila', 'Avsluta lugnt. Du ska känna dig pigg, inte trött'],
     tip: 'Kör passet på tävlingsutrustningen. Testa skid och vallning också.',
   }),
-  card('int-hill', 'Backintervaller 6×4', 'Löpning', 'hard', 'Kvalitet', [50, 0, 0, 8, 16], 0, 'Stavgång/löpning uppför', {
-    purpose: 'Bygger kraft och fart uppför, precis som i skidspåret.',
-    how: ['Värm upp 20 minuter', '6 × 4 minuter uppför i {z4}–{z5}, jogga ned som vila', 'Använd stavar och tryck ordentligt med armarna'],
-    tip: 'Byt mot rullskidor uppför om knäna protesterar.',
+  card('int-hill', 'Hufs, backintervaller med stavar 6×4', 'Löpning', 'hard', 'Kvalitet', [50, 0, 0, 8, 16], 0, 'Stavgång uppför, hufs på norska', {
+    purpose: 'Bygger skidspecifik kraft och fart uppför. Det kallas hufs på norska.',
+    how: ['Värm upp 20 minuter med stavar på lugna backar', '6 × 4 minuter uppför i {z4}–{z5} med stavar: gå eller löp med kraftig stavisättning, jogga eller gå ned som vila', 'Håll hög frekvens och pressa igenom stavarna ända ner i höften'],
+    tip: 'Välj en jämn backe som tar ungefär fyra minuter. Har du ont i knäna, byt mot rullskidor uppför eller stakmaskin.',
   }),
 
   // ——— Stakmaskin (Ercolina) ———
