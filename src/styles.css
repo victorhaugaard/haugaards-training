@@ -3134,12 +3134,21 @@ button.col-title:hover,
 .coach-picker button.on {
   background: var(--hover);
 }
-.coach-picker span {
+.coach-picker .cp-text {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
   line-height: 1.25;
+}
+.coach-picker .coach-avatar {
+  flex: none;
+}
+.cp-note {
+  margin: 6px 8px 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
 }
 .coach-picker strong {
   font-size: 14px;
@@ -3170,4 +3179,35 @@ button.col-title:hover,
 }
 .l-coach-stack .coach-avatar:first-child {
   margin-left: 0;
+}
+
+/* val av coach i menyn */
+.coach-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.coach-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 8px 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+}
+.coach-grid button:hover {
+  background: var(--hover);
+}
+.coach-grid button.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.coach-grid .coach-avatar {
+  flex: none;
 }

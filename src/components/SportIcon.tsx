@@ -19,17 +19,26 @@ const PATHS: Record<Sport, React.ReactNode> = {
   ),
   Rullskidor: (
     <>
-      <path d="M2.5 12.5h15.5q2.8 0 3.5-2.3" />
-      <path d="M9 12.5V10h4v2.5" />
-      <circle cx="6" cy="16.5" r="2.3" />
-      <circle cx="17" cy="16.5" r="2.3" />
+      <circle cx="12.5" cy="3.6" r="2.2" fill="currentColor" stroke="none" />
+      <path d="M12.2 7.8 11.2 13.4" strokeWidth="3.8" />
+      <path d="M12.4 9 8.6 11.6 3.6 19M12.8 9 17 10.8 20.6 19" strokeWidth="1.4" />
+      <path d="M11.2 13.4l3.6 3.4.2 2.6M11.2 13.4 8.6 16.6 8.2 18.6" strokeWidth="2.8" />
+      <path d="M12.8 20.8h8M4 19.4l4.8 1.4" strokeWidth="1.2" />
+      <circle cx="12.8" cy="20.8" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="20.8" cy="20.8" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="19.4" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="8.8" cy="20.8" r="1.5" fill="currentColor" stroke="none" />
     </>
   ),
   Skidor: (
     <>
-      <path d="M4 21.5 14.5 5q1-1.6 2.7-1.4" />
-      <path d="M9 21.5 19.5 5" />
-      <path d="M7 15.5h4M12 15.5h4" />
+      <circle cx="16.5" cy="3.6" r="2.2" fill="currentColor" stroke="none" />
+      <path d="M14.8 8 10.6 13" strokeWidth="3.8" />
+      <path d="M14.4 9.4l4.4 1.6L21.4 20" strokeWidth="1.4" />
+      <path d="M10.6 13 6.6 13.4 3.4 12.2" strokeWidth="2.8" />
+      <path d="M10.6 13 13.6 16.4 12.6 19.6" strokeWidth="2.8" />
+      <path d="M2 15.2l5.6 4.6h2" strokeWidth="1.3" />
+      <path d="M8.4 21h13q1.4 0 1.9-1.2" strokeWidth="1.3" />
     </>
   ),
   Stakmaskin: (

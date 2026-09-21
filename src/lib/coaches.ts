@@ -89,11 +89,21 @@ export const COACHES: Coach[] = [
   {
     id: 'marco',
     name: 'Coach Marco',
-    tagline: 'Glad och avslappnad coach',
-    greeting: 'Hej {who}, Coach Marco här! Berätta vad du behöver, så ser vi till att planen funkar för dig. Sjuk, skadad eller bara full i skratt? Vi löser det.',
+    tagline: 'Seg italienare från Bergamo',
+    greeting: 'Ciao {who}! Coach Marco här, från Bergamo. Jag cyklar i timmar på tung växel bara för att det ska göra ont, men du ska äta och dricka ordentligt! Berätta vad du behöver, så fixar vi planen. Dai!',
     initials: 'M',
     hue: 160,
     photo: true,
+  },
+  {
+    id: 'geir',
+    name: 'Coach Geir',
+    tagline: 'Bilar, hälsa och en Gin Tonic',
+    greeting: 'Tjena {who}! Coach Geir här. Jag är väl ingen maratonmänniska, men en kropp behöver service precis som en bil. Berätta vad som behöver justeras så tar vi det lugnt och smart. Hälsan först, sen kanske en Gin Tonic.',
+    initials: 'G',
+    hue: 210,
+    photo: true,
+    call: { victor: 'brorsonen', dad: 'bror' },
   },
 ]
 

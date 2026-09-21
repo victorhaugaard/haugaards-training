@@ -7,7 +7,7 @@ import { useZones } from '../lib/zones'
 import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
-import { COACHES, coachById, readCoach, relationOf, saveCoach } from '../lib/coaches'
+import { COACHES, coachById, relationOf } from '../lib/coaches'
 
 interface Props {
   person: Person
@@ -15,6 +15,8 @@ interface Props {
   plans: PlanRecord[]
   dispatch: Dispatch<Action>
   getToken?: () => Promise<string | undefined>
+  coachId: string
+  onCoachChange: (id: string) => void
 }
 
 interface Ui {
@@ -81,9 +83,8 @@ function Text({ text }: { text: string }) {
   )
 }
 
-export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props) {
+export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId, onCoachChange }: Props) {
   const [open, setOpen] = useState(false)
-  const [coachId, setCoachId] = useState(readCoach)
   const [pick, setPick] = useState(false)
   const coach = coachById(coachId)
   const relation = relationOf(person.name)
@@ -104,11 +105,11 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
   }, [ui, busy, open])
 
-  // Nytt samtal när man byter person
+  // Nytt samtal när man byter person eller coach
   useEffect(() => {
     history.current = []
     setUi([])
-  }, [person.id])
+  }, [person.id, coachId])
 
   const push = (m: Omit<Ui, 'id'>) => setUi((l) => [...l, { ...m, id: nextId.current++ }])
 
@@ -235,21 +236,18 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
                   onClick={() => {
                     setPick(false)
                     if (c.id === coach.id) return
-                    setCoachId(c.id)
-                    saveCoach(c.id)
-                    // Nytt samtal med den nya coachen
-                    history.current = []
-                    setUi([])
+                    onCoachChange(c.id)
                   }}
                 >
                   <CoachAvatar coach={c} size={34} />
-                  <span>
+                  <span className="cp-text">
                     <strong>{c.name}</strong>
                     <em>{tr(c.tagline)}</em>
                   </span>
                   {c.id === coach.id && <b>✓</b>}
                 </button>
               ))}
+              <p className="cp-note">{tr('Coacherna är AI-karaktärer. De kända är bara inspirerade av personernas stil, det är inte de riktiga personerna.')}</p>
             </div>
           )}
 

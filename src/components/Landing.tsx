@@ -104,7 +104,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
                 <CoachAvatar key={c.id} coach={c} size={34} />
               ))}
             </div>
-            <span>{tr('Välj mellan nio coacher, från Smirnov till Farmor & Farfar.')}</span>
+            <span>{tr('Välj mellan tio coacher, från Smirnov till Farmor & Farfar.')}</span>
           </div>
           <div className="l-coach-chips">
             {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q) => (

@@ -378,4 +378,13 @@ export const UI: [string, string, string][] = [
   ['Coachen saknar en lista över tillåtna konton (COACH_ALLOWED_EMAILS).', 'Coachen mangler en liste over tillatte kontoer (COACH_ALLOWED_EMAILS).', 'The coach has no list of allowed accounts (COACH_ALLOWED_EMAILS).'],
   ['Coachen har för många frågor just nu. Försök igen om en stund.', 'Coachen har for mange spørsmål akkurat nå. Prøv igjen om litt.', 'The coach has too many questions right now. Try again in a moment.'],
   ['Något gick fel med coachen. Försök igen.', 'Noe gikk galt med coachen. Prøv igjen.', 'Something went wrong with the coach. Please try again.'],
+  ['Seg italienare från Bergamo', 'Seig italiener fra Bergamo', 'Tough Italian from Bergamo'],
+  ['Bilar, hälsa och en Gin Tonic', 'Biler, helse og en Gin Tonic', 'Cars, health and a gin and tonic'],
+  ['Ciao {who}! Coach Marco här, från Bergamo. Jag cyklar i timmar på tung växel bara för att det ska göra ont, men du ska äta och dricka ordentligt! Berätta vad du behöver, så fixar vi planen. Dai!', 'Ciao {who}! Coach Marco her, fra Bergamo. Jeg sykler i timevis på tung gir bare for at det skal gjøre vondt, men du skal spise og drikke ordentlig! Fortell hva du trenger, så fikser vi planen. Dai!', 'Ciao {who}! Coach Marco here, from Bergamo. I ride for hours in a heavy gear just to make it hurt, but you should eat and drink properly! Tell me what you need and we will sort out the plan. Dai!'],
+  ['Tjena {who}! Coach Geir här. Jag är väl ingen maratonmänniska, men en kropp behöver service precis som en bil. Berätta vad som behöver justeras så tar vi det lugnt och smart. Hälsan först, sen kanske en Gin Tonic.', 'Hei {who}! Coach Geir her. Jeg er vel ingen maratonmenneske, men en kropp trenger service akkurat som en bil. Fortell hva som må justeres, så tar vi det rolig og smart. Helsen først, så kanskje en Gin Tonic.', 'Hey {who}! Coach Geir here. I am not exactly a marathon person, but a body needs servicing just like a car. Tell me what needs adjusting and we will take it calm and smart. Health first, then maybe a gin and tonic.'],
+  ['brorsonen', 'nevøen', 'nephew'],
+  ['bror', 'bror', 'bro'],
+  ['Coach', 'Coach', 'Coach'],
+  ['Välj mellan tio coacher, från Smirnov till Farmor & Farfar.', 'Velg mellom ti coacher, fra Smirnov til Farmor & Farfar.', 'Choose between ten coaches, from Smirnov to Farmor & Farfar.'],
+  ['Coacherna är AI-karaktärer. De kända är bara inspirerade av personernas stil, det är inte de riktiga personerna.', 'Coachene er AI-karakterer. De kjente er bare inspirert av personenes stil, det er ikke de virkelige personene.', 'The coaches are AI characters. The well-known ones are only inspired by the persons\' style; they are not the real people.'],
 ]

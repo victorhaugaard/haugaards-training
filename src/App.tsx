@@ -35,6 +35,8 @@ import { Welcome } from './components/Welcome'
 import { Avatar } from './components/Avatar'
 import { PlanModal } from './components/PlanModal'
 import { scaleUpcoming } from './lib/sessionOps'
+import { COACHES, readCoach, saveCoach } from './lib/coaches'
+import { CoachAvatar } from './components/CoachAvatar'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -202,6 +204,8 @@ function Workspace({
     }
   })
   const [nudge, setNudge] = useState(false)
+  const [coachId, setCoachId] = useState(readCoach)
+  const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
   const [newName, setNewName] = useState<string | undefined>()
   const closeWelcome = () => {
     try {
@@ -307,7 +311,7 @@ function Workspace({
   return (
     <DragProvider>
     <div className="app">
-      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} />
+      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} coachId={coachId} onCoachChange={changeCoach} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
@@ -538,6 +542,8 @@ function Workspace({
       {dialog === 'menu' && (
         <MenuModal
           auth={auth}
+          coachId={coachId}
+          onCoach={changeCoach}
           state={state}
           personName={person.name}
           canDelete={state.people.length > 1}
@@ -564,6 +570,8 @@ function Workspace({
 }
 
 interface MenuProps {
+  coachId: string
+  onCoach: (id: string) => void
   auth: AuthState
   state: AppState
   personName: string
@@ -577,7 +585,7 @@ interface MenuProps {
   onClose: () => void
 }
 
-function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ coachId, onCoach, auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
   const { lang, setLang } = useLang()
@@ -621,6 +629,17 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, pl
       <div className="field">
         <span>{tr('Språk')}</span>
         <Segmented value={lang} onChange={(l: Lang) => setLang(l)} options={LANGS} />
+      </div>
+      <div className="field">
+        <span>{tr('Coach')}</span>
+        <div className="coach-grid" role="listbox" aria-label={tr('Välj coach')}>
+          {COACHES.map((c) => (
+            <button key={c.id} role="option" aria-selected={c.id === coachId} className={c.id === coachId ? 'on' : ''} onClick={() => onCoach(c.id)} title={c.name}>
+              <CoachAvatar coach={c} size={44} />
+              <span>{c.name.replace('Coach ', '')}</span>
+            </button>
+          ))}
+        </div>
       </div>
       <div className="field">
         <span>{tr('Färgtema')}</span>
