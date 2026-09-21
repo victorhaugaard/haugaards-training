@@ -387,4 +387,5 @@ export const UI: [string, string, string][] = [
   ['Coach', 'Coach', 'Coach'],
   ['Välj mellan tio coacher, från Smirnov till Farmor & Farfar.', 'Velg mellom ti coacher, fra Smirnov til Farmor & Farfar.', 'Choose between ten coaches, from Smirnov to Farmor & Farfar.'],
   ['Coacherna är AI-karaktärer. De kända är bara inspirerade av personernas stil, det är inte de riktiga personerna.', 'Coachene er AI-karakterer. De kjente er bare inspirert av personenes stil, det er ikke de virkelige personene.', 'The coaches are AI characters. The well-known ones are only inspired by the persons\' style; they are not the real people.'],
+  ['Hej {who}! Det är Far och Mor. Vi finns här om du vill ha hjälp med träningen. Ta det lugnt, klä dig varmt och ät ordentligt. Säg vad som behöver ändras, så hjälper vi till.', 'Hei {who}! Det er Far og Mor. Vi er her hvis du vil ha hjelp med treningen. Ta det med ro, kle deg varmt og spis ordentlig. Si hva som må endres, så hjelper vi til.', 'Hello {who}! It is Far and Mor. We are here if you want help with your training. Take it easy, dress warmly and eat properly. Tell us what needs changing and we will help.'],
 ]

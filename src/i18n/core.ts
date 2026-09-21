@@ -25,8 +25,11 @@ const detect = (): Lang => {
 // Standardspråk för vissa konton, används om man inte själv valt språk
 export const DEFAULT_LANG_BY_EMAIL: Record<string, Lang> = { 'ohaug01@gmail.com': 'no' }
 
+// Vem som är inloggad, för tilltal och släktskap i coacherna (annars används den valda personens namn)
+export const VIEWER_BY_EMAIL: Record<string, { name: string; relation: 'dad' }> = { 'ohaug01@gmail.com': { name: 'Øivind', relation: 'dad' } }
+
 // Konton som får en välkomstskärm första gången de loggar in
-export const WELCOME_NAME_BY_EMAIL: Record<string, string> = { 'ohaug01@gmail.com': 'Oivind' }
+export const WELCOME_NAME_BY_EMAIL: Record<string, string> = { 'ohaug01@gmail.com': 'Øivind' }
 export const hasSavedLang = () => {
   try {
     return localStorage.getItem(KEY) !== null

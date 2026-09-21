@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { coachById } from '../lib/coaches'
+import { coachById, coachLabel, type Relation } from '../lib/coaches'
 import { tr } from '../i18n/core'
 import { CoachAvatar } from './CoachAvatar'
 
@@ -10,7 +10,7 @@ export interface Notice {
 }
 
 // Tillfällig notis uppe i högra hörnet, som en sms-notis. Klick öppnar chatten.
-export function NoticeToast({ notice, onOpen, onClose }: { notice: Notice; onOpen: () => void; onClose: () => void }) {
+export function NoticeToast({ notice, relation, onOpen, onClose }: { notice: Notice; relation: Relation; onOpen: () => void; onClose: () => void }) {
   useEffect(() => {
     const t = setTimeout(onClose, 8000)
     return () => clearTimeout(t)
@@ -20,7 +20,7 @@ export function NoticeToast({ notice, onOpen, onClose }: { notice: Notice; onOpe
     <div className="notice" key={notice.id} role="alert" onClick={onOpen}>
       <CoachAvatar coach={coach} size={40} />
       <div className="notice-body">
-        <strong>{coach.name}</strong>
+        <strong>{coachLabel(coach, relation)}</strong>
         <span>{notice.text}</span>
       </div>
       <button

@@ -56,7 +56,7 @@ const relationText = (persona: string, relation: string, userName: string): stri
   if (persona === 'erica') return relation === 'victor' ? `${who} They are your brother Victor. Call him "brorsan".` : relation === 'dad' ? `${who} They are your dad. Call him "pappa".` : who
   if (persona === 'jonas') return relation === 'victor' ? `${who} They are Victor, your brother-in-law (his sister Erica is your wife). Call him "svågern".` : relation === 'dad' ? `${who} They are your father-in-law (Erica's dad). Call him "svärfar".` : who
   if (persona === 'geir') return relation === 'victor' ? `${who} They are Victor, your nephew (your brother's son). Call him "brorsonen" or "grabben".` : relation === 'dad' ? `${who} They are your brother. Call him "bror".` : who
-  if (persona === 'farmor') return relation === 'victor' ? `${who} They are Victor, your grandchild. Call him "barnbarnet" or "vännen".` : relation === 'dad' ? `${who} They are your son. Call him "sonen" or "gossen".` : who
+  if (persona === 'farmor') return relation === 'victor' ? `${who} They are Victor, your grandchild. Call him "barnbarnet" or "vännen".` : relation === 'dad' ? `${who} They are your son. Call him "sonen" or "gossen". He knows you as "Far och Mor" (his mom and dad), so refer to yourselves as Far and Mor, not as grandparents.` : who
   return `${who} Address them naturally by name.`
 }
 

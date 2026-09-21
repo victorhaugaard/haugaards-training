@@ -4,6 +4,7 @@ export interface Coach {
   name: string
   tagline: string // svensk text, översätts vid visning
   greeting: string // svensk text med {who} (hur coachen tilltalar dig) och {name}
+  greetingDad?: string // egen hälsning när pappa pratar (t.ex. Far & Mor i stället för Farmor & Farfar)
   initials: string
   hue: number // färg på reservavataren
   photo?: boolean // finns bild i public/coaches/<id>.jpg
@@ -85,6 +86,7 @@ export const COACHES: Coach[] = [
     hue: 45,
     photo: true,
     call: { victor: 'kära barnbarn', dad: 'käre son' },
+    greetingDad: 'Hej {who}! Det är Far och Mor. Vi finns här om du vill ha hjälp med träningen. Ta det lugnt, klä dig varmt och ät ordentligt. Säg vad som behöver ändras, så hjälper vi till.',
   },
   {
     id: 'marco',
@@ -129,7 +131,8 @@ export type Relation = 'victor' | 'dad' | 'other'
 export const relationOf = (name: string): Relation => (/victor/i.test(name) ? 'victor' : /^(ø|o)ivind|pappa|^dad$|^far$/i.test(name.trim()) ? 'dad' : 'other')
 
 // Hur coachen tilltalar den som är vald: släktnamn för familjecoacherna, annars namnet
-export const whoFor = (coach: Coach, personName: string, translate: (s: string) => string): string => {
-  const r = relationOf(personName)
-  return coach.call && r !== 'other' ? translate(coach.call[r]) : personName
-}
+export const whoFor = (coach: Coach, relation: Relation, name: string, translate: (s: string) => string): string =>
+  coach.call && relation !== 'other' ? translate(coach.call[relation]) : name
+
+// Farmor & Farfar heter Far & Mor för pappa
+export const coachLabel = (c: Coach, relation: Relation) => (c.id === 'farmor' && relation === 'dad' ? 'Coach Far & Mor' : c.name)

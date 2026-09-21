@@ -22,7 +22,7 @@ import { PickerModal } from './components/PickerModal'
 import { PersonModal, type NewPerson } from './components/PersonModal'
 import { GenerateModal } from './components/GenerateModal'
 import { Modal } from './components/Modal'
-import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, WELCOME_NAME_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
+import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, WELCOME_NAME_BY_EMAIL, VIEWER_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
 import { useLang } from './i18n'
 import { useTheme } from './lib/theme'
 import { CoachChat } from './components/CoachChat'
@@ -35,7 +35,7 @@ import { Welcome } from './components/Welcome'
 import { Avatar } from './components/Avatar'
 import { PlanModal } from './components/PlanModal'
 import { scaleUpcoming } from './lib/sessionOps'
-import { COACHES, coachById, readCoach, saveCoach, whoFor } from './lib/coaches'
+import { COACHES, coachById, coachLabel, readCoach, relationOf, saveCoach, whoFor, type Relation } from './lib/coaches'
 import { CoachAvatar } from './components/CoachAvatar'
 import { NoticeToast, type Notice } from './components/NoticeToast'
 import { useFeed } from './lib/feed'
@@ -209,6 +209,9 @@ function Workspace({
   const [nudge, setNudge] = useState(false)
   const [coachId, setCoachId] = useState(readCoach)
   const [chatOpen, setChatOpen] = useState(false)
+  // Den som chattar: inloggad pappa har eget tilltal, annars går det på den valda personen
+  const viewerInfo = email ? VIEWER_BY_EMAIL[email] : undefined
+  const viewer: { name: string; relation: Relation } = viewerInfo ?? { name: person.name, relation: relationOf(person.name) }
   const [notice, setNotice] = useState<Notice | null>(null)
   const { feed, add: addFeed, markRead } = useFeed(person.id)
   const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
@@ -295,7 +298,7 @@ function Workspace({
     if (!cheers.length) return
 
     const coach = coachById(coachId)
-    const who = whoFor(coach, person.name, tr)
+    const who = whoFor(coach, viewer.relation, viewer.name, tr)
     const seen = chatOpen // är chatten redan öppen läser man meddelandet direkt
     let top = ''
     for (const c of [...cheers].reverse()) {
@@ -356,7 +359,7 @@ function Workspace({
   return (
     <DragProvider>
     <div className="app">
-      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} coachId={coachId} onCoachChange={changeCoach} open={chatOpen} onOpenChange={setChatOpen} feed={feed} onRead={markRead} />
+      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} viewer={viewer} coachId={coachId} onCoachChange={changeCoach} open={chatOpen} onOpenChange={setChatOpen} feed={feed} onRead={markRead} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
@@ -567,7 +570,7 @@ function Workspace({
           onLookAround={() => (closeWelcome(), setNudge(true))}
         />
       )}
-      {notice && !chatOpen && <NoticeToast notice={notice} onOpen={() => (setChatOpen(true), setNotice(null))} onClose={() => setNotice(null)} />}
+      {notice && !chatOpen && <NoticeToast notice={notice} relation={viewer.relation} onOpen={() => (setChatOpen(true), setNotice(null))} onClose={() => setNotice(null)} />}
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       {pickDate && (
         <PickerModal
@@ -589,6 +592,7 @@ function Workspace({
         <MenuModal
           auth={auth}
           coachId={coachId}
+          relation={viewer.relation}
           onCoach={changeCoach}
           state={state}
           personName={person.name}
@@ -616,6 +620,7 @@ function Workspace({
 }
 
 interface MenuProps {
+  relation: Relation
   coachId: string
   onCoach: (id: string) => void
   auth: AuthState
@@ -631,7 +636,7 @@ interface MenuProps {
   onClose: () => void
 }
 
-function MenuModal({ coachId, onCoach, auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
   const { lang, setLang } = useLang()
@@ -682,7 +687,7 @@ function MenuModal({ coachId, onCoach, auth, state, personName, canDelete, onGen
           {COACHES.map((c) => (
             <button key={c.id} role="option" aria-selected={c.id === coachId} className={c.id === coachId ? 'on' : ''} onClick={() => onCoach(c.id)} title={c.name}>
               <CoachAvatar coach={c} size={44} />
-              <span>{c.name.replace('Coach ', '')}</span>
+              <span>{coachLabel(c, relation).replace('Coach ', '')}</span>
             </button>
           ))}
         </div>

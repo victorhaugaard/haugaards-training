@@ -7,7 +7,7 @@ import { useZones } from '../lib/zones'
 import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
-import { COACHES, coachById, relationOf } from '../lib/coaches'
+import { COACHES, coachById, coachLabel, whoFor, type Relation } from '../lib/coaches'
 import type { FeedMsg } from '../lib/feed'
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
   plans: PlanRecord[]
   dispatch: Dispatch<Action>
   getToken?: () => Promise<string | undefined>
+  viewer: { name: string; relation: Relation } // den som chattar (inloggad), inte nödvändigtvis den vars plan visas
   coachId: string
   onCoachChange: (id: string) => void
   open: boolean
@@ -90,12 +91,13 @@ function Text({ text }: { text: string }) {
   )
 }
 
-export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId, onCoachChange, open, onOpenChange, feed, onRead }: Props) {
+export function CoachChat({ person, sessions, plans, dispatch, getToken, viewer, coachId, onCoachChange, open, onOpenChange, feed, onRead }: Props) {
   const [pick, setPick] = useState(false)
   const coach = coachById(coachId)
-  const relation = relationOf(person.name)
+  const relation = viewer.relation
+  const label = (c: typeof coach) => coachLabel(c, relation)
   // Hur coachen tilltalar dig: släktnamn för familjecoacherna, annars ditt namn
-  const who = coach.call && relation !== 'other' ? tr(coach.call[relation]) : person.name
+  const who = whoFor(coach, relation, viewer.name, tr)
   const [ui, setUi] = useState<Ui[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
@@ -152,7 +154,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
     const headers: Record<string, string> = { 'content-type': 'application/json' }
     const token = await getToken?.()
     if (token) headers.authorization = `Bearer ${token}`
-    const r = await fetch('/api/coach', { method: 'POST', headers, body: JSON.stringify({ messages, context, lang: getLang(), persona: coach.id, userName: person.name, relation }) })
+    const r = await fetch('/api/coach', { method: 'POST', headers, body: JSON.stringify({ messages, context, lang: getLang(), persona: coach.id, userName: viewer.name, relation }) })
     const data = await r.json().catch(() => ({}))
     if (!r.ok) throw new Error(data.error ?? 'error')
     return data as { content: { type: string; text?: string; id?: string; name?: string; input?: Record<string, unknown> }[]; stop_reason: string }
@@ -229,13 +231,13 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
   return (
     <div className="coach">
       {open && (
-        <section className="coach-panel" aria-label={coach.name}>
+        <section className="coach-panel" aria-label={label(coach)}>
           <header className="coach-head">
             <button className="coach-who" onClick={() => setPick((p) => !p)} aria-expanded={pick}>
               <CoachAvatar coach={coach} />
               <div>
               <strong>
-                {coach.name} <i className="caret">▾</i>
+                {label(coach)} <i className="caret">▾</i>
               </strong>
               <span>{tr(coach.tagline)}</span>
               </div>
@@ -276,7 +278,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
                 >
                   <CoachAvatar coach={c} size={34} />
                   <span className="cp-text">
-                    <strong>{c.name}</strong>
+                    <strong>{label(c)}</strong>
                     <em>{tr(c.tagline)}</em>
                   </span>
                   {c.id === coach.id && <b>✓</b>}
@@ -288,7 +290,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
 
           <div className="coach-msgs" ref={scroller}>
             <div className="coach-msg from-coach">
-              <Text text={tr(coach.greeting, { who, name: person.name })} />
+              <Text text={tr(relation === 'dad' && coach.greetingDad ? coach.greetingDad : coach.greeting, { who, name: viewer.name })} />
             </div>
             {ui.length === 0 && (
               <div className="coach-quick">
@@ -317,7 +319,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
               </div>
             ))}
             {busy && (
-              <div className="coach-msg from-coach typing" aria-label={tr('{coach} skriver', { coach: coach.name })}>
+              <div className="coach-msg from-coach typing" aria-label={tr('{coach} skriver', { coach: label(coach) })}>
                 <i />
                 <i />
                 <i />
@@ -329,7 +331,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
             <textarea
               value={input}
               rows={1}
-              placeholder={tr('Skriv till {coach}', { coach: coach.name })}
+              placeholder={tr('Skriv till {coach}', { coach: label(coach) })}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -344,9 +346,9 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
           </form>
         </section>
       )}
-      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => onOpenChange(!open)} aria-label={coach.name}>
+      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => onOpenChange(!open)} aria-label={label(coach)}>
         <CoachAvatar coach={coach} />
-        <span className="coach-label">{coach.name}</span>
+        <span className="coach-label">{label(coach)}</span>
         {unread > 0 && !open && <span className="coach-badge">{unread}</span>}
       </button>
     </div>
