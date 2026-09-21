@@ -459,6 +459,8 @@ function Workspace({
               onUpdatePerson={(patch) => dispatch({ type: 'updatePerson', id: person.id, patch })}
               onBack={() => setView(backView)}
               onOpenPlan={(pl) => setPlanOpen(pl.id)}
+              onGuide={() => setDialog('guide')}
+              onGenerate={() => setDialog('generate')}
             />
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
@@ -640,8 +642,6 @@ function Workspace({
           state={state}
           personName={person.name}
           canDelete={state.people.length > 1}
-          onGenerate={() => setDialog('generate')}
-          onGuide={() => setDialog('guide')}
           planCount={mine.length}
           onClearPlan={() => {
             if (confirm(tr('Radera hela planen för {name}? {n} pass tas bort, även genomförda. Det går inte att ångra.', { name: person.name, n: mine.length }))) {
@@ -670,8 +670,6 @@ interface MenuProps {
   state: AppState
   personName: string
   canDelete: boolean
-  onGenerate: () => void
-  onGuide: () => void
   planCount: number
   onClearPlan: () => void
   onDeletePerson: () => void
@@ -679,7 +677,7 @@ interface MenuProps {
   onClose: () => void
 }
 
-function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDelete, onGenerate, onGuide, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDelete, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
   const { lang, setLang } = useLang()
@@ -737,43 +735,44 @@ function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDel
       </div>
       <div className="field">
         <span>{tr('Färgtema')}</span>
-        <Segmented
-          value={theme}
-          onChange={setTheme}
-          options={[
-            ['blue', tr('Blå')],
-            ['mono', tr('Svartvit')],
-          ]}
-        />
+        <div className="theme-grid" role="listbox" aria-label={tr('Färgtema')}>
+          {(['blue', 'mono'] as const).map((t) => (
+            <button key={t} role="option" aria-selected={theme === t} className={'theme-btn ' + t + (theme === t ? ' on' : '')} onClick={() => setTheme(t)}>
+              <span>{tr(t === 'blue' ? 'Blå' : 'Svartvit')}</span>
+              {theme === t && <b>✓</b>}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="menu">
-        <button className="btn" onClick={onGuide}>
-          {tr('Om planen för {name}', { name: personName })}
-        </button>
-        <button className="btn" onClick={onGenerate}>
-          {tr('Autogenerera plan för {name}', { name: personName })}
-        </button>
-        <button className="btn danger" disabled={!planCount} onClick={onClearPlan}>
-          {tr('Radera hela planen för {name}', { name: personName })}
-        </button>
-        <button className="btn" onClick={exportJson}>
-          {tr('Exportera allt (JSON)')}
-        </button>
-        <button className="btn" onClick={() => file.current?.click()}>
-          {tr('Importera (JSON)')}
-        </button>
-        <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} />
-        {auth.enabled && (
-          <button className="btn" onClick={() => auth.signOut()}>
-            {tr('Logga ut')}{auth.user?.email ? ` (${auth.user.email})` : ''}
+        <div className="menu-row">
+          <button className="btn small" onClick={exportJson} title={tr('Exportera allt (JSON)')}>
+            {tr('Exportera')}
           </button>
-        )}
+          <button className="btn small" onClick={() => file.current?.click()} title={tr('Importera (JSON)')}>
+            {tr('Importera')}
+          </button>
+        </div>
+        <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} />
+        <div className="menu-row">
+          {auth.enabled ? (
+            <button className="btn small" onClick={() => auth.signOut()} title={auth.user?.email ?? undefined}>
+              {tr('Logga ut')}
+            </button>
+          ) : (
+            <span />
+          )}
+          <button className="btn small danger" disabled={!planCount} onClick={onClearPlan} title={tr('Radera hela planen för {name}', { name: personName })}>
+            {tr('Radera planen')}
+          </button>
+        </div>
         {canDelete && (
-          <button className="btn danger" onClick={onDeletePerson}>
+          <button className="btn small danger" onClick={onDeletePerson}>
             {tr('Ta bort {name}', { name: personName })}
           </button>
         )}
       </div>
+      {auth.enabled && auth.user?.email && <p className="muted small">{tr('Inloggad som {email}', { email: auth.user.email })}</p>}
       <p className="muted small">{tr(auth.enabled ? 'Datan synkas via Firebase och delas med alla som är inloggade.' : 'Data sparas i den här webbläsaren (Firebase är inte kopplat). Använd export/import för att flytta mellan enheter.')}</p>
     </Modal>
   )

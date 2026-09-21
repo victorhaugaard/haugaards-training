@@ -18,6 +18,8 @@ interface Props {
   onUpdatePerson: (patch: Partial<Person>) => void
   onBack: () => void
   onOpenPlan: (plan: PlanRecord) => void
+  onGuide: () => void
+  onGenerate: () => void
 }
 
 const SOURCE: Record<PlanRecord['source'], string> = {
@@ -84,8 +86,23 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
   )
 }
 
-export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan }: Props) {
+export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan, onGuide, onGenerate }: Props) {
   const [menu, setMenu] = useState(false)
+  const [planMenu, setPlanMenu] = useState(false)
+  useEffect(() => {
+    if (!planMenu) return
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent && e.key !== 'Escape') return
+      if (e instanceof MouseEvent && (e.target as HTMLElement).closest('.pf-plan-menu')) return
+      setPlanMenu(false)
+    }
+    window.addEventListener('mousedown', close)
+    window.addEventListener('keydown', close)
+    return () => {
+      window.removeEventListener('mousedown', close)
+      window.removeEventListener('keydown', close)
+    }
+  }, [planMenu])
   useEffect(() => {
     if (!menu) return
     const close = (e: Event) => {
@@ -224,7 +241,44 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
         </section>
       )}
 
-      <h3 className="pf-h">{tr('Nuvarande plan')}</h3>
+      <div className="pf-sec">
+        <h3 className="pf-h">{tr('Nuvarande plan')}</h3>
+        <div className="pf-plan-menu">
+          <button className="btn small" onClick={() => setPlanMenu((m) => !m)} aria-expanded={planMenu}>
+            {tr('Min plan')} ▾
+          </button>
+          {planMenu && (
+            <div className="pf-menu right">
+              {active && (
+                <button
+                  onClick={() => {
+                    setPlanMenu(false)
+                    onOpenPlan(active)
+                  }}
+                >
+                  {tr('Detaljer och intensitet')}
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setPlanMenu(false)
+                  onGuide()
+                }}
+              >
+                {tr('Om planen')}
+              </button>
+              <button
+                onClick={() => {
+                  setPlanMenu(false)
+                  onGenerate()
+                }}
+              >
+                {tr('Autogenerera plan…')}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
       {active ? (
         <PlanCard plan={active} stats={planStats(sessions, active)} active onOpen={() => onOpenPlan(active)} />
       ) : (

@@ -391,4 +391,12 @@ export const UI: [string, string, string][] = [
   ['Berätta vad som har hänt, så anpassar jag planen.', 'Fortell hva som har skjedd, så tilpasser jeg planen.', 'Tell me what has happened and I will adapt the plan.'],
   ['Tryck på en coach för att se hur den pratar.', 'Trykk på en coach for å se hvordan den snakker.', 'Tap a coach to see how they talk.'],
   ['du', 'du', 'there'],
+  ['Min plan', 'Min plan', 'My plan'],
+  ['Om planen', 'Om planen', 'About the plan'],
+  ['Autogenerera plan…', 'Autogenerer plan…', 'Auto-generate plan…'],
+  ['Detaljer och intensitet', 'Detaljer og intensitet', 'Details and intensity'],
+  ['Exportera', 'Eksporter', 'Export'],
+  ['Importera', 'Importer', 'Import'],
+  ['Radera planen', 'Slett planen', 'Delete plan'],
+  ['Inloggad som {email}', 'Innlogget som {email}', 'Signed in as {email}'],
 ]
