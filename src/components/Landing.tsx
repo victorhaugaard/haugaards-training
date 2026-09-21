@@ -57,9 +57,9 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
           <div className="l-shade" />
           {!imgOk && (
             <div className="l-art" aria-hidden="true">
-              <Ring value={0.9} size={220} stroke={10} color="#00f19f" />
-              <Ring value={0.65} size={160} stroke={10} color="#4cc9f0" />
-              <Ring value={0.4} size={100} stroke={10} color="#ff5e57" />
+              <Ring value={0.9} size={220} stroke={10} color="#4d84ff" />
+              <Ring value={0.65} size={160} stroke={10} color="#9dbcff" />
+              <Ring value={0.4} size={100} stroke={10} color="#ffffff" />
             </div>
           )}
         </div>
@@ -68,7 +68,7 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
       <section className="l-pillars">
         {PILLARS.map((p) => (
           <article key={p.big}>
-            <Ring value={p.value} size={52} stroke={4} color="#00f19f" />
+            <Ring value={p.value} size={52} stroke={4} color="#4d84ff" />
             <div>
               <div className="l-big">{p.big}</div>
               <div className="l-label">{p.label}</div>
