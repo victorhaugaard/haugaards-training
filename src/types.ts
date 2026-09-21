@@ -5,13 +5,14 @@ export type Sport =
   | 'Rullskidor'
   | 'Cykel'
   | 'Skidor'
+  | 'Vila'
   | 'Stakmaskin'
   | 'Styrka'
   | 'Rörlighet'
   | 'Tävling'
   | 'Övrigt'
 
-export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other'
+export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other' | 'rest'
 
 export type Location = 'gym' | 'home'
 export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
@@ -53,6 +54,7 @@ export interface Session {
   notes: string
   done: boolean
   location?: Location
+  raceId?: string // sätts på tävlingen och passen i nedtrappningen runt den
 }
 
 export interface Person {

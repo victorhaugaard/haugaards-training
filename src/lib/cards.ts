@@ -101,6 +101,11 @@ export const CARDS: TrainingCard[] = [
     how: ['Värm upp 20 minuter med tre stegringar', '6 × 3 minuter i {z5}, 3 minuters lugn vila', 'Gå ut jämnt. Sista intervallen ska vara den hårdaste'],
     tip: 'Sov bra och ät ordentligt dagen innan. Det här passet kräver färska ben.',
   }),
+  card('opener', 'Skärpepass 5×1 min', 'Skidor', 'quality', 'Kvalitet', [45, 0, 0, 0, 5], 0, 'Väcker kroppen inför tävling', {
+    purpose: 'Håller kroppen vaken inför tävling utan att trötta ut den.',
+    how: ['20–30 minuter lugnt', '4–5 × 1 minut i {z4}–{z5} med 2 minuters vila', 'Avsluta lugnt. Du ska känna dig pigg, inte trött'],
+    tip: 'Kör passet på tävlingsutrustningen. Testa skid och vallning också.',
+  }),
   card('int-hill', 'Backintervaller 6×4', 'Löpning', 'hard', 'Kvalitet', [50, 0, 0, 8, 16], 0, 'Stavgång/löpning uppför', {
     purpose: 'Bygger kraft och fart uppför, precis som i skidspåret.',
     how: ['Värm upp 20 minuter', '6 × 4 minuter uppför i {z4}–{z5}, jogga ned som vila', 'Använd stavar och tryck ordentligt med armarna'],
@@ -231,10 +236,15 @@ export const CARDS: TrainingCard[] = [
   }),
 
   // ——— Tävling & övrigt ———
-  card('race', 'Tävling', 'Tävling', 'race', 'Tävling & övrigt', [30, 0, 0, 40, 20], 0, 'Skriv själv, t.ex. Nordenskiöldsloppet', {
+  card('race', 'Tävling', 'Tävling', 'race', 'Tävling & övrigt', [30, 0, 0, 40, 20], 0, 'Skriv själv, t.ex. ett annat lopp', {
     purpose: 'Dags att prestera. Skriv namn och uppskattad tid.',
     how: ['Ät bra dagen innan och väl uppvärmd', 'Gå ut jämnt de första 20 minuterna', 'Låt det släppa i andra halvan'],
     tip: 'Anpassa minuterna per zon efter loppet, så stämmer statistiken.',
+  }),
+  card('rest', 'Vilodag', 'Vila', 'rest', 'Tävling & övrigt', [0, 0, 0, 0, 0], 0, 'Ingen träning, bara återhämtning', {
+    purpose: 'Kroppen blir starkare när den vilar. Vilodagarna är en del av planen, inte ett avbrott.',
+    how: ['Ingen planerad träning', 'Sov 8–9 timmar och ät ordentligt', 'En lugn promenad är helt okej'],
+    tip: 'Känns du sliten flera dagar i rad, lägg in en extra vilodag hellre än att pressa.',
   }),
   card('other', 'Övrigt', 'Övrigt', 'other', 'Tävling & övrigt', [60, 0, 0, 0, 0], 0, 'Valfritt pass och zoner', {
     purpose: 'Valfritt pass. Skriv namn och fördela minuterna själv.',
@@ -259,7 +269,7 @@ export const ZONE_SYSTEMS: Record<ZoneSystem, { title: string; labels: string[];
 
 export const fillZones = (text: string, labels: string[]) => text.replace(/\{z([1-5])\}/g, (_, n) => labels[+n - 1])
 
-export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Rörlighet', 'Tävling', 'Övrigt'] as const
+export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Rörlighet', 'Tävling', 'Vila', 'Övrigt'] as const
 
 export const CATEGORY_COLOR: Record<Category, string> = {
   easy: 'var(--c-easy)',
@@ -268,4 +278,5 @@ export const CATEGORY_COLOR: Record<Category, string> = {
   strength: 'var(--c-strength)',
   race: 'var(--c-race)',
   other: 'var(--c-other)',
+  rest: 'var(--c-rest)',
 }

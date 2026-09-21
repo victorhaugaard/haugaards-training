@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import type { Session, Zones } from '../types'
-import { addDays, cap, dayMonth, daysUntil, monthYear, startOfWeek, today, weekNumber } from '../lib/dates'
-import { RACE } from '../lib/generator'
+import { addDays, cap, monthYear, startOfWeek, today, weekNumber } from '../lib/dates'
+import { upcomingRaces } from '../lib/races'
+import { RaceStrip } from './RaceStrip'
 import { computeStats, fmtDuration, fmtHours, type Stats } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { Num } from './Num'
@@ -43,7 +44,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
   const { months, weeks, all, weekMax } = useMemo(() => {
     const byMonth = new Map<string, Session[]>()
     const byWeek = new Map<string, Session[]>()
-    const training = sessions.filter((s) => s.category !== 'race')
+    const training = sessions.filter((s) => !s.raceId && s.category !== 'race')
     for (const s of sessions) {
       const m = byMonth.get(monthKey(s.date)) ?? []
       m.push(s)
@@ -69,16 +70,18 @@ export function Overview({ sessions, onOpenMonth }: Props) {
 
   if (!sessions.length) return <p className="muted">Inga pass ännu. Generera en plan i menyn.</p>
 
+  const races = upcomingRaces(sessions)
   const nowWeek = startOfWeek(today())
   const nowMonth = monthKey(today())
   const weekCount = Math.max(1, weeks.length)
 
   return (
     <div className="overview">
+      <RaceStrip races={races} />
       <section className="ov-card total">
         <div className="ov-head">
           <div>
-            <div className="stat-label">Mot {RACE.name} · {daysUntil(RACE.date)} dagar kvar ({dayMonth(RACE.date)})</div>
+            <div className="stat-label">Träningsperioden</div>
             <div className="ov-big">
               <Num value={all.total} format={fmtHours} />
             </div>

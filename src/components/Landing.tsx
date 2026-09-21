@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { daysUntil } from '../lib/dates'
-import { RACE } from '../lib/generator'
+import { RACES } from '../lib/races'
 import { Ring } from './Ring'
 
 const PILLARS = [
@@ -22,9 +22,14 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
     <div className="landing">
       <nav className="l-nav">
         <span className="l-brand">HAUGAARDS</span>
-        <span className="l-count">
-          <b>{daysUntil(RACE.date)}</b> dagar kvar
-        </span>
+        <div className="l-races" aria-label="Dagar kvar till tävlingarna">
+          {RACES.map((r) => (
+            <span key={r.id} title={`${r.name} ${r.date}`}>
+              <em>{r.short}</em>
+              <b>{Math.max(0, daysUntil(r.date))}</b> d
+            </span>
+          ))}
+        </div>
         <button className="l-link" onClick={onEnter}>
           {signedIn ? 'Öppna planen' : 'Logga in'}
         </button>
@@ -32,7 +37,7 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
 
       <header className="l-hero">
         <div className="l-copy">
-          <p className="l-eyebrow">Mål · {RACE.name} 20 mars 2027</p>
+          <p className="l-eyebrow">Säsongen 2026/2027</p>
           <h1>
             Välkommen till
             <br />
@@ -40,7 +45,7 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
           </h1>
           <p className="l-lead">
             En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så
-            det passar veckan, checka av och se hur timmar och intensitet faller ut. Hela vägen mot 220 km i Jokkmokk.
+            det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsiesertal och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.
           </p>
           <button className="l-cta" onClick={onEnter}>
             Öppna planen <span>→</span>

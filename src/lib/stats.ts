@@ -13,13 +13,14 @@ export interface Stats {
 }
 
 export const computeStats = (sessions: Session[]): Stats => {
-  const st: Stats = { total: 0, done: 0, count: sessions.length, doneCount: 0, zones: [0, 0, 0, 0, 0], nonZone: 0 }
+  const counted = sessions.filter((s) => s.category !== 'rest')
+  const st: Stats = { total: 0, done: 0, count: counted.length, doneCount: 0, zones: [0, 0, 0, 0, 0], nonZone: 0 }
   for (const s of sessions) {
     const m = sessionMinutes(s)
     st.total += m
     if (s.done) {
       st.done += m
-      st.doneCount++
+      if (s.category !== 'rest') st.doneCount++
     }
     s.zones.forEach((z, i) => (st.zones[i] += z))
     st.nonZone += s.nonZone

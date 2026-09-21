@@ -1,10 +1,9 @@
 import type { RunMode, Session, Zones } from '../types'
 import { cardById } from './cards'
+import { RACES, type RaceDef } from './races'
 import { addDays, parse, startOfWeek } from './dates'
 import { uid } from './id'
 import { sessionMinutes } from './stats'
-
-export const RACE = { name: 'Nordenskiöldsloppet', date: '2027-03-20', km: 220, place: 'Jokkmokk' }
 
 export type Phase = 'base' | 'build' | 'specific' | 'sharpen'
 
@@ -49,54 +48,56 @@ interface Slot {
 
 const TEMPLATES: Record<Phase, Slot[]> = {
   base: [
-    { day: 0, card: 'easy-bike', w: 1 },
-    { day: 0, card: 'strength-upper' },
+    { day: 0, card: 'rest' },
     { day: 1, card: 'int-bike', odd: 'zw-cad' },
     { day: 1, card: 'erg-tech', odd: 'erg-single' },
     { day: 2, card: 'rs-easy', w: 1.2 },
     { day: 2, card: 'strength' },
     { day: 3, card: 'easy-run', keepRun: true, w: 1 },
-    { day: 4, card: 'erg-long', w: 0.7 },
+    { day: 3, card: 'strength-upper' },
+    { day: 4, card: 'erg-long', w: 0.8 },
     { day: 4, card: 'mobility' },
     { day: 5, card: 'int-rs', drop: true },
-    { day: 6, card: 'rs-long', odd: 'long-bike', w: 2.2 },
+    { day: 6, card: 'rs-long', odd: 'long-bike', w: 1.9 },
   ],
   build: [
-    { day: 0, card: 'easy-bike', w: 1 },
-    { day: 0, card: 'strength-upper' },
+    { day: 0, card: 'rest' },
     { day: 1, card: 'zw-sst', odd: 'zw-tempo' },
     { day: 1, card: 'erg-tech', odd: 'erg-single' },
     { day: 2, card: 'rs-easy', w: 1.2 },
     { day: 2, card: 'strength' },
     { day: 3, card: 'zw-ou', odd: 'zw-pyr', drop: true },
+    { day: 3, card: 'strength-upper' },
     { day: 4, card: 'easy-run', keepRun: true, w: 0.9 },
     { day: 4, card: 'mobility' },
     { day: 5, card: 'int-rs', odd: 'erg-int' },
-    { day: 6, card: 'rs-long', odd: 'long-bike', w: 2.2 },
+    { day: 6, card: 'rs-long', odd: 'long-bike', w: 1.9 },
   ],
   specific: [
-    { day: 0, card: 'ski-easy', odd: 'zw-endu', w: 1 },
+    { day: 0, card: 'rest' },
     { day: 1, card: 'int-4x8', sport: 'Skidor' },
-    { day: 1, card: 'ski-easy', w: 0.7 },
-    { day: 2, card: 'ski-easy', w: 1.2 },
+    { day: 1, card: 'ski-easy', w: 0.6 },
+    { day: 2, card: 'ski-easy', w: 1.1 },
     { day: 2, card: 'strength' },
     { day: 3, card: 'fartlek', sport: 'Skidor', drop: true },
+    { day: 3, card: 'ski-easy', w: 0.6 },
     { day: 4, card: 'ski-easy', odd: 'erg-long', w: 0.9 },
     { day: 4, card: 'mobility' },
     { day: 5, card: 'int-short', sport: 'Skidor' },
-    { day: 6, card: 'ski-long', w: 2.2 },
+    { day: 6, card: 'ski-long', w: 2 },
   ],
   sharpen: [
-    { day: 0, card: 'ski-easy', w: 1 },
+    { day: 0, card: 'rest' },
     { day: 1, card: 'int-4x8', sport: 'Skidor' },
-    { day: 2, card: 'ski-easy', odd: 'zw-endu', w: 1.2 },
+    { day: 1, card: 'ski-easy', w: 0.6 },
+    { day: 2, card: 'ski-easy', w: 1.1 },
     { day: 2, card: 'strength' },
     { day: 3, card: 'fartlek', sport: 'Skidor', drop: true },
     { day: 3, card: 'ski-easy', w: 0.6 },
     { day: 4, card: 'ski-easy', w: 0.8 },
     { day: 4, card: 'mobility' },
     { day: 5, card: 'int-short', sport: 'Skidor' },
-    { day: 6, card: 'ski-long', w: 2 },
+    { day: 6, card: 'ski-long', w: 1.8 },
   ],
 }
 
@@ -188,25 +189,62 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: Ge
     weekStart = addDays(weekStart, 7)
     w++
   }
-  if (RACE.date >= start) out.push(raceSession(personId))
-  return out
+  return [...out, ...raceSessions(personId, start)]
 }
 
-// Målet på kalendern. Justera minuterna efter din egen måltid.
-export const raceSession = (personId: string): Session => ({
-  id: uid(),
-  personId,
-  date: RACE.date,
-  order: 0,
-  cardId: 'race',
-  title: RACE.name,
-  sport: 'Tävling',
-  category: 'race',
-  zones: [540, 120, 0, 0, 0],
-  nonZone: 0,
-  notes: `${RACE.km} km, ${RACE.place}. Justera minuterna efter din måltid.`,
-  done: false,
-})
+const mk = (personId: string, date: string, cardId: string, extra: Partial<Session> = {}, minutes?: number): Session => {
+  const c = cardById(cardId)!
+  const f = minutes && c.flex ? minutes / sessionMinutes(c) : 1
+  return {
+    id: uid(),
+    personId,
+    date,
+    order: 0,
+    cardId: c.id,
+    title: c.name,
+    sport: c.sport,
+    category: c.category,
+    zones: f === 1 ? ([...c.zones] as Zones) : scaleZones(c.zones, f),
+    nonZone: c.nonZone,
+    notes: '',
+    done: false,
+    ...extra,
+  }
+}
+
+// Nedtrappning före och återhämtning efter tävling: skärpa, lugna dagar och en riktig vilodag dagen före.
+const taperFor = (r: RaceDef): [number, string, number?][] => [
+  ...(r.long ? ([[-8, 'ski-easy', 90], [-7, 'rest']] as [number, string, number?][]) : []),
+  [-6, 'ski-easy', 60],
+  [-5, 'opener'],
+  [-4, 'ski-easy', 60],
+  [-3, 'ski-easy', 45],
+  [-2, 'opener'],
+  [-1, 'rest'],
+  [1, 'rest'],
+  ...(r.long ? ([[2, 'rest'], [3, 'ski-easy', 45]] as [number, string, number?][]) : ([[2, 'ski-easy', 45]] as [number, string, number?][])),
+]
+
+// Tävlingarna med nedtrappning. Samma dag delar nedtrappning (den längsta vinner).
+export const raceSessions = (personId: string, start: string): Session[] => {
+  const out: Session[] = []
+  const taken = new Set<string>()
+  const races = RACES.filter((r) => r.date >= start)
+  for (const r of races) {
+    const [zones, notes] = [r.zones, `${r.km} km, ${r.place}. ${r.note}`]
+    const race = mk(personId, r.date, 'race', { title: r.name, sport: 'Tävling', zones, notes, raceId: r.id })
+    out.push({ ...race, order: out.filter((o) => o.date === r.date).length })
+  }
+  const byDate = new Map<string, RaceDef>()
+  for (const r of races) if (!byDate.get(r.date) || r.long) byDate.set(r.date, r)
+  for (const r of byDate.values()) for (const [off, card, min] of taperFor(r)) {
+    const date = addDays(r.date, off)
+    if (date < start || RACES.some((x) => x.date === date) || taken.has(date)) continue
+    taken.add(date)
+    out.push(mk(personId, date, card, { raceId: r.id }, min))
+  }
+  return out
+}
 
 // Kopiera en annan persons plan (t.ex. pappa baserat på mig) med volymskalning.
 // Med runMode 'none' byts löppass mot cykel/rullskidor.
@@ -226,12 +264,13 @@ export const copyPlan = (source: Session[], personId: string, scale: number, run
         nonZone: swap.nonZone,
       }
     }
+    const f = base.category === 'race' ? 1 : scale
     return {
       ...base,
       id: uid(),
       personId,
       done: false,
-      zones: scaleZones(base.zones, scale),
-      nonZone: round5(base.nonZone * scale),
+      zones: f === 1 ? base.zones : scaleZones(base.zones, f),
+      nonZone: round5(base.nonZone * f),
     }
   })

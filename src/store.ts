@@ -130,7 +130,7 @@ const reducer = (state: AppState, a: Action): AppState => {
       return {
         ...state,
         sessions: [
-          ...state.sessions.filter((s) => !(s.personId === a.personId && s.date >= a.from && !s.done)),
+          ...state.sessions.filter((s) => !(s.personId === a.personId && s.date >= a.from && !s.done && !(s.category === 'race' && !s.raceId))),
           ...a.sessions,
         ],
       }

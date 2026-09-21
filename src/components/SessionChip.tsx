@@ -59,7 +59,7 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
         {!compact && (
           <>
             <div className="chip-meta">
-              {fmtDuration(minutes)} · {s.sport}
+              {s.category === 'rest' ? 'Vila' : `${fmtDuration(minutes)} · ${s.sport}`}
               {card?.home && (
                 <button
                   className="loc"
@@ -78,7 +78,7 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
           </>
         )}
       </div>
-      {compact && <span className="chip-time">{Math.round(minutes / 6) / 10}h</span>}
+      {compact && minutes > 0 && <span className="chip-time">{Math.round(minutes / 6) / 10}h</span>}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { RunMode, Session } from '../types'
-import { CYCLE, PHASES, RACE } from '../lib/generator'
-import { daysUntil, dayMonth, startOfWeek } from '../lib/dates'
+import { CYCLE, PHASES } from '../lib/generator'
+import { startOfWeek } from '../lib/dates'
 import { fmtHours } from '../lib/stats'
 
 const GROUPS: [string, (s: Session) => boolean][] = [
@@ -16,7 +16,7 @@ const GROUPS: [string, (s: Session) => boolean][] = [
 const mins = (s: Session) => s.zones.reduce((a, b) => a + b, 0) + s.nonZone
 
 export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; runMode: RunMode }) {
-  const sessions = useMemo(() => all.filter((s) => s.category !== 'race'), [all])
+  const sessions = useMemo(() => all.filter((s) => !s.raceId && s.category !== 'race' && s.category !== 'rest'), [all])
   const st = useMemo(() => {
     const weeks = Math.max(1, new Set(sessions.map((s) => startOfWeek(s.date))).size)
     const total = sessions.reduce((a, s) => a + mins(s), 0)
@@ -40,10 +40,11 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
   return (
     <div className="guide">
       <p>
-        Målet är <b>{RACE.name}</b>, {RACE.km} km i {RACE.place} den {dayMonth(RACE.date)} {RACE.date.slice(0, 4)}. Det är{' '}
-        {daysUntil(RACE.date)} dagar kvar. Planen här är den första etappen, till nyår, och bygger på hur längdskidelitens höst
-        ser ut: mycket lugn träning som grund, få men välplanerade hårda pass och en lättare vecka var fjärde. Så här långt
-        prioriteras uthållighet, långpass och matintag, eftersom 220 km avgörs av hållbarhet mer än fart.
+        Säsongens mål är <b>Gsieser Tal Lauf</b> (20 feb), <b>Vasaloppet</b> (7 mars), <b>Birkebeinerrennet</b> och{' '}
+        <b>Nordenskiöldsloppet</b> (båda 20 mars, så du behöver välja ett av dem). Planen här är den första etappen, till nyår, och
+        bygger på hur längdskidelitens höst ser ut: mycket lugn träning som grund, få men välplanerade hårda pass, en riktig
+        vilodag varje vecka och en lättare vecka var fjärde. Uthållighet, långpass och matintag prioriteras, eftersom loppen
+        avgörs av hållbarhet mer än fart.
       </p>
 
       <div className="tiles">
@@ -101,16 +102,32 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
       <h4>Veckans rytm</h4>
       <ul className="rhythm">
         <li>
+          <b>Mån</b> Vilodag. Kroppen bygger upp det du tränade i helgen.
+        </li>
+        <li>
           <b>Tis och lör</b> Kvalitet: tröskel, VO₂ eller stakmaskin. Kroppen ska vara utvilad.
         </li>
         <li>
-          <b>Tor</b> Lättare kvalitet, tempo eller fartlek. Släpps i vilovecka.
+          <b>Tor</b> Lättare kvalitet, tempo eller fartlek, och styrka för överkroppen. Släpps i vilovecka.
         </li>
         <li>
           <b>Sön</b> Långpass, växelvis rullskidor och cykel.
         </li>
         <li>
-          <b>Mån, ons, fre</b> Lugn bas, styrka (gym eller hemma) och rörlighet.
+          <b>Ons och fre</b> Lugn bas, styrka (gym eller hemma) och rörlighet.
+        </li>
+      </ul>
+
+      <h4>Före och efter tävling</h4>
+      <ul className="rhythm">
+        <li>
+          <b>6 dagar innan</b> Lugna pass och två korta skärpepass, styrkan pausas.
+        </li>
+        <li>
+          <b>Dagen innan</b> Vila. Sov, ät kolhydrater och förbered utrustningen.
+        </li>
+        <li>
+          <b>Efter loppet</b> En vilodag och därefter lugn träning. Efter de långa loppen två vilodagar.
         </li>
       </ul>
 
