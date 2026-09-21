@@ -22,6 +22,7 @@ export type Action =
   | { type: 'deletePerson'; id: string }
   | { type: 'regenerate'; personId: string; from: string; sessions: Session[]; fresh?: boolean; plan?: PlanParams }
   | { type: 'newPlan'; personId: string; plan: PlanParams }
+  | { type: 'updatePlan'; id: string; patch: Partial<PlanRecord> }
   | { type: 'setPersonPlans'; personId: string; plans: PlanRecord[] }
   | { type: 'addSession'; session: Session }
   | { type: 'replaceWithCard'; id: string; card: TrainingCard; location?: Location }
@@ -164,6 +165,8 @@ const reducer = (state: AppState, a: Action): AppState => {
       const ended = endActivePlan(state.plans, a.personId, state.sessions)
       return { ...state, plans: [...ended, newPlanRecord(ended, a.personId, a.plan)] }
     }
+    case 'updatePlan':
+      return { ...state, plans: state.plans.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)) }
     case 'setPersonPlans':
       return { ...state, plans: [...state.plans.filter((p) => p.personId !== a.personId), ...a.plans] }
     case 'deletePerson': {

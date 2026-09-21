@@ -33,6 +33,8 @@ import { Toast, type ToastData } from './components/Toast'
 import { withTotal } from './lib/sessionOps'
 import { Welcome } from './components/Welcome'
 import { Avatar } from './components/Avatar'
+import { PlanModal } from './components/PlanModal'
+import { scaleUpcoming } from './lib/sessionOps'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -172,6 +174,8 @@ function Workspace({
   const [infoCard, setInfoCard] = useState<TrainingCard | null>(null)
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const [swapId, setSwapId] = useState<string | null>(null)
+  const [planOpen, setPlanOpen] = useState<string | null>(null)
+  const [backView, setBackView] = useState<View>('week')
   const [toast, setToast] = useState<ToastData | null>(null)
 
   // Välkomstskärm första gången vissa konton loggar in
@@ -341,7 +345,7 @@ function Workspace({
               ▤
             </button>
           )}
-          <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => setView(view === 'profile' ? 'week' : 'profile')} title={tr('Profil')} aria-label={tr('Profil')}>
+          <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => (view === 'profile' ? setView(backView) : (setBackView(view), setView('profile')))} title={tr('Profil')} aria-label={tr('Profil')}>
             <Avatar person={person} size={30} />
           </button>
           <button className="icon-btn" onClick={() => setDialog('menu')} aria-label={tr('Meny')}>
@@ -360,6 +364,8 @@ function Workspace({
               sessions={mine}
               plans={state.plans.filter((p) => p.personId === person.id)}
               onUpdatePerson={(patch) => dispatch({ type: 'updatePerson', id: person.id, patch })}
+              onBack={() => setView(backView)}
+              onOpenPlan={(pl) => setPlanOpen(pl.id)}
             />
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
@@ -404,6 +410,19 @@ function Workspace({
           defaultDate={cursor}
           onClose={() => setInfoCard(null)}
           onAdd={(card, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
+        />
+      )}
+      {planOpen && state.plans.find((p) => p.id === planOpen) && (
+        <PlanModal
+          plan={state.plans.find((p) => p.id === planOpen)!}
+          person={person}
+          sessions={mine}
+          onClose={() => setPlanOpen(null)}
+          onRegenerate={() => setDialog('generate')}
+          onApplyHours={(hours, factor) => {
+            dispatch({ type: 'setPersonSessions', personId: person.id, sessions: scaleUpcoming(mine, today(), factor) })
+            dispatch({ type: 'updatePlan', id: planOpen, patch: { hours } })
+          }}
         />
       )}
       {menu && menuSession && (

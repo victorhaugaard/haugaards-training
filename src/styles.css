@@ -2715,3 +2715,84 @@ button.col-title:hover,
   gap: 6px;
   margin-top: 6px;
 }
+
+/* profil: rullgardinsmeny för bilden, tillbaka-knapp, klickbar plan */
+.pf-photo-wrap {
+  position: relative;
+}
+.pf-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 6;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 16, 30, 0.92);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 46px -14px rgba(0, 0, 0, 0.8);
+  animation: pop 0.2s var(--spring);
+  transform-origin: top left;
+}
+.pf-menu button {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.pf-menu button:hover {
+  background: var(--hover);
+}
+.pf-menu button.danger {
+  color: var(--danger);
+}
+.back-btn {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 4px 8px 4px 0;
+  font-size: 13px;
+}
+.back-btn:hover {
+  color: var(--text);
+}
+.plan-card.clickable {
+  cursor: pointer;
+  transition: transform 0.35s var(--spring), box-shadow 0.35s var(--spring), border-color 0.2s;
+}
+.plan-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+.plan-open {
+  margin-top: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+}
+:root[data-theme='mono'] .plan-open {
+  color: var(--text);
+}
+.plan-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.plan-facts span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.plan-intensity {
+  gap: 8px;
+}

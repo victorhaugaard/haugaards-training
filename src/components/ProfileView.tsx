@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DoneSession, Person, PlanRecord, Session, Sport } from '../types'
 import { addDays, cap, dayMonth, monthYear, weekdayLong } from '../lib/dates'
 import { planStats, toDone } from '../lib/plans'
@@ -16,6 +16,8 @@ interface Props {
   sessions: Session[]
   plans: PlanRecord[]
   onUpdatePerson: (patch: Partial<Person>) => void
+  onBack: () => void
+  onOpenPlan: (plan: PlanRecord) => void
 }
 
 const SOURCE: Record<PlanRecord['source'], string> = {
@@ -41,10 +43,16 @@ function Row({ s, plan }: { s: DoneSession; plan?: number }) {
   )
 }
 
-function PlanCard({ plan, stats, active }: { plan: PlanRecord; stats: ReturnType<typeof planStats>; active?: boolean }) {
+function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: ReturnType<typeof planStats>; active?: boolean; onOpen?: () => void }) {
   const runText = plan.runMode ? tr(plan.runMode === 'none' ? 'Ingen (skonsamt)' : 'Lite då och då') : ''
   return (
-    <div className={'ov-card plan-card' + (active ? ' active' : '')}>
+    <div
+      className={'ov-card plan-card' + (active ? ' active' : '') + (onOpen ? ' clickable' : '')}
+      onClick={onOpen}
+      role={onOpen ? 'button' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onKeyDown={(e) => onOpen && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onOpen())}
+    >
       <Ring value={stats.pct} size={64} stroke={6}>
         <span>{Math.round(stats.pct * 100)}%</span>
       </Ring>
@@ -67,6 +75,7 @@ function PlanCard({ plan, stats, active }: { plan: PlanRecord; stats: ReturnType
             .filter(Boolean)
             .join(' · ')}
         </div>
+        {onOpen && <div className="plan-open">{tr('Visa detaljer och ändra intensitet')} ›</div>}
         {!active && plan.endedAt && (
           <div className="stat-sub">{tr('Avslutad {date}', { date: dayMonth(new Date(plan.endedAt).toISOString().slice(0, 10)) })}</div>
         )}
@@ -75,7 +84,22 @@ function PlanCard({ plan, stats, active }: { plan: PlanRecord; stats: ReturnType
   )
 }
 
-export function ProfileView({ person, sessions, plans, onUpdatePerson }: Props) {
+export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan }: Props) {
+  const [menu, setMenu] = useState(false)
+  useEffect(() => {
+    if (!menu) return
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent && e.key !== 'Escape') return
+      if (e instanceof MouseEvent && (e.target as HTMLElement).closest('.pf-photo-wrap')) return
+      setMenu(false)
+    }
+    window.addEventListener('mousedown', close)
+    window.addEventListener('keydown', close)
+    return () => {
+      window.removeEventListener('mousedown', close)
+      window.removeEventListener('keydown', close)
+    }
+  }, [menu])
   const [busy, setBusy] = useState(false)
   const [photoError, setPhotoError] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
@@ -132,25 +156,43 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson }: Props) 
 
   return (
     <div className="profile">
+      <button className="back-btn" onClick={onBack}>
+        ‹ {tr('Tillbaka till träningsplanen')}
+      </button>
       <header className="pf-head">
-        <button className={'pf-photo' + (busy ? ' busy' : '')} onClick={() => fileInput.current?.click()} aria-label={tr('Byt profilbild')} title={tr('Byt profilbild')}>
-          <Avatar person={person} size={72} />
-          <span className="pf-photo-cta">{busy ? '…' : '✎'}</span>
-        </button>
+        <div className="pf-photo-wrap">
+          <button className={'pf-photo' + (busy ? ' busy' : '')} onClick={() => setMenu((m) => !m)} aria-label={tr('Redigera profilbild')} aria-expanded={menu} title={tr('Redigera profilbild')}>
+            <Avatar person={person} size={72} />
+            <span className="pf-photo-cta">{busy ? '…' : '✎'}</span>
+          </button>
+          {menu && (
+            <div className="pf-menu">
+              <button
+                onClick={() => {
+                  setMenu(false)
+                  fileInput.current?.click()
+                }}
+              >
+                {tr(person.photoUrl ? 'Byt profilbild' : 'Lägg till profilbild')}
+              </button>
+              {person.photoUrl && (
+                <button
+                  className="danger"
+                  onClick={() => {
+                    setMenu(false)
+                    onUpdatePerson({ photoUrl: '' })
+                  }}
+                >
+                  {tr('Ta bort bilden')}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && pickPhoto(e.target.files[0])} />
         <div>
           <h2>{person.name}</h2>
           <span className="muted">{tr('Profil och träningshistorik')}</span>
-          <div className="pf-photo-actions">
-            <button className="btn small" onClick={() => fileInput.current?.click()} disabled={busy}>
-              {tr(person.photoUrl ? 'Byt profilbild' : 'Lägg till profilbild')}
-            </button>
-            {person.photoUrl && (
-              <button className="btn small" onClick={() => onUpdatePerson({ photoUrl: '' })} disabled={busy}>
-                {tr('Ta bort bilden')}
-              </button>
-            )}
-          </div>
           {photoError && <p className="error">{tr('Kunde inte ladda upp bilden. Kontrollera att Firebase Storage är aktiverat och att reglerna är publicerade.')}</p>}
         </div>
       </header>
@@ -184,7 +226,7 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson }: Props) 
 
       <h3 className="pf-h">{tr('Nuvarande plan')}</h3>
       {active ? (
-        <PlanCard plan={active} stats={planStats(sessions, active)} active />
+        <PlanCard plan={active} stats={planStats(sessions, active)} active onOpen={() => onOpenPlan(active)} />
       ) : (
         <p className="muted">{tr('Ingen pågående plan. Generera en i menyn.')}</p>
       )}
