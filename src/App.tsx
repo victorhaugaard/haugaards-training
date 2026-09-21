@@ -394,7 +394,7 @@ function Workspace({
       <header className="topbar">
         <div className="people">
           <a className="brand" href="#/" title={tr('Startsida')}>
-            H
+            <img src="/haugaards_icon.png" alt="H" draggable={false} />
           </a>
           {state.people.map((p) => (
             <button

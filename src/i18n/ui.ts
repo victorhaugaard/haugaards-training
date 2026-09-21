@@ -399,4 +399,7 @@ export const UI: [string, string, string][] = [
   ['Importera', 'Importer', 'Import'],
   ['Radera planen', 'Slett planen', 'Delete plan'],
   ['Inloggad som {email}', 'Innlogget som {email}', 'Signed in as {email}'],
+  ['Så ser en vecka ut', 'Slik ser en uke ut', 'What a week looks like'],
+  ['Planera, checka av och följ upp', 'Planlegg, kryss av og følg opp', 'Plan, tick off and follow up'],
+  ['Här är en exempelvecka. Tryck på cirklarna för att checka av pass och se statistiken uppdateras.', 'Her er en eksempeluke. Trykk på sirklene for å krysse av økter og se statistikken oppdateres.', 'Here is an example week. Tap the circles to tick off sessions and watch the statistics update.'],
 ]

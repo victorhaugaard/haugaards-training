@@ -6,6 +6,7 @@ import { tr, LANGS, getLang } from '../i18n/core'
 import { useLang } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
 import { COACHES, coachById, readCoach, saveCoach } from '../lib/coaches'
+import { WeekDemo } from './WeekDemo'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -133,6 +134,8 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
           </div>
         </div>
       </section>
+
+      <WeekDemo />
 
       <section className="l-features">
         {FEATURES.map((f) => (
