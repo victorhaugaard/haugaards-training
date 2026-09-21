@@ -16,7 +16,8 @@ import { uid } from './lib/id'
 import { Board } from './components/Board'
 import { CardLibrary } from './components/CardLibrary'
 import { StatsBar } from './components/StatsBar'
-import { EditModal } from './components/EditModal'
+import { SessionModal } from './components/SessionModal'
+import { DragProvider } from './lib/drag'
 import { PickerModal } from './components/PickerModal'
 import { PersonModal, type NewPerson } from './components/PersonModal'
 import { GenerateModal } from './components/GenerateModal'
@@ -155,7 +156,7 @@ function Workspace({
         if (data.id !== beforeId) dispatch({ type: 'move', id: data.id, date, beforeId })
       } else {
         const card = cardById(data.id)
-        if (card) dispatch({ type: 'addFromCard', card, date })
+        if (card) dispatch({ type: 'addFromCard', card, date, beforeId })
       }
     } catch {
       /* ogiltig drop */
@@ -181,7 +182,14 @@ function Workspace({
   }
 
   return (
+    <DragProvider>
     <div className="app">
+      <div className="aurora" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
       <header className="topbar">
         <a className="brand" href="#/" title="Startsida">
           H
@@ -262,11 +270,12 @@ function Workspace({
       </div>
 
       {editing && (
-        <EditModal
+        <SessionModal
           key={editing.id}
           session={editing}
           onClose={() => setEditId(null)}
-          onSave={(patch) => dispatch({ type: 'update', id: editing.id, patch })}
+          onPatch={(patch) => dispatch({ type: 'update', id: editing.id, patch })}
+          onToggle={() => dispatch({ type: 'toggleDone', id: editing.id })}
           onDelete={() => dispatch({ type: 'delete', id: editing.id })}
           onDuplicate={() => dispatch({ type: 'duplicate', id: editing.id })}
         />
@@ -311,6 +320,7 @@ function Workspace({
         />
       )}
     </div>
+    </DragProvider>
   )
 }
 

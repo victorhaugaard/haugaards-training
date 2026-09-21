@@ -9,7 +9,7 @@ const KEY = 'haugaards-training:v1'
 const ACTIVE_KEY = 'haugaards-training:active'
 
 export type Action =
-  | { type: 'addFromCard'; card: TrainingCard; date: string }
+  | { type: 'addFromCard'; card: TrainingCard; date: string; beforeId?: string }
   | { type: 'update'; id: string; patch: Partial<Session> }
   | { type: 'move'; id: string; date: string; beforeId?: string }
   | { type: 'delete'; id: string }
@@ -72,7 +72,12 @@ const reducer = (state: AppState, a: Action): AppState => {
         done: false,
         ...(c.home ? { location: 'gym' as const } : {}),
       }
-      return { ...state, sessions: [...state.sessions, s] }
+      // Infoga före ett visst pass om det angetts, annars sist på dagen
+      const day = state.sessions.filter((x) => x.personId === s.personId && x.date === a.date).sort((x, y) => x.order - y.order)
+      const at = a.beforeId ? day.findIndex((x) => x.id === a.beforeId) : -1
+      day.splice(at < 0 ? day.length : at, 0, s)
+      const orders = new Map(day.map((x, i) => [x.id, i]))
+      return { ...state, sessions: [...state.sessions, s].map((x) => (orders.has(x.id) ? { ...x, order: orders.get(x.id)! } : x)) }
     }
     case 'update': {
       const old = state.sessions.find((s) => s.id === a.id)

@@ -9,6 +9,13 @@
   --accent: #0071e3;
   --accent-text: #ffffff;
   --hover: rgba(0, 0, 0, 0.05);
+  --col: rgba(255, 255, 255, 0.5);
+  --cell: rgba(255, 255, 255, 0.72);
+  --a1: #b8c0ff;
+  --a2: #ffc2e2;
+  --a3: #9be7ff;
+  --a4: #ffd9a8;
+  --sheen: rgba(255, 255, 255, 0.55);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.05);
   --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.06), 0 10px 28px rgba(0, 0, 0, 0.12);
   --z1: #7fd1a3;
@@ -40,6 +47,13 @@
     --muted: #8e8e93;
     --accent: #0a84ff;
     --hover: rgba(255, 255, 255, 0.08);
+    --col: rgba(255, 255, 255, 0.06);
+    --cell: rgba(28, 28, 30, 0.6);
+    --a1: #3a3ad9;
+    --a2: #b0389f;
+    --a3: #0a72d9;
+    --a4: #d9573a;
+    --sheen: rgba(255, 255, 255, 0.09);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     --shadow-lift: 0 10px 30px rgba(0, 0, 0, 0.6);
     --z1: #30a46c;
@@ -466,7 +480,9 @@ h3 {
   align-items: stretch;
 }
 .col {
-  background: var(--surface-2);
+  background: var(--col);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
   border: 1.5px solid transparent;
   border-radius: var(--radius);
   padding: 8px;
@@ -477,7 +493,7 @@ h3 {
 }
 .col.over {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+  background: color-mix(in srgb, var(--accent) 10%, var(--col));
   transform: scale(1.008);
 }
 .col.today {
@@ -486,7 +502,7 @@ h3 {
 .col.cell {
   min-height: 116px;
   padding: 6px;
-  background: var(--surface);
+  background: var(--cell);
   border-color: var(--border);
   box-shadow: var(--shadow);
 }
@@ -538,10 +554,12 @@ button.col-title:hover,
   padding: 0 5px;
 }
 .col-list {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
   flex: 1;
+  min-height: 8px;
+  transition: padding-bottom 0.35s var(--spring);
 }
 .add {
   border: 0;
@@ -824,7 +842,7 @@ button.col-title:hover,
 }
 .zone-inputs {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 .zone-inputs label {
@@ -1543,4 +1561,230 @@ button.col-title:hover,
 .btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* levande bakgrund, som ett lakan som rör sig långsamt */
+.app {
+  position: relative;
+  isolation: isolate;
+}
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora i {
+  position: absolute;
+  width: 78vmax;
+  height: 78vmax;
+  border-radius: 42% 58% 63% 37% / 45% 38% 62% 55%;
+  filter: blur(64px);
+  opacity: 0.7;
+  will-change: transform, border-radius;
+}
+.aurora i:nth-child(1) {
+  left: -22vmax;
+  top: -30vmax;
+  background: radial-gradient(circle at 35% 35%, var(--a1), transparent 68%);
+  animation: sheet1 28s ease-in-out infinite alternate;
+}
+.aurora i:nth-child(2) {
+  right: -26vmax;
+  top: -16vmax;
+  background: radial-gradient(circle at 60% 40%, var(--a2), transparent 66%);
+  animation: sheet2 34s ease-in-out infinite alternate;
+}
+.aurora i:nth-child(3) {
+  left: 4vmax;
+  bottom: -40vmax;
+  background: radial-gradient(circle at 50% 50%, var(--a3), transparent 66%);
+  animation: sheet3 31s ease-in-out infinite alternate;
+}
+.aurora i:nth-child(4) {
+  right: -10vmax;
+  bottom: -34vmax;
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(circle at 50% 50%, var(--a4), transparent 66%);
+  animation: sheet4 38s ease-in-out infinite alternate;
+}
+/* diagonala ljusband som glider över tyget */
+.aurora::after {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: repeating-linear-gradient(115deg, transparent 0 160px, var(--sheen) 230px, transparent 300px 520px);
+  filter: blur(36px);
+  opacity: 0.55;
+  animation: sheen 26s ease-in-out infinite alternate;
+}
+@keyframes sheet1 {
+  to {
+    transform: translate3d(14vmax, 10vmax, 0) rotate(38deg) scale(1.12);
+    border-radius: 58% 42% 37% 63% / 55% 62% 38% 45%;
+  }
+}
+@keyframes sheet2 {
+  to {
+    transform: translate3d(-16vmax, 14vmax, 0) rotate(-42deg) scale(0.92);
+    border-radius: 37% 63% 42% 58% / 62% 45% 55% 38%;
+  }
+}
+@keyframes sheet3 {
+  to {
+    transform: translate3d(18vmax, -12vmax, 0) rotate(30deg) scale(1.1);
+    border-radius: 63% 37% 58% 42% / 38% 55% 45% 62%;
+  }
+}
+@keyframes sheet4 {
+  to {
+    transform: translate3d(-12vmax, -14vmax, 0) rotate(-36deg) scale(1.15);
+    border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%;
+  }
+}
+@keyframes sheen {
+  from {
+    transform: translate3d(-8%, -3%, 0) skewX(-6deg);
+  }
+  to {
+    transform: translate3d(8%, 4%, 0) skewX(6deg);
+  }
+}
+.side {
+  background: var(--col);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+.stats {
+  background: transparent;
+}
+
+/* dra och släpp: originalet fälls ihop och korten glider undan för en lucka */
+.chip-wrap {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-top: 0;
+  transition: padding-top 0.38s var(--spring), grid-template-rows 0.34s var(--spring), opacity 0.2s;
+}
+.chip-inner {
+  min-height: 0;
+}
+.chip-pad {
+  padding-bottom: 6px;
+}
+.chip-wrap.src {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.chip-wrap.src .chip-inner {
+  overflow: hidden;
+}
+.chip-wrap.gap-before {
+  padding-top: var(--gh);
+}
+.chip-wrap::before,
+.col-list::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--gh) - 6px);
+  border-radius: 10px;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.chip-wrap::before {
+  top: 0;
+}
+.col-list::after {
+  bottom: 0;
+}
+.chip-wrap.gap-before::before,
+.col-list.gap-end::after {
+  opacity: 1;
+}
+.col-list.gap-end {
+  padding-bottom: var(--gh);
+}
+
+/* träningskort (visning) */
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sc-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.sc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sc-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.sc-zone {
+  display: grid;
+  grid-template-columns: 8px 130px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.sc-zone i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.sc-zone em {
+  font-style: normal;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.sc-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.sc-track b {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  animation: barGrowX 0.7s var(--spring) backwards;
+  transform-origin: left;
+}
+@keyframes barGrowX {
+  from {
+    transform: scaleX(0);
+  }
+}
+.sc-note {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+.sc-notes p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora i,
+  .aurora::after {
+    animation: none !important;
+  }
 }

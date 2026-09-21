@@ -3,7 +3,7 @@ import type { Session, Sport, Zones } from '../types'
 import { SPORTS, cardById } from '../lib/cards'
 import { useZones } from '../lib/zones'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
-import { CoachNote } from './CoachNote'
+import { Segmented } from './Segmented'
 import { Modal } from './Modal'
 import { ZoneBar } from './ZoneBar'
 
@@ -13,9 +13,10 @@ interface Props {
   onDelete: () => void
   onDuplicate: () => void
   onClose: () => void
+  onBack: () => void
 }
 
-export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: Props) {
+export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onBack }: Props) {
   const [s, setS] = useState(session)
   const { labels, names } = useZones()
   const card = cardById(session.cardId)
@@ -39,6 +40,9 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
             Duplicera
           </button>
           <span className="spacer" />
+          <button className="btn" onClick={onBack}>
+            Avbryt
+          </button>
           <button
             className="btn primary"
             onClick={() => {
@@ -52,7 +56,7 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
                 done: s.done,
                 ...(s.location ? { location: s.location } : {}),
               })
-              onClose()
+              onBack()
             }}
           >
             Spara
@@ -60,10 +64,9 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
         </>
       }
     >
-      {card && <CoachNote card={card} location={s.location} onLocation={(l) => set('location', l)} />}
       <label className="field">
         <span>Namn</span>
-        <input value={s.title} onChange={(e) => set('title', e.target.value)} autoFocus />
+        <input value={s.title} onChange={(e) => set('title', e.target.value)} />
       </label>
       <div className="row">
         <label className="field">
@@ -92,20 +95,28 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
               <input type="number" min={0} step={5} value={s.zones[i]} onChange={(e) => setZone(i, +e.target.value)} />
             </label>
           ))}
-          <label title="Styrka, rörlighet – ingen zon">
-            <i style={{ background: 'var(--c-strength)' }} />
-            Ö
-            <input
-              type="number"
-              min={0}
-              step={5}
-              value={s.nonZone}
-              onChange={(e) => set('nonZone', Math.max(0, +e.target.value || 0))}
-            />
-          </label>
         </div>
         <ZoneBar zones={s.zones} nonZone={s.nonZone} />
       </div>
+      {card?.home && (
+        <div className="field">
+          <span>Plats</span>
+          <Segmented
+            value={s.location ?? 'gym'}
+            onChange={(l) => set('location', l)}
+            options={[
+              ['gym', 'Gym'],
+              ['home', 'Hemma'],
+            ]}
+          />
+        </div>
+      )}
+      {(s.nonZone > 0 || s.sport === 'Styrka' || s.sport === 'Rörlighet') && (
+        <label className="field">
+          <span>Tid för styrka och rörlighet (minuter)</span>
+          <input type="number" min={0} step={5} value={s.nonZone} onChange={(e) => set('nonZone', Math.max(0, +e.target.value || 0))} />
+        </label>
+      )}
 
       <label className="field">
         <span>Anteckningar</span>

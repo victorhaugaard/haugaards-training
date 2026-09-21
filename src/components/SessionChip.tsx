@@ -1,8 +1,8 @@
-import type { DragEvent } from 'react'
 import type { Session } from '../types'
 import { CATEGORY_COLOR, cardById, fillZones } from '../lib/cards'
-import { useZones } from '../lib/zones'
+import { useDrag } from '../lib/drag'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
+import { useZones } from '../lib/zones'
 import { ZoneBar } from './ZoneBar'
 
 interface Props {
@@ -12,12 +12,12 @@ interface Props {
   onPatch: (id: string, patch: Partial<Session>) => void
   onOpen: (s: Session) => void
   onToggle: (id: string) => void
-  onDropOn: (e: DragEvent, beforeId: string) => void
 }
 
-export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle, onDropOn }: Props) {
+export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle }: Props) {
   const minutes = sessionMinutes(s)
   const { labels } = useZones()
+  const { start, end } = useDrag()
   const card = cardById(s.cardId)
   const loc = s.location ?? 'gym'
   return (
@@ -27,14 +27,9 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'session', id: s.id }))
         e.dataTransfer.effectAllowed = 'move'
-        e.currentTarget.classList.add('dragging')
+        start({ kind: 'session', id: s.id, h: e.currentTarget.offsetHeight })
       }}
-      onDragEnd={(e) => e.currentTarget.classList.remove('dragging')}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.stopPropagation()
-        onDropOn(e, s.id)
-      }}
+      onDragEnd={end}
       onClick={() => onOpen(s)}
       title={`${s.title} · ${fmtDuration(minutes)}`}
     >

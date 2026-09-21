@@ -1,6 +1,7 @@
-import { useState, type DragEvent } from 'react'
+import { useRef, useState, type DragEvent } from 'react'
 import type { Session, View } from '../types'
 import { cap, dayMonth, fullDate, monthGrid, parse, today, weekdayLong, weekdayShort, weekDays } from '../lib/dates'
+import { useDrag } from '../lib/drag'
 import { fmtHours } from '../lib/stats'
 import { SessionChip } from './SessionChip'
 
@@ -68,23 +69,52 @@ interface ColProps extends Props {
 }
 
 function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, onAdd, onDropTo, onOpenDay }: ColProps) {
-  const [over, setOver] = useState(false)
+  const [hover, setHover] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
+  const { drag, over, setOver, end } = useDrag()
+
   const total = list.reduce((a, s) => a + s.zones.reduce((x, y) => x + y, 0) + s.nonZone, 0)
   const isToday = date === today()
 
+  // Kortet som dras döljs på sin ursprungsplats, resten glider ihop
+  const visible = drag?.kind === 'session' ? list.filter((s) => s.id !== drag.id) : list
+  const gapIndex = over?.date === date ? Math.min(over.index, visible.length) : -1
+  const gapHeight = compact ? 30 : Math.max(48, drag?.h ?? 56)
+
+  // Var i listan musen är, räknat på ursprungslayouten så att luckan inte fladdrar
+  const indexAt = (clientY: number) => {
+    const wrap = listRef.current
+    if (!wrap) return visible.length
+    let y = wrap.getBoundingClientRect().top
+    let idx = 0
+    for (const el of Array.from(wrap.querySelectorAll<HTMLElement>('.chip-wrap:not(.src)'))) {
+      const pad = el.querySelector<HTMLElement>('.chip-pad')
+      const chip = el.querySelector<HTMLElement>('.chip')
+      if (!pad || !chip) continue
+      if (clientY > y + chip.offsetHeight / 2) idx++
+      y += pad.offsetHeight
+    }
+    return idx
+  }
+
   return (
     <div
-      className={'col' + (compact ? ' cell' : '') + (over ? ' over' : '') + (isToday ? ' today' : '') + (muted ? ' muted' : '')}
+      className={'col' + (compact ? ' cell' : '') + (hover ? ' over' : '') + (isToday ? ' today' : '') + (muted ? ' muted' : '')}
       onDragOver={(e) => {
         e.preventDefault()
-        setOver(true)
+        setHover(true)
+        setOver({ date, index: indexAt(e.clientY) })
       }}
       onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false)
+        if (e.currentTarget.contains(e.relatedTarget as Node)) return
+        setHover(false)
+        if (over?.date === date) setOver(null)
       }}
       onDrop={(e) => {
-        setOver(false)
-        onDropTo(e, date)
+        setHover(false)
+        const before = visible[indexAt(e.clientY)]?.id
+        end()
+        onDropTo(e, date, before)
       }}
     >
       <header className="col-head">
@@ -101,22 +131,24 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
         )}
         <span className="col-total">{total ? fmtHours(total) : ''}</span>
       </header>
-      <div className="col-list">
-        {list.map((s) => (
-          <SessionChip
-            key={s.id}
-            session={s}
-            compact={compact}
-            detail={view === 'day'}
-            onPatch={onPatch}
-            onOpen={onOpen}
-            onToggle={onToggle}
-            onDropOn={(e, beforeId) => {
-              setOver(false)
-              onDropTo(e, date, beforeId)
-            }}
-          />
-        ))}
+      <div
+        ref={listRef}
+        className={'col-list' + (gapIndex === visible.length && gapIndex >= 0 ? ' gap-end' : '')}
+        style={{ '--gh': `${gapHeight}px` } as React.CSSProperties}
+      >
+        {list.map((s) => {
+          const src = drag?.kind === 'session' && drag.id === s.id
+          const before = !src && gapIndex >= 0 && visible[gapIndex]?.id === s.id
+          return (
+            <div key={s.id} className={'chip-wrap' + (src ? ' src' : '') + (before ? ' gap-before' : '')}>
+              <div className="chip-inner">
+                <div className="chip-pad">
+                  <SessionChip session={s} compact={compact} detail={view === 'day'} onPatch={onPatch} onOpen={onOpen} onToggle={onToggle} />
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
       <button className="add" onClick={() => onAdd(date)} aria-label="Lägg till pass">
         {compact ? '+' : '+ Lägg till pass'}
