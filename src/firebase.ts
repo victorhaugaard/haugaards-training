@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { browserLocalPersistence, getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth'
+import { browserLocalPersistence, browserPopupRedirectResolver, getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
@@ -22,7 +22,11 @@ const app = cloudEnabled ? initializeApp(config) : undefined
 const makeAuth = () => {
   if (!app) return undefined
   try {
-    return initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] })
+    // initializeAuth (till skillnad från getAuth) behöver få popup-hanteraren angiven, annars ger inloggningen auth/argument-error
+    return initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver,
+    })
   } catch {
     return getAuth(app) // redan initierad (t.ex. vid hot reload)
   }
