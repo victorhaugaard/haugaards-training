@@ -26,6 +26,7 @@ import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, hasSavedLang, type Lang } from './i18
 import { useLang } from './i18n'
 import { useTheme } from './lib/theme'
 import { CoachChat } from './components/CoachChat'
+import { CardInfoModal } from './components/CardInfoModal'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -134,6 +135,7 @@ function Workspace({
   const [pickDate, setPickDate] = useState<string | null>(null)
   const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
   const [libOpen, setLibOpen] = useState(true)
+  const [infoCard, setInfoCard] = useState<TrainingCard | null>(null)
 
   const mine = useMemo(() => state.sessions.filter((s) => s.personId === person.id), [state.sessions, person.id])
   const editing = mine.find((s) => s.id === editId)
@@ -276,8 +278,8 @@ function Workspace({
         {libOpen && view !== 'overview' && (
           <aside className="side">
             <h3>{tr('Träningskort')}</h3>
-            <p className="muted small">{tr('Dra till en dag – eller tryck på + i en dag.')}</p>
-            <CardLibrary />
+            <p className="muted small">{tr('Dra till en dag, eller tryck på ett kort för att se detaljerna.')}</p>
+            <CardLibrary onPick={setInfoCard} />
           </aside>
         )}
       </div>
@@ -293,11 +295,19 @@ function Workspace({
           onDuplicate={() => dispatch({ type: 'duplicate', id: editing.id })}
         />
       )}
+      {infoCard && (
+        <CardInfoModal
+          card={infoCard}
+          defaultDate={cursor}
+          onClose={() => setInfoCard(null)}
+          onAdd={(card, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
+        />
+      )}
       {pickDate && (
         <PickerModal
           date={pickDate}
           onClose={() => setPickDate(null)}
-          onPick={(card: TrainingCard) => dispatch({ type: 'addFromCard', card, date: pickDate })}
+          onPick={(card: TrainingCard, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
         />
       )}
       {dialog === 'person' && (

@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { collection, doc, onSnapshot, writeBatch } from 'firebase/firestore'
-import type { AppState, Person, Session, TrainingCard } from './types'
+import type { AppState, Location, Person, Session, TrainingCard } from './types'
 import { db } from './firebase'
 import { PLAN_END, generatePlan } from './lib/generator'
 import { uid } from './lib/id'
@@ -9,7 +9,7 @@ const KEY = 'haugaards-training:v1'
 const ACTIVE_KEY = 'haugaards-training:active'
 
 export type Action =
-  | { type: 'addFromCard'; card: TrainingCard; date: string; beforeId?: string }
+  | { type: 'addFromCard'; card: TrainingCard; date: string; beforeId?: string; location?: Location }
   | { type: 'update'; id: string; patch: Partial<Session> }
   | { type: 'move'; id: string; date: string; beforeId?: string }
   | { type: 'delete'; id: string }
@@ -71,7 +71,7 @@ const reducer = (state: AppState, a: Action): AppState => {
         nonZone: c.nonZone,
         notes: '',
         done: false,
-        ...(c.home ? { location: 'gym' as const } : {}),
+        ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
       }
       // Infoga före ett visst pass om det angetts, annars sist på dagen
       const day = state.sessions.filter((x) => x.personId === s.personId && x.date === a.date).sort((x, y) => x.order - y.order)

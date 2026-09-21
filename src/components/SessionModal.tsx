@@ -3,12 +3,12 @@ import type { Session } from '../types'
 import { CATEGORY_COLOR, cardById } from '../lib/cards'
 import { cap, fullDate } from '../lib/dates'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
-import { useZones } from '../lib/zones'
 import { CoachNote } from './CoachNote'
 import { EditModal } from './EditModal'
 import { Modal } from './Modal'
 import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
+import { ZoneRows } from './ZoneRows'
 
 interface Props {
   session: Session
@@ -22,7 +22,6 @@ interface Props {
 // Träningsinformation som kort. Redigering öppnas med knappen uppe till höger.
 export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onClose }: Props) {
   const [editing, setEditing] = useState(false)
-  const { labels, names } = useZones()
   const card = cardById(s.cardId)
   const isRest = s.category === 'rest'
 
@@ -39,12 +38,6 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
     )
 
   const total = sessionMinutes(s)
-  const zoneTotal = s.zones.reduce((a, b) => a + b, 0)
-  const rows = [
-    ...s.zones.map((m, i) => ({ label: labels[i], name: names[i], m, color: `var(--z${i + 1})` })),
-    ...(s.nonZone > 0 ? [{ label: '', name: tr(s.sport === 'Rörlighet' ? 'Rörlighet' : 'Styrka'), m: s.nonZone, color: 'var(--c-nonzone)' }] : []),
-  ].filter((r) => r.m > 0)
-
   return (
     <Modal
       title={tr(s.title)}
@@ -78,21 +71,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
         {s.category !== 'rest' && <> · {fmtDuration(total)}</>}
       </div>
 
-      {rows.length > 0 && (
-        <div className="sc-zones">
-          {rows.map((r, i) => (
-            <div key={i} className="sc-zone">
-              <i style={{ background: r.color }} />
-              <span>{r.label ? `${r.label} ${r.name}` : r.name}</span>
-              <div className="sc-track">
-                <b style={{ width: `${(r.m / total) * 100}%`, background: r.color }} />
-              </div>
-              <em>{fmtDuration(r.m)}</em>
-            </div>
-          ))}
-          {zoneTotal > 0 && s.nonZone === 0 && <div className="sc-note">{tr('Totalt {d}', { d: fmtDuration(total) })}</div>}
-        </div>
-      )}
+      <ZoneRows zones={s.zones} nonZone={s.nonZone} sport={s.sport} />
 
       {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={(l) => onPatch({ location: l })} />}
 

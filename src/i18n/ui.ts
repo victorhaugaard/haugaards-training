@@ -261,4 +261,7 @@ export const UI: [string, string, string][] = [
   ['Justerade volymen {pct}% för {n} pass', 'Justerte volumet til {pct}% for {n} økter', 'Adjusted the volume to {pct}% for {n} sessions'],
   ['Flyttade {n} pass {days} dagar', 'Flyttet {n} økter {days} dager', 'Moved {n} sessions by {days} days'],
   ['Byggde om planen från {date}', 'Bygde om planen fra {date}', 'Rebuilt the plan from {date}'],
+  ['Lägg till i kalendern', 'Legg til i kalenderen', 'Add to the calendar'],
+  ['Tillbaka', 'Tilbake', 'Back'],
+  ['Dra till en dag, eller tryck på ett kort för att se detaljerna.', 'Dra til en dag, eller trykk på et kort for å se detaljene.', 'Drag to a day, or tap a card to see the details.'],
 ]
