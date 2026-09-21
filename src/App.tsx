@@ -43,6 +43,7 @@ import { findCheers, pickCheer } from './lib/cheers'
 import { StrengthBuilder, type StrengthValue } from './components/StrengthBuilder'
 import { sessionMinutes } from './lib/stats'
 import { TabBar } from './components/TabBar'
+import { LegalPage } from './components/LegalPage'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -88,7 +89,10 @@ const readLibOpen = () => {
     return true
   }
 }
-const readPage = () => {
+type Page = 'landing' | 'app' | 'privacy' | 'terms'
+const pageFromHash = (): Page => (location.hash === '#/plan' ? 'app' : location.hash === '#/privacy' ? 'privacy' : location.hash === '#/terms' ? 'terms' : 'landing')
+const readPage = (): Page => {
+  if (location.hash === '#/privacy' || location.hash === '#/terms') return pageFromHash()
   let entered = false
   try {
     entered = localStorage.getItem(ENTERED) === '1'
@@ -108,12 +112,13 @@ export function App() {
     if (l && !hasSavedLang()) setLang(l)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email])
-  const [page, setPage] = useState<'landing' | 'app'>(readPage)
+  const [page, setPage] = useState<Page>(readPage)
   useEffect(() => {
-    const on = () => setPage(location.hash === '#/plan' ? 'app' : 'landing')
+    const on = () => setPage(pageFromHash())
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
+  if (page === 'privacy' || page === 'terms') return <LegalPage kind={page} />
   if (page === 'landing')
     return (
       <Landing
@@ -144,6 +149,9 @@ function Login({ onSignIn }: { onSignIn: () => Promise<void> }) {
           {tr('Fortsätt med Google')}
         </button>
         {err && <p className="error">{err}</p>}
+        <p className="muted small">
+          <a href="#/privacy">{tr('Integritetspolicy')}</a> · <a href="#/terms">{tr('Användarvillkor')}</a>
+        </p>
       </div>
     </div>
   )
@@ -776,6 +784,9 @@ function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDel
         )}
       </div>
       {auth.enabled && auth.user?.email && <p className="muted small">{tr('Inloggad som {email}', { email: auth.user.email })}</p>}
+      <p className="muted small">
+        <a href="#/privacy">{tr('Integritetspolicy')}</a> · <a href="#/terms">{tr('Användarvillkor')}</a>
+      </p>
       <p className="muted small">{tr(auth.enabled ? 'Datan synkas via Firebase och delas med alla som är inloggade.' : 'Data sparas i den här webbläsaren (Firebase är inte kopplat). Använd export/import för att flytta mellan enheter.')}</p>
     </Modal>
   )

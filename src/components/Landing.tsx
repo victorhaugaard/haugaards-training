@@ -7,6 +7,7 @@ import { useLang } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
 import { COACHES, coachById, readCoach, saveCoach } from '../lib/coaches'
 import { WeekDemo } from './WeekDemo'
+import { LEGAL } from '../lib/legal'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -142,6 +143,23 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
           <span key={f}>{tr(f)}</span>
         ))}
       </section>
+
+      <footer className="l-footer">
+        <div className="l-footer-brand">
+          <img className="l-logo small" src="/haugaards_training_logo.png" alt="Haugaards training" draggable={false} />
+          <p>{tr('Träningsplanerare för längdskidåkning, byggd för Team Haugaard.')}</p>
+        </div>
+        <div>
+          <h4>{tr('Kontakt')}</h4>
+          <a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a>
+        </div>
+        <div>
+          <h4>{tr('Juridiskt')}</h4>
+          <a href="#/privacy">{tr('Integritetspolicy')}</a>
+          <a href="#/terms">{tr('Användarvillkor')}</a>
+        </div>
+        <p className="l-copy">{tr('© {year} {company}. Alla rättigheter förbehållna.', { year: new Date().getFullYear(), company: LEGAL.company })}</p>
+      </footer>
     </div>
   )
 }

@@ -18,16 +18,17 @@ interface Props {
   onDelete: () => void
   onDuplicate: () => void
   onEditExercises?: () => void
+  readOnly?: boolean // bara information (t.ex. exempelvecka på landningssidan)
   onClose: () => void
 }
 
 // Träningsinformation som kort. Redigering öppnas med knappen uppe till höger.
-export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onEditExercises, onClose }: Props) {
+export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onEditExercises, readOnly, onClose }: Props) {
   const [editing, setEditing] = useState(false)
   const card = cardById(s.cardId)
   const isRest = s.category === 'rest'
 
-  if (editing && !isRest)
+  if (editing && !isRest && !readOnly)
     return (
       <EditModal
         session={s}
@@ -45,7 +46,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       title={tr(s.title)}
       onClose={onClose}
       actions={
-        isRest ? undefined : (
+        isRest || readOnly ? undefined : (
           <button className="btn small" onClick={() => setEditing(true)} aria-label={tr('Redigera pass')}>
             {tr('✎ Redigera')}
           </button>
@@ -53,9 +54,11 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       }
       footer={
         <>
-          <button className="btn danger" onClick={() => (onDelete(), onClose())}>
-            {tr('Ta bort')}
-          </button>
+          {!readOnly && (
+            <button className="btn danger" onClick={() => (onDelete(), onClose())}>
+              {tr('Ta bort')}
+            </button>
+          )}
           <span className="spacer" />
           {!isRest && (
             <button className={'btn ' + (s.done ? '' : 'primary')} onClick={onToggle}>
@@ -90,7 +93,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
           ))}
         </div>
       )}
-      {onEditExercises && s.cardId === 'strength-custom' && (
+      {!readOnly && onEditExercises && s.cardId === 'strength-custom' && (
         <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={onEditExercises}>
           {tr('Redigera övningar')}
         </button>
