@@ -221,6 +221,21 @@ function Workspace({
   // Den som chattar: inloggad pappa har eget tilltal, annars går det på den valda personen
   const viewerInfo = email ? VIEWER_BY_EMAIL[email] : undefined
   const viewer: { name: string; relation: Relation } = viewerInfo ?? { name: person.name, relation: relationOf(person.name) }
+  // Första gången ett känt konto loggar in väljs kontots egen person direkt (t.ex. pappa), om den finns
+  useEffect(() => {
+    if (!viewerInfo || !email) return
+    const key = 'haugaards-training:own-person:' + email
+    try {
+      if (localStorage.getItem(key)) return
+    } catch {
+      /* ignorera */
+    }
+    const own = state.people.find((p) => relationOf(p.name) === viewerInfo.relation)
+    if (!own) return
+    saveSetting(key, '1')
+    if (own.id !== person.id) dispatch({ type: 'setPerson', id: own.id })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.people, email])
   const [notice, setNotice] = useState<Notice | null>(null)
   const { feed, add: addFeed, markRead } = useFeed(person.id)
   const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
