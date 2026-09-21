@@ -112,6 +112,10 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
         setHover(false)
         if (over?.date === date) setOver(null)
       }}
+      onDoubleClick={(e) => {
+        // Dubbelklick på en dag öppnar dagvyn (men inte när man klickar på ett pass eller en knapp)
+        if (view !== 'day' && !(e.target as HTMLElement).closest('.chip-wrap, button, input')) onOpenDay(date)
+      }}
       onDrop={(e) => {
         setHover(false)
         const before = visible[indexAt(e.clientY)]?.id

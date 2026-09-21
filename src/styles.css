@@ -2944,8 +2944,7 @@ button.col-title:hover,
 .side-tab {
   position: fixed;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 28%;
   z-index: 7;
   writing-mode: vertical-rl;
   border: 1px solid var(--border);
@@ -2959,7 +2958,12 @@ button.col-title:hover,
   box-shadow: -8px 8px 22px -10px rgba(0, 0, 0, 0.7);
 }
 .side-tab:hover {
-  padding-right: 13px;
+  background: rgba(30, 40, 72, 0.95);
+}
+/* den globala :active-skalningen får inte flytta knappen under muspekaren */
+.side-tab:active {
+  transform: none;
+  background: rgba(38, 50, 88, 0.95);
 }
 
 /* Autogenerera-knappen i tom kalender */
