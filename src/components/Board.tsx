@@ -146,7 +146,11 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
           const src = drag?.kind === 'session' && drag.id === s.id
           const before = !src && gapIndex >= 0 && visible[gapIndex]?.id === s.id
           return (
-            <div key={s.id} className={'chip-wrap' + (src ? ' src' : '') + (before ? ' gap-before' : '')}>
+            <div
+              key={s.id}
+              className={'chip-wrap' + (src ? ' src' : '') + (before ? ' gap-before' : '')}
+              style={src ? ({ '--h': `${(drag?.h ?? 60) + 6}px` } as React.CSSProperties) : undefined}
+            >
               <div className="chip-inner">
                 <div className="chip-pad">
                   <SessionChip session={s} compact={compact} detail={view === 'day'} onPatch={onPatch} onOpen={onOpen} onToggle={onToggle} onContext={onContext} />

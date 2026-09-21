@@ -1681,10 +1681,9 @@ button.col-title:hover,
 /* dra och släpp: originalet fälls ihop och korten glider undan för en lucka */
 .chip-wrap {
   position: relative;
-  display: grid;
-  grid-template-rows: 1fr;
   padding-top: 0;
-  transition: padding-top 0.38s var(--spring), grid-template-rows 0.34s var(--spring), opacity 0.2s;
+  /* bara padding animeras, så att passets höjd alltid följer innehållet direkt när kolumnen ändrar bredd */
+  transition: padding-top 0.38s var(--spring);
 }
 .chip-inner {
   min-height: 0;
@@ -1693,11 +1692,17 @@ button.col-title:hover,
   padding-bottom: 6px;
 }
 .chip-wrap.src {
-  grid-template-rows: 0fr;
+  height: 0;
   opacity: 0;
-}
-.chip-wrap.src .chip-inner {
   overflow: hidden;
+  padding-top: 0;
+  animation: chipCollapse 0.34s var(--spring) both;
+}
+@keyframes chipCollapse {
+  from {
+    height: var(--h, 60px);
+    opacity: 1;
+  }
 }
 .chip-wrap.gap-before {
   padding-top: var(--gh);
