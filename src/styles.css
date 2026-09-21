@@ -878,7 +878,9 @@ button.col-title:hover,
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 1100px;
+  max-width: 1160px;
+  width: 100%;
+  margin-inline: auto;
 }
 .ov-card {
   background: var(--surface);
@@ -1128,7 +1130,7 @@ button.col-title:hover,
   font-size: 12px;
   line-height: 1.4;
 }
-.coach {
+.cnote {
   background: var(--surface-2);
   border-radius: 14px;
   padding: 14px 16px;
@@ -1136,25 +1138,25 @@ button.col-title:hover,
   flex-direction: column;
   gap: 8px;
 }
-.coach-head {
+.cnote-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.coach p {
+.cnote p {
   margin: 0;
 }
-.coach-purpose {
+.cnote-purpose {
   font-weight: 500;
 }
-.coach ol {
+.cnote ol {
   margin: 0;
   padding-left: 18px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.coach-tip {
+.cnote-tip {
   color: var(--muted);
   font-size: 13px;
 }
@@ -2279,7 +2281,9 @@ button.col-title:hover,
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-width: 820px;
+  max-width: 860px;
+  width: 100%;
+  margin-inline: auto;
 }
 .pf-head {
   display: flex;

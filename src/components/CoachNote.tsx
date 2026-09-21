@@ -15,8 +15,8 @@ export function CoachNote({ card, location, onLocation }: Props) {
   const c = location === 'home' && card.home ? card.home : card.coach
   const f = (t: string) => fillZones(tr(t), labels)
   return (
-    <div className="coach">
-      <div className="coach-head">
+    <div className="cnote">
+      <div className="cnote-head">
         <span className="stat-label">{tr('Coach')}</span>
         {card.home && onLocation && (
           <Segmented
@@ -29,13 +29,13 @@ export function CoachNote({ card, location, onLocation }: Props) {
           />
         )}
       </div>
-      <p className="coach-purpose">{f(c.purpose)}</p>
+      <p className="cnote-purpose">{f(c.purpose)}</p>
       <ol>
         {c.how.map((h, i) => (
           <li key={i}>{f(h)}</li>
         ))}
       </ol>
-      <p className="coach-tip">
+      <p className="cnote-tip">
         <b>{tr('Tips:')}</b> {f(tr(c.tip))}
       </p>
     </div>
