@@ -39,7 +39,7 @@ export function StatsBar({ sessions, label }: { sessions: Session[]; label: stri
         {st.zones.map((z, i) => (
           <div className="zone-col" key={i} title={`${labels[i]} ${names[i]}: ${fmtDuration(z)}`}>
             <div className="zone-track">
-              <span style={{ height: `${(z / max) * 100}%`, background: `var(--z${i + 1})` }} />
+              <span style={{ height: `${(z / max) * 100}%`, '--bar': `var(--z${i + 1})` } as React.CSSProperties} />
             </div>
             <div className="zone-name">{labels[i]}</div>
             <div className="zone-val">{z ? fmtHours(z) : '–'}</div>
@@ -48,7 +48,7 @@ export function StatsBar({ sessions, label }: { sessions: Session[]; label: stri
         ))}
         <div className="zone-col" title={tr('Styrka/rörlighet: {d}', { d: fmtDuration(st.nonZone) })}>
           <div className="zone-track">
-            <span style={{ height: `${(st.nonZone / max) * 100}%`, background: 'var(--c-nonzone)' }} />
+            <span style={{ height: `${(st.nonZone / max) * 100}%`, '--bar': 'var(--c-nonzone)' } as React.CSSProperties} />
           </div>
           <div className="zone-name">{tr('Styrka')}</div>
           <div className="zone-val">{st.nonZone ? fmtHours(st.nonZone) : '–'}</div>

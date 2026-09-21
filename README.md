@@ -39,3 +39,11 @@ Miljövariabler (i `.env.local` lokalt och under *Environment Variables* i Verce
 | `COACH_ALLOWED_EMAILS` | Kommaseparerade Google-konton som får använda coachen |
 
 Funktionen kräver inloggning med Firebase och att kontot står i listan. Lokalt fungerar `npm run dev` (Vite kör samma funktion under `/api/coach`).
+
+## Profilbilder (Firebase Storage)
+
+1. **Build → Storage → Get started** i Firebase Console.
+2. Klistra in [storage.rules](storage.rules) under *Rules* och publicera.
+3. Om ditt projekt är äldre kan bucketen heta `<projekt>.appspot.com`. Sätt då `VITE_FIREBASE_STORAGE_BUCKET` i `.env.local` och i Vercel.
+
+Bilden beskärs till en kvadrat på 256 px och sparas som `avatars/<personId>.jpg`. Utan Firebase sparas den lokalt i webbläsaren.

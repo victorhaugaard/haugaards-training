@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { DoneSession, Person, PlanRecord, Session, Sport } from '../types'
 import { addDays, cap, dayMonth, monthYear, weekdayLong } from '../lib/dates'
 import { planStats, toDone } from '../lib/plans'
@@ -8,11 +8,14 @@ import { Ring } from './Ring'
 import { SportIcon } from './SportIcon'
 import { ZoneBar } from './ZoneBar'
 import { ZoneLegend } from './Overview'
+import { Avatar } from './Avatar'
+import { resizeToSquare, uploadAvatar } from '../lib/avatar'
 
 interface Props {
   person: Person
   sessions: Session[]
   plans: PlanRecord[]
+  onUpdatePerson: (patch: Partial<Person>) => void
 }
 
 const SOURCE: Record<PlanRecord['source'], string> = {
@@ -72,7 +75,23 @@ function PlanCard({ plan, stats, active }: { plan: PlanRecord; stats: ReturnType
   )
 }
 
-export function ProfileView({ person, sessions, plans }: Props) {
+export function ProfileView({ person, sessions, plans, onUpdatePerson }: Props) {
+  const [busy, setBusy] = useState(false)
+  const [photoError, setPhotoError] = useState(false)
+  const fileInput = useRef<HTMLInputElement>(null)
+
+  const pickPhoto = async (file: File) => {
+    setBusy(true)
+    setPhotoError(false)
+    try {
+      const blob = await resizeToSquare(file)
+      onUpdatePerson({ photoUrl: await uploadAvatar(person.id, blob) })
+    } catch {
+      setPhotoError(true)
+    } finally {
+      setBusy(false)
+    }
+  }
   const [sport, setSport] = useState<Sport | 'all'>('all')
   const [limit, setLimit] = useState(40)
 
@@ -114,10 +133,25 @@ export function ProfileView({ person, sessions, plans }: Props) {
   return (
     <div className="profile">
       <header className="pf-head">
-        <span className="coach-avatar big">{person.name.slice(0, 1).toUpperCase()}</span>
+        <button className={'pf-photo' + (busy ? ' busy' : '')} onClick={() => fileInput.current?.click()} aria-label={tr('Byt profilbild')} title={tr('Byt profilbild')}>
+          <Avatar person={person} size={72} />
+          <span className="pf-photo-cta">{busy ? '…' : '✎'}</span>
+        </button>
+        <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && pickPhoto(e.target.files[0])} />
         <div>
           <h2>{person.name}</h2>
           <span className="muted">{tr('Profil och träningshistorik')}</span>
+          <div className="pf-photo-actions">
+            <button className="btn small" onClick={() => fileInput.current?.click()} disabled={busy}>
+              {tr(person.photoUrl ? 'Byt profilbild' : 'Lägg till profilbild')}
+            </button>
+            {person.photoUrl && (
+              <button className="btn small" onClick={() => onUpdatePerson({ photoUrl: '' })} disabled={busy}>
+                {tr('Ta bort bilden')}
+              </button>
+            )}
+          </div>
+          {photoError && <p className="error">{tr('Kunde inte ladda upp bilden. Kontrollera att Firebase Storage är aktiverat och att reglerna är publicerade.')}</p>}
         </div>
       </header>
 

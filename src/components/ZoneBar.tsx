@@ -6,9 +6,9 @@ export function ZoneBar({ zones, nonZone = 0, thin }: { zones: Zones; nonZone?: 
   return (
     <div className={'zonebar' + (thin ? ' thin' : '')}>
       {zones.map((z, i) =>
-        z ? <span key={i} style={{ flex: z, background: `var(--z${i + 1})` }} /> : null,
+        z ? <span key={i} style={{ flex: z, backgroundColor: `var(--z${i + 1})` }} /> : null,
       )}
-      {nonZone > 0 && <span style={{ flex: nonZone, background: 'var(--c-nonzone)' }} />}
+      {nonZone > 0 && <span style={{ flex: nonZone, backgroundColor: 'var(--c-nonzone)' }} />}
     </div>
   )
 }

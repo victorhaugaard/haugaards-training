@@ -313,4 +313,9 @@ export const UI: [string, string, string][] = [
   ['Nere till vänster kan du be honom flytta pass, anpassa planen vid sjukdom eller skada och mycket mer.', 'Nederst til venstre kan du be ham flytte økter, tilpasse planen ved sykdom eller skade og mye mer.', 'At the bottom left you can ask him to move sessions, adapt the plan when you are ill or injured and much more.'],
   ['Skapa min plan', 'Lag min plan', 'Create my plan'],
   ['Titta runt först', 'Se deg litt rundt først', 'Look around first'],
+  // ——— Profilbild ———
+  ['Byt profilbild', 'Bytt profilbilde', 'Change profile picture'],
+  ['Lägg till profilbild', 'Legg til profilbilde', 'Add a profile picture'],
+  ['Ta bort bilden', 'Fjern bildet', 'Remove the picture'],
+  ['Kunde inte ladda upp bilden. Kontrollera att Firebase Storage är aktiverat och att reglerna är publicerade.', 'Kunne ikke laste opp bildet. Kontroller at Firebase Storage er aktivert og at reglene er publisert.', 'Could not upload the picture. Check that Firebase Storage is enabled and the rules are published.'],
 ]

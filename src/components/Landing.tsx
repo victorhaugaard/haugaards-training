@@ -23,6 +23,12 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
   const [imgOk, setImgOk] = useState(true)
   return (
     <div className="landing">
+      <div className="aurora" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
       <nav className="l-nav">
         <span className="l-brand">HAUGAARDS</span>
         <div className="l-races" aria-label={tr('Dagar kvar till tävlingarna')}>

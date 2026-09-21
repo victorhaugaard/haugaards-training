@@ -32,6 +32,7 @@ import { SessionMenu } from './components/SessionMenu'
 import { Toast, type ToastData } from './components/Toast'
 import { withTotal } from './lib/sessionOps'
 import { Welcome } from './components/Welcome'
+import { Avatar } from './components/Avatar'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -41,6 +42,32 @@ const VIEWS: [View, string][] = [
 ]
 
 const ENTERED = 'haugaards-training:entered'
+const VIEW_KEY = 'haugaards-training:view'
+const LIB_KEY = 'haugaards-training:lib-panel'
+const saveSetting = (k: string, v: string) => {
+  try {
+    localStorage.setItem(k, v)
+  } catch {
+    /* ignorera */
+  }
+}
+// Vy och sidopanel kommer ihåg hur du hade dem
+const readView = (): View => {
+  try {
+    const v = localStorage.getItem(VIEW_KEY)
+    if (v === 'day' || v === 'week' || v === 'month' || v === 'overview' || v === 'profile') return v
+  } catch {
+    /* ignorera */
+  }
+  return 'week'
+}
+const readLibOpen = () => {
+  try {
+    return localStorage.getItem(LIB_KEY) !== '0'
+  } catch {
+    return true
+  }
+}
 const readPage = () => {
   let entered = false
   try {
@@ -134,12 +161,14 @@ function Workspace({
   person: Person
   auth: AuthState
 }) {
-  const [view, setView] = useState<View>('week')
+  const [view, setView] = useState<View>(readView)
   const [cursor, setCursor] = useState(today())
   const [editId, setEditId] = useState<string | null>(null)
   const [pickDate, setPickDate] = useState<string | null>(null)
   const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
-  const [libOpen, setLibOpen] = useState(true)
+  const [libOpen, setLibOpen] = useState(readLibOpen)
+  useEffect(() => saveSetting(VIEW_KEY, view), [view])
+  useEffect(() => saveSetting(LIB_KEY, libOpen ? '1' : '0'), [libOpen])
   const [infoCard, setInfoCard] = useState<TrainingCard | null>(null)
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const [swapId, setSwapId] = useState<string | null>(null)
@@ -278,6 +307,7 @@ function Workspace({
               className={'pill' + (p.id === person.id ? ' on' : '')}
               onClick={() => dispatch({ type: 'setPerson', id: p.id })}
             >
+              {p.photoUrl && <Avatar person={p} size={18} />}
               {p.name}
             </button>
           ))}
@@ -312,7 +342,7 @@ function Workspace({
             </button>
           )}
           <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => setView(view === 'profile' ? 'week' : 'profile')} title={tr('Profil')} aria-label={tr('Profil')}>
-            {person.name.slice(0, 1).toUpperCase()}
+            <Avatar person={person} size={30} />
           </button>
           <button className="icon-btn" onClick={() => setDialog('menu')} aria-label={tr('Meny')}>
             ⋯
@@ -325,7 +355,12 @@ function Workspace({
       <div className={'layout' + (libOpen ? ' with-lib' : '')}>
         <main className="main" key={view + (view === 'overview' || view === 'profile' ? '' : cursor)}>
           {view === 'profile' ? (
-            <ProfileView person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} />
+            <ProfileView
+              person={person}
+              sessions={mine}
+              plans={state.plans.filter((p) => p.personId === person.id)}
+              onUpdatePerson={(patch) => dispatch({ type: 'updatePerson', id: person.id, patch })}
+            />
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
           ) : (

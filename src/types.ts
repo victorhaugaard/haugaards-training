@@ -63,6 +63,7 @@ export interface Person {
   createdAt?: number
   runMode?: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
+  photoUrl?: string // profilbild
 }
 
 // Ett avklarat pass i kompakt form, sparas i historiken när en plan avslutas

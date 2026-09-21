@@ -116,7 +116,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
                 title={tr('Vecka {n} · {dur}', { n: weekNumber(w.date), dur: fmtDuration(w.st.total) }) + '\n' + w.st.zones.map((z, i) => `${labels[i]} ${fmtDuration(z)}`).join(' · ')}
               >
                 <div className="wk-bar" style={{ height: `${(w.st.total / weekMax) * 100}%` }}>
-                  {parts.map(([v, c], i) => (v ? <span key={i} style={{ flex: v, background: c }} /> : null)).reverse()}
+                  {parts.map(([v, c], i) => (v ? <span key={i} style={{ flex: v, backgroundColor: c }} /> : null)).reverse()}
                 </div>
                 <div className="wk-label">{weekNumber(w.date)}</div>
               </div>
