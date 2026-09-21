@@ -329,4 +329,8 @@ export const UI: [string, string, string][] = [
   ['längre', 'lengre', 'longer'],
   ['kortare', 'kortere', 'shorter'],
   ['Dra reglaget för att göra kommande pass längre eller kortare.', 'Dra i reglaget for å gjøre kommende økter lengre eller kortere.', 'Drag the slider to make upcoming sessions longer or shorter.'],
+  ['Inga kommande pass', 'Ingen kommende økter', 'No upcoming sessions'],
+  ['Ingen träningsplan ännu', 'Ingen treningsplan ennå', 'No training plan yet'],
+  ['Autogenerera en plan efter dina timmar, din vilodag och löpning.', 'Autogenerer en plan etter timene dine, hviledagen din og løping.', 'Auto-generate a plan based on your hours, your rest day and running.'],
+  ['Autogenerera plan', 'Autogenerer plan', 'Auto-generate plan'],
 ]

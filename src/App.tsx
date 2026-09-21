@@ -63,6 +63,16 @@ const readView = (): View => {
   }
   return 'week'
 }
+const SIDE_KEY = 'haugaards-training:side-width'
+const readSideW = () => {
+  try {
+    const n = Number(localStorage.getItem(SIDE_KEY))
+    if (n >= 220 && n <= 560) return n
+  } catch {
+    /* ignorera */
+  }
+  return 288
+}
 const readLibOpen = () => {
   try {
     return localStorage.getItem(LIB_KEY) !== '0'
@@ -169,6 +179,8 @@ function Workspace({
   const [pickDate, setPickDate] = useState<string | null>(null)
   const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
   const [libOpen, setLibOpen] = useState(readLibOpen)
+  const [sideW, setSideW] = useState(readSideW)
+  const [resizing, setResizing] = useState(false)
   useEffect(() => saveSetting(VIEW_KEY, view), [view])
   useEffect(() => saveSetting(LIB_KEY, libOpen ? '1' : '0'), [libOpen])
   const [infoCard, setInfoCard] = useState<TrainingCard | null>(null)
@@ -243,6 +255,7 @@ function Workspace({
     }
   }
 
+  const noUpcoming = !mine.some((s) => s.date >= today() && s.category !== 'rest')
   const menuSession = menu ? mine.find((s) => s.id === menu.id) : undefined
   const swapSession = swapId ? mine.find((s) => s.id === swapId) : undefined
 
@@ -370,6 +383,18 @@ function Workspace({
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
           ) : (
+          <>
+          {noUpcoming && (
+            <div className="empty-plan">
+              <div>
+                <strong>{tr(mine.length ? 'Inga kommande pass' : 'Ingen träningsplan ännu')}</strong>
+                <span>{tr('Autogenerera en plan efter dina timmar, din vilodag och löpning.')}</span>
+              </div>
+              <button className="btn primary" onClick={() => setDialog('generate')}>
+                {tr('Autogenerera plan')}
+              </button>
+            </div>
+          )}
           <Board
             view={view}
             cursor={cursor}
@@ -382,10 +407,33 @@ function Workspace({
             onDropTo={handleDrop}
             onOpenDay={(d) => (setCursor(d), setView('day'))}
           />
+          </>
           )}
         </main>
         {libOpen && view !== 'overview' && view !== 'profile' && (
-          <aside className="side">
+          <aside className="side" style={{ width: sideW }}>
+            <div
+              className={'side-resize' + (resizing ? ' dragging' : '')}
+              role="separator"
+              aria-orientation="vertical"
+              onPointerDown={(e) => {
+                e.preventDefault()
+                setResizing(true)
+                let w = sideW
+                const move = (ev: PointerEvent) => {
+                  w = Math.max(220, Math.min(560, window.innerWidth - ev.clientX))
+                  setSideW(w)
+                }
+                const up = () => {
+                  setResizing(false)
+                  saveSetting(SIDE_KEY, String(Math.round(w)))
+                  window.removeEventListener('pointermove', move)
+                  window.removeEventListener('pointerup', up)
+                }
+                window.addEventListener('pointermove', move)
+                window.addEventListener('pointerup', up)
+              }}
+            />
             <h3>{tr('Träningskort')}</h3>
             <p className="muted small">{tr('Dra till en dag, eller tryck på ett kort för att se detaljerna.')}</p>
             <CardLibrary onPick={setInfoCard} />
