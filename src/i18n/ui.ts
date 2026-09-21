@@ -142,7 +142,7 @@ export const UI: [string, string, string][] = [
   ['Säsongen 2026/2027', 'Sesongen 2026/2027', 'The 2026/2027 season'],
   ['Välkommen till', 'Velkommen til', 'Welcome to'],
   ['Haugaards träningsplan', 'Haugaards treningsplan', "Haugaard's training plan"],
-  ['En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsiesertal och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.', 'En enkel planlegger for langrenn, laget for to. Følg et opplegg etter skieliteens modell, flytt øktene så de passer uka, kryss av og se hvordan timer og intensitet fordeler seg. Fra Gsiesertal og Vasaloppet til Birkebeinerrennet og Nordenskiöldsloppet.', 'A simple planner for cross-country skiing, built for two. Follow a plan modeled on the ski elite, move sessions to fit your week, tick them off and see how hours and intensity add up. From Gsiesertal and the Vasaloppet to the Birkebeinerrennet and the Nordenskiöldsloppet.'],
+  ['En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsieser Tal Lauf och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.', 'En enkel planlegger for langrenn, laget for to. Følg et opplegg etter skieliteens modell, flytt øktene så de passer uka, kryss av og se hvordan timer og intensitet fordeler seg. Fra Gsieser Tal Lauf og Vasaloppet til Birkebeinerrennet og Nordenskiöldsloppet.', 'A simple planner for cross-country skiing, built for two. Follow a plan modeled on the ski elite, move sessions to fit your week, tick them off and see how hours and intensity add up. From the Gsieser Tal Lauf and the Vasaloppet to the Birkebeinerrennet and the Nordenskiöldsloppet.'],
   ['Öppna planen', 'Åpne planen', 'Open the plan'],
   ['10–15 h', '10–15 t', '10–15 h'],
   ['Träning per vecka', 'Trening per uke', 'Training per week'],
@@ -336,4 +336,7 @@ export const UI: [string, string, string][] = [
   ['Autogenerera en plan efter dina timmar och din vilodag.', 'Autogenerer en plan etter timene dine og hviledagen din.', 'Auto-generate a plan based on your hours and your rest day.'],
   ['Dölj träningskort', 'Skjul treningskort', 'Hide training cards'],
   ['Visa träningskort', 'Vis treningskort', 'Show training cards'],
+  ['Coach Smirnov', 'Coach Smirnov', 'Coach Smirnov'],
+  ['Din tränare finns alltid till hands', 'Treneren din er alltid tilgjengelig', 'Your coach is always on hand'],
+  ['Blir du sjuk, skadar dig eller får ont om tid? Fråga Coach Smirnov. Han flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.', 'Blir du syk, skader deg eller mangler tid? Spør Coach Smirnov. Han flytter og utsetter økter, legger inn rehabilitering, senker eller øker mengden og bygger om planen for deg. Du ser hva som er endret og kan angre alt med ett klikk.', 'Fall ill, get injured or run short of time? Ask Coach Smirnov. He moves and postpones sessions, adds rehab, lowers or raises the volume and rebuilds the plan for you. You see what changed and can undo it all with one click.'],
 ]

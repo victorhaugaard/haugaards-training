@@ -18,7 +18,7 @@ const FEATURES = [
   'Skonsamt för knäna, mest cykel och rullskidor',
 ]
 
-export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: boolean }) {
+export function Landing({ onEnter }: { onEnter: () => void }) {
   const { setLang } = useLang()
   const [imgOk, setImgOk] = useState(true)
   return (
@@ -46,9 +46,6 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
             </button>
           ))}
         </div>
-        <button className="l-link" onClick={onEnter}>
-          {tr(signedIn ? 'Öppna planen' : 'Logga in')}
-        </button>
       </nav>
 
       <header className="l-hero">
@@ -60,7 +57,7 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
             {tr('Haugaards träningsplan')}
           </h1>
           <p className="l-lead">
-            {tr('En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsiesertal och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.')}
+            {tr('En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsieser Tal Lauf och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.')}
           </p>
           <button className="l-cta" onClick={onEnter}>
             {tr('Öppna planen')} <span>→</span>
@@ -91,6 +88,20 @@ export function Landing({ onEnter, signedIn }: { onEnter: () => void; signedIn: 
             </div>
           </article>
         ))}
+      </section>
+
+      <section className="l-coach">
+        <span className="coach-avatar big">S</span>
+        <div>
+          <div className="l-label">{tr('Coach Smirnov')}</div>
+          <h2>{tr('Din tränare finns alltid till hands')}</h2>
+          <p>{tr('Blir du sjuk, skadar dig eller får ont om tid? Fråga Coach Smirnov. Han flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.')}</p>
+          <div className="l-coach-chips">
+            {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q) => (
+              <span key={q}>{tr(q)}</span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="l-features">

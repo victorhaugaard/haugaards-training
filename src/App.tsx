@@ -109,7 +109,6 @@ export function App() {
   if (page === 'landing')
     return (
       <Landing
-        signedIn={!auth.enabled || !!auth.user}
         onEnter={() => {
           try {
             localStorage.setItem(ENTERED, '1')
