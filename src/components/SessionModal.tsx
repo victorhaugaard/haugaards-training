@@ -8,6 +8,7 @@ import { CoachNote } from './CoachNote'
 import { EditModal } from './EditModal'
 import { Modal } from './Modal'
 import { tr } from '../i18n/core'
+import { SportIcon } from './SportIcon'
 
 interface Props {
   session: Session
@@ -70,7 +71,9 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       }
     >
       <div className="sc-meta">
-        <span className="sc-dot" style={{ background: CATEGORY_COLOR[s.category] }} />
+        <span className="sc-icon" style={{ color: CATEGORY_COLOR[s.category] }}>
+          <SportIcon sport={s.sport} size={18} />
+        </span>
         {cap(fullDate(s.date))} · {tr(s.sport)}
         {s.category !== 'rest' && <> · {fmtDuration(total)}</>}
       </div>

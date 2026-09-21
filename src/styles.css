@@ -2128,3 +2128,40 @@ button.col-title:hover,
     padding: 6px;
   }
 }
+
+/* sportikoner */
+.chip-icon {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  display: grid;
+  color: color-mix(in srgb, var(--cc) 55%, #fff);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.chip-main {
+  padding-right: 22px;
+}
+.chip.compact .chip-icon,
+.chip.compact .chip-icon {
+  position: static;
+  order: 1;
+  margin-right: 4px;
+}
+.chip.compact .chip-main {
+  padding-right: 0;
+  order: 2;
+}
+.chip.compact .chip-time {
+  order: 3;
+}
+.tcard .chip-icon {
+  top: 9px;
+}
+.sc-icon {
+  display: grid;
+  flex-shrink: 0;
+}
+.tcard-main {
+  padding-right: 22px;
+}

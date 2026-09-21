@@ -4,6 +4,7 @@ import { useDrag } from '../lib/drag'
 import type { TrainingCard } from '../types'
 import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
+import { SportIcon } from './SportIcon'
 
 interface Props {
   onPick?: (c: TrainingCard) => void
@@ -31,6 +32,9 @@ export function CardLibrary({ onPick }: Props) {
               onClick={() => onPick?.(c)}
             >
               <span className="stripe" style={{ background: CATEGORY_COLOR[c.category] }} />
+              <span className="chip-icon">
+                <SportIcon sport={c.sport} size={16} />
+              </span>
               <div className="tcard-main">
                 <div className="chip-title">{tr(c.name)}</div>
                 <div className="chip-meta">

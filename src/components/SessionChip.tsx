@@ -5,6 +5,7 @@ import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
+import { SportIcon } from './SportIcon'
 
 interface Props {
   session: Session
@@ -50,6 +51,9 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
             <path d="M2.5 6.4l2.3 2.3 4.7-5" />
           </svg>
         </button>
+      </span>
+      <span className="chip-icon" title={tr(s.sport)}>
+        <SportIcon sport={s.sport} size={compact ? 12 : 16} />
       </span>
       <div className="chip-main">
         <div className="chip-title">{tr(s.title)}</div>
