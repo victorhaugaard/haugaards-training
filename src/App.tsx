@@ -35,8 +35,11 @@ import { Welcome } from './components/Welcome'
 import { Avatar } from './components/Avatar'
 import { PlanModal } from './components/PlanModal'
 import { scaleUpcoming } from './lib/sessionOps'
-import { COACHES, readCoach, saveCoach } from './lib/coaches'
+import { COACHES, coachById, readCoach, saveCoach, whoFor } from './lib/coaches'
 import { CoachAvatar } from './components/CoachAvatar'
+import { NoticeToast, type Notice } from './components/NoticeToast'
+import { useFeed } from './lib/feed'
+import { findCheers, pickCheer } from './lib/cheers'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -205,6 +208,9 @@ function Workspace({
   })
   const [nudge, setNudge] = useState(false)
   const [coachId, setCoachId] = useState(readCoach)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [notice, setNotice] = useState<Notice | null>(null)
+  const { feed, add: addFeed, markRead } = useFeed(person.id)
   const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
   const [newName, setNewName] = useState<string | undefined>()
   const closeWelcome = () => {
@@ -261,6 +267,45 @@ function Workspace({
   const showSide = view !== 'overview' && view !== 'profile'
   const stepping = showSide
   const noUpcoming = !mine.some((s) => s.date >= today() && s.category !== 'rest')
+  // Peppmeddelanden när pass, veckor och milstolpar avklaras
+  const prevDone = useRef<Set<string> | null>(null)
+  const prevPerson = useRef('')
+  useEffect(() => {
+    const now = new Set(mine.filter((s) => s.done).map((s) => s.id))
+    if (prevPerson.current !== person.id || !prevDone.current) {
+      prevPerson.current = person.id
+      prevDone.current = now
+      return
+    }
+    const newly = mine.filter((s) => s.done && !prevDone.current!.has(s.id))
+    prevDone.current = now
+    if (!newly.length) return
+
+    const key = 'haugaards-training:awards:' + person.id
+    let awarded = new Set<string>()
+    try {
+      awarded = new Set(JSON.parse(localStorage.getItem(key) ?? '[]'))
+    } catch {
+      /* ignorera */
+    }
+    const activePlan = state.plans.find((p) => p.personId === person.id && !p.endedAt)
+    const { cheers, silent } = findCheers(mine, newly, activePlan, awarded)
+    for (const k of [...silent, ...cheers.map((c) => c.key)]) awarded.add(k)
+    saveSetting(key, JSON.stringify([...awarded].slice(-400)))
+    if (!cheers.length) return
+
+    const coach = coachById(coachId)
+    const who = whoFor(coach, person.name, tr)
+    const seen = chatOpen // är chatten redan öppen läser man meddelandet direkt
+    let top = ''
+    for (const c of [...cheers].reverse()) {
+      top = tr(pickCheer(coach.id, c.kind), { who, title: c.title ? tr(c.title) : '', pct: c.pct ?? '' })
+      addFeed({ coachId: coach.id, text: top, read: seen })
+    }
+    if (!seen) setNotice({ id: String(Date.now()), coachId: coach.id, text: top })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mine, person.id])
+
   const menuSession = menu ? mine.find((s) => s.id === menu.id) : undefined
   const swapSession = swapId ? mine.find((s) => s.id === swapId) : undefined
 
@@ -311,7 +356,7 @@ function Workspace({
   return (
     <DragProvider>
     <div className="app">
-      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} coachId={coachId} onCoachChange={changeCoach} />
+      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} coachId={coachId} onCoachChange={changeCoach} open={chatOpen} onOpenChange={setChatOpen} feed={feed} onRead={markRead} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
@@ -522,6 +567,7 @@ function Workspace({
           onLookAround={() => (closeWelcome(), setNudge(true))}
         />
       )}
+      {notice && !chatOpen && <NoticeToast notice={notice} onOpen={() => (setChatOpen(true), setNotice(null))} onClose={() => setNotice(null)} />}
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       {pickDate && (
         <PickerModal

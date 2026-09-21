@@ -127,3 +127,9 @@ export const saveCoach = (id: string) => {
 // Vem pratar coachen med? Används för tilltal och för släktskap i familjecoacherna.
 export type Relation = 'victor' | 'dad' | 'other'
 export const relationOf = (name: string): Relation => (/victor/i.test(name) ? 'victor' : /^(ø|o)ivind|pappa|^dad$|^far$/i.test(name.trim()) ? 'dad' : 'other')
+
+// Hur coachen tilltalar den som är vald: släktnamn för familjecoacherna, annars namnet
+export const whoFor = (coach: Coach, personName: string, translate: (s: string) => string): string => {
+  const r = relationOf(personName)
+  return coach.call && r !== 'other' ? translate(coach.call[r]) : personName
+}

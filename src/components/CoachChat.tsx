@@ -8,6 +8,7 @@ import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
 import { COACHES, coachById, relationOf } from '../lib/coaches'
+import type { FeedMsg } from '../lib/feed'
 
 interface Props {
   person: Person
@@ -17,10 +18,16 @@ interface Props {
   getToken?: () => Promise<string | undefined>
   coachId: string
   onCoachChange: (id: string) => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  feed: FeedMsg[] // peppmeddelanden
+  onRead: (coachId: string) => void
 }
 
 interface Ui {
   id: number
+  at: number
+  cheer?: boolean
   role: 'user' | 'coach' | 'error'
   text: string
   actions?: string[]
@@ -83,8 +90,7 @@ function Text({ text }: { text: string }) {
   )
 }
 
-export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId, onCoachChange }: Props) {
-  const [open, setOpen] = useState(false)
+export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId, onCoachChange, open, onOpenChange, feed, onRead }: Props) {
   const [pick, setPick] = useState(false)
   const coach = coachById(coachId)
   const relation = relationOf(person.name)
@@ -103,7 +109,15 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
-  }, [ui, busy, open])
+  }, [ui, busy, open, feed.length])
+
+  // Peppmeddelanden från den valda coachen visas som vanliga meddelanden i samtalet
+  const mineFeed = feed.filter((m) => m.coachId === coach.id)
+  const unread = mineFeed.filter((m) => !m.read).length
+  useEffect(() => {
+    if (open && unread) onRead(coach.id)
+  }, [open, unread, coach.id, onRead])
+  const all: Ui[] = [...ui, ...mineFeed.map((m, i) => ({ id: -(i + 1), at: m.at, role: 'coach' as const, text: m.text, cheer: true }))].sort((a, b) => a.at - b.at)
 
   // Nytt samtal när man byter person eller coach
   useEffect(() => {
@@ -111,7 +125,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
     setUi([])
   }, [person.id, coachId])
 
-  const push = (m: Omit<Ui, 'id'>) => setUi((l) => [...l, { ...m, id: nextId.current++ }])
+  const push = (m: Omit<Ui, 'id' | 'at'>) => setUi((l) => [...l, { ...m, id: nextId.current++, at: Date.now() }])
 
   const call = async (messages: ApiMsg[], context: string) => {
     const headers: Record<string, string> = { 'content-type': 'application/json' }
@@ -219,7 +233,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
                   ↺
                 </button>
               )}
-              <button className="icon-btn" aria-label={tr('Stäng')} onClick={() => setOpen(false)}>
+              <button className="icon-btn" aria-label={tr('Stäng')} onClick={() => onOpenChange(false)}>
                 ✕
               </button>
             </div>
@@ -264,8 +278,8 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
                 ))}
               </div>
             )}
-            {ui.map((m) => (
-              <div key={m.id} className={'coach-msg ' + (m.role === 'coach' ? 'from-coach' : m.role)}>
+            {all.map((m) => (
+              <div key={m.id} className={'coach-msg ' + (m.role === 'coach' ? 'from-coach' : m.role) + (m.cheer ? ' cheer' : '')}>
                 <Text text={m.text} />
                 {m.actions && m.actions.length > 0 && (
                   <ul className="coach-actions">
@@ -309,9 +323,10 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
           </form>
         </section>
       )}
-      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-label={coach.name}>
+      <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => onOpenChange(!open)} aria-label={coach.name}>
         <CoachAvatar coach={coach} />
         <span className="coach-label">{coach.name}</span>
+        {unread > 0 && !open && <span className="coach-badge">{unread}</span>}
       </button>
     </div>
   )

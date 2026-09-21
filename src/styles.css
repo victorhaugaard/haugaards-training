@@ -3211,3 +3211,97 @@ button.col-title:hover,
 .coach-grid .coach-avatar {
   flex: none;
 }
+
+/* notis uppe i högra hörnet och olästa meddelanden */
+.notice {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 45;
+  width: min(360px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)), rgba(14, 20, 38, 0.92);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(24px) saturate(170%);
+  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  animation: noticeIn 0.6s var(--spring);
+}
+.notice:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.notice .coach-avatar {
+  flex: none;
+}
+.notice-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.3;
+}
+.notice-body strong {
+  font-size: 13px;
+}
+.notice-body span {
+  color: rgba(242, 245, 255, 0.78);
+  font-size: 13px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.notice-x {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 12px;
+}
+.notice-x:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+@keyframes noticeIn {
+  from {
+    opacity: 0;
+    transform: translateX(120%) scale(0.96);
+  }
+}
+.coach-launcher {
+  position: relative;
+}
+.coach-badge {
+  position: absolute;
+  top: -8px;
+  left: 28px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: #ff453a;
+  box-shadow: 0 0 0 2px var(--bg), 0 4px 10px rgba(255, 69, 58, 0.5);
+  animation: badgePop 0.5s var(--bounce);
+}
+@keyframes badgePop {
+  from {
+    transform: scale(0);
+  }
+}
+.coach-msg.cheer {
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
