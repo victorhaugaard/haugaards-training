@@ -32,7 +32,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
         <i />
       </div>
       <nav className="l-nav">
-        <span className="l-brand">HAUGAARDS</span>
+        <img className="l-logo" src="/haugaards_training_logo.png" alt="Haugaards training" draggable={false} />
         <div className="l-races" aria-label={tr('Dagar kvar till tävlingarna')}>
           {RACES.map((r) => (
             <span key={r.id} title={`${r.name} ${r.date}`}>
@@ -59,7 +59,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             {tr('Haugaards träningsplan')}
           </h1>
           <p className="l-lead">
-            {tr('En enkel planerare för längdskidåkning, byggd för två. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsieser Tal Lauf och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.')}
+            {tr('En enkel planerare för längdskidåkning, byggd för Team Haugaard. Följ ett upplägg på skidelitens modell, flytta passen så det passar veckan, checka av och se hur timmar och intensitet faller ut. Från Gsieser Tal Lauf och Vasaloppet till Birkebeinerrennet och Nordenskiöldsloppet.')}
           </p>
           <button className="l-cta" onClick={onEnter}>
             {tr('Öppna planen')} <span>→</span>
@@ -106,10 +106,15 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
             </div>
             <span>{tr('Välj mellan tio coacher, från Smirnov till Farmor & Farfar.')}</span>
           </div>
-          <div className="l-coach-chips">
-            {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q) => (
-              <span key={q}>{tr(q)}</span>
+          <div className="l-chat" aria-hidden="true">
+            {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q, i) => (
+              <span key={q} className="bubble me" style={{ animationDelay: `${0.15 * i}s` }}>
+                {tr(q)}
+              </span>
             ))}
+            <span className="bubble coach" style={{ animationDelay: '0.6s' }}>
+              {tr('Berätta vad som har hänt, så anpassar jag planen.')}
+            </span>
           </div>
         </div>
       </section>

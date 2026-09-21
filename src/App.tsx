@@ -136,7 +136,7 @@ function Login({ onSignIn }: { onSignIn: () => Promise<void> }) {
   return (
     <div className="splash">
       <div className="login">
-        <div className="logo" />
+        <img className="login-logo" src="/haugaards_training_logo.png" alt="Haugaards training" draggable={false} />
         <h1>{tr('Träning')}</h1>
         <p className="muted">{tr('Logga in för att se och planera träningen.')}</p>
         <button className="btn primary big" onClick={() => onSignIn().catch((e: Error) => setErr(e.message))}>

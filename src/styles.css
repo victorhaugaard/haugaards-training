@@ -3383,3 +3383,48 @@ button.col-title:hover,
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* logotyp */
+.l-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+  user-select: none;
+}
+.login-logo {
+  width: min(280px, 70vw);
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(47, 107, 255, 0.35));
+}
+
+/* exempelfrågor som pratbubblor i en chatt */
+.l-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+  max-width: 560px;
+}
+.bubble {
+  position: relative;
+  max-width: 88%;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1.35;
+  animation: chipIn 0.6s var(--spring) backwards;
+}
+.bubble.me {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--l-mint) 92%, #fff), var(--l-mint));
+  color: var(--l-cta-text, #fff);
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--l-mint) 70%, transparent);
+}
+.bubble.coach {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(242, 244, 245, 0.9);
+  border-bottom-left-radius: 6px;
+}
