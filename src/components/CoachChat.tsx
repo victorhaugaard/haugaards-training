@@ -6,6 +6,7 @@ import { runTool } from '../lib/coachTools'
 import { useZones } from '../lib/zones'
 import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
+import { CoachAvatar } from './CoachAvatar'
 
 interface Props {
   person: Person
@@ -187,7 +188,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
       {open && (
         <section className="coach-panel" aria-label="Coach Smirnov">
           <header className="coach-head">
-            <span className="coach-avatar">S</span>
+            <CoachAvatar />
             <div>
               <strong>Coach Smirnov</strong>
               <span>{tr('Din tränare, kan ändra planen')}</span>
@@ -271,7 +272,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken }: Props
         </section>
       )}
       <button className={'coach-launcher' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-label="Coach Smirnov">
-        <span className="coach-avatar">S</span>
+        <CoachAvatar />
         <span className="coach-label">Coach Smirnov</span>
       </button>
     </div>

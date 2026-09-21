@@ -4,6 +4,7 @@ import { RACES } from '../lib/races'
 import { Ring } from './Ring'
 import { tr, LANGS, getLang } from '../i18n/core'
 import { useLang } from '../i18n'
+import { CoachAvatar } from './CoachAvatar'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -91,7 +92,7 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
       </section>
 
       <section className="l-coach">
-        <span className="coach-avatar big">S</span>
+        <CoachAvatar size={84} />
         <div>
           <div className="l-label">{tr('Coach Smirnov')}</div>
           <h2>{tr('Din tränare finns alltid till hands')}</h2>
