@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { browserLocalPersistence, getAuth, setPersistence } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const env = import.meta.env
@@ -15,4 +15,7 @@ export const cloudEnabled = Boolean(config.apiKey && config.projectId)
 
 const app = cloudEnabled ? initializeApp(config) : undefined
 export const auth = app ? getAuth(app) : undefined
+// Håll användaren inloggad i samma webbläsare (överlever omstart av flik och webbläsare)
+if (auth) void setPersistence(auth, browserLocalPersistence).catch(() => {})
+
 export const db = app ? getFirestore(app) : undefined

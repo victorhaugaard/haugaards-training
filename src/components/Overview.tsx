@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { Session, Zones } from '../types'
-import { addDays, cap, monthYear, startOfWeek, today, weekNumber } from '../lib/dates'
+import { addDays, cap, dayMonth, daysUntil, monthYear, startOfWeek, today, weekNumber } from '../lib/dates'
+import { RACE } from '../lib/generator'
 import { computeStats, fmtDuration, fmtHours, type Stats } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { Num } from './Num'
@@ -42,10 +43,13 @@ export function Overview({ sessions, onOpenMonth }: Props) {
   const { months, weeks, all, weekMax } = useMemo(() => {
     const byMonth = new Map<string, Session[]>()
     const byWeek = new Map<string, Session[]>()
+    const training = sessions.filter((s) => s.category !== 'race')
     for (const s of sessions) {
       const m = byMonth.get(monthKey(s.date)) ?? []
       m.push(s)
       byMonth.set(monthKey(s.date), m)
+    }
+    for (const s of training) {
       const w = startOfWeek(s.date)
       const l = byWeek.get(w) ?? []
       l.push(s)
@@ -58,7 +62,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
     return {
       months,
       weeks,
-      all: computeStats(sessions),
+      all: computeStats(training),
       weekMax: Math.max(60, ...weeks.map((w) => w.st.total)),
     }
   }, [sessions])
@@ -74,7 +78,7 @@ export function Overview({ sessions, onOpenMonth }: Props) {
       <section className="ov-card total">
         <div className="ov-head">
           <div>
-            <div className="stat-label">Hela perioden</div>
+            <div className="stat-label">Mot {RACE.name} · {daysUntil(RACE.date)} dagar kvar ({dayMonth(RACE.date)})</div>
             <div className="ov-big">
               <Num value={all.total} format={fmtHours} />
             </div>

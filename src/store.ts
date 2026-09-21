@@ -16,6 +16,7 @@ export type Action =
   | { type: 'duplicate'; id: string }
   | { type: 'toggleDone'; id: string }
   | { type: 'setPerson'; id: string }
+  | { type: 'updatePerson'; id: string; patch: Partial<Person> }
   | { type: 'addPerson'; person: Person; sessions: Session[] }
   | { type: 'deletePerson'; id: string }
   | { type: 'regenerate'; personId: string; from: string; sessions: Session[] }
@@ -23,11 +24,11 @@ export type Action =
   | { type: 'remote'; people: Person[]; sessions: Session[] }
 
 const initial = (): AppState => {
-  const me: Person = { id: uid(), name: 'Victor', createdAt: 0 }
+  const me: Person = { id: uid(), name: 'Victor', createdAt: 0, runMode: 'little' }
   return {
     people: [me],
     activePersonId: me.id,
-    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: '2026-12-31', hoursPerWeek: 12 }),
+    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: '2026-12-31', hoursPerWeek: 12, runMode: 'little' }),
   }
 }
 
@@ -68,6 +69,7 @@ const reducer = (state: AppState, a: Action): AppState => {
         nonZone: c.nonZone,
         notes: '',
         done: false,
+        ...(c.home ? { location: 'gym' as const } : {}),
       }
       return { ...state, sessions: [...state.sessions, s] }
     }
@@ -107,6 +109,8 @@ const reducer = (state: AppState, a: Action): AppState => {
       return { ...state, sessions: state.sessions.map((s) => (s.id === a.id ? { ...s, done: !s.done } : s)) }
     case 'setPerson':
       return { ...state, activePersonId: a.id }
+    case 'updatePerson':
+      return { ...state, people: state.people.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)) }
     case 'addPerson':
       return {
         people: [...state.people, a.person],

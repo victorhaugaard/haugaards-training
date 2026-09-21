@@ -5,12 +5,25 @@ export type Sport =
   | 'Rullskidor'
   | 'Cykel'
   | 'Skidor'
+  | 'Stakmaskin'
   | 'Styrka'
   | 'Rörlighet'
   | 'Tävling'
   | 'Övrigt'
 
 export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other'
+
+export type Location = 'gym' | 'home'
+export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
+
+export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Tävling & övrigt'
+
+// Coachens beskrivning av ett pass. {z1}–{z5} ersätts med aktuellt zonsystem.
+export interface Coach {
+  purpose: string
+  how: string[]
+  tip: string
+}
 
 export interface TrainingCard {
   id: string
@@ -21,6 +34,9 @@ export interface TrainingCard {
   nonZone: number // minuter utan zon (styrka, rörlighet)
   flex?: boolean // kan skalas i längd av generatorn
   hint: string
+  group: Group
+  coach: Coach
+  home?: Coach // alternativ version hemma med lätta redskap
 }
 
 export interface Session {
@@ -36,12 +52,14 @@ export interface Session {
   nonZone: number
   notes: string
   done: boolean
+  location?: Location
 }
 
 export interface Person {
   id: string
   name: string
   createdAt?: number
+  runMode?: RunMode
 }
 
 export interface AppState {

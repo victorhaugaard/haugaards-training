@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import type { Person } from '../types'
+import type { Person, RunMode } from '../types'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
 
-export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number }
+export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number; runMode: RunMode }
 
 interface Props {
   people: Person[]
@@ -18,6 +18,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
   const [hours, setHours] = useState(10)
+  const [runMode, setRunMode] = useState<RunMode>('none')
 
   return (
     <Modal
@@ -29,7 +30,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           <button
             className="btn primary"
             disabled={!name.trim()}
-            onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours }), onClose())}
+            onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours, runMode }), onClose())}
           >
             Skapa
           </button>
@@ -52,6 +53,19 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           ]}
         />
       </div>
+      {mode !== 'empty' && (
+        <div className="field">
+          <span>Löpning</span>
+          <Segmented
+            value={runMode}
+            onChange={setRunMode}
+            options={[
+              ['none', 'Ingen (skonsamt)'],
+              ['little', 'Lite då och då'],
+            ]}
+          />
+        </div>
+      )}
       {mode === 'copy' && (
         <>
           <label className="field">

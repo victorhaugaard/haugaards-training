@@ -22,3 +22,7 @@ Utan Firebase-nycklar körs appen lokalt (localStorage). Med nycklar synkas allt
 ## Vercel
 
 Importera repot på Vercel (Framework: Vite) och lägg samma `VITE_FIREBASE_*`-variabler under *Environment Variables*.
+
+## Startsidans bild
+
+Lägg en liggande eller stående bild som `public/hero.jpg`. Den visas på startsidan. Saknas filen visas en ringgrafik i stället.

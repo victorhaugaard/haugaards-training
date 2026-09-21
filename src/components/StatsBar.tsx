@@ -2,6 +2,7 @@ import type { Session } from '../types'
 import { useZones } from '../lib/zones'
 import { computeStats, fmtDuration, fmtHours } from '../lib/stats'
 import { Num } from './Num'
+import { Ring } from './Ring'
 
 export function StatsBar({ sessions, label }: { sessions: Session[]; label: string }) {
   const { labels, names } = useZones()
@@ -19,16 +20,18 @@ export function StatsBar({ sessions, label }: { sessions: Session[]; label: stri
         </div>
         <div className="stat-sub">{st.count} pass</div>
       </div>
-      <div className="stat-block">
-        <div className="stat-label">Genomfört</div>
-        <div className="stat-big">
-          <Num value={st.done} format={fmtHours} />
-        </div>
-        <div className="progress">
-          <span style={{ width: `${pct}%` }} />
-        </div>
-        <div className="stat-sub">
-          {st.doneCount}/{st.count} pass · {pct}%
+      <div className="stat-block done-block">
+        <Ring value={st.total ? st.done / st.total : 0} size={56} stroke={5}>
+          <span>{pct}%</span>
+        </Ring>
+        <div>
+          <div className="stat-label">Genomfört</div>
+          <div className="stat-big">
+            <Num value={st.done} format={fmtHours} />
+          </div>
+          <div className="stat-sub">
+            {st.doneCount}/{st.count} pass
+          </div>
         </div>
       </div>
       <div className="zones">

@@ -10,6 +10,7 @@ interface Props {
   sessions: Session[]
   onOpen: (s: Session) => void
   onToggle: (id: string) => void
+  onPatch: (id: string, patch: Partial<Session>) => void
   onAdd: (date: string) => void
   onDropTo: (e: DragEvent, date: string, beforeId?: string) => void
   onOpenDay: (date: string) => void
@@ -66,7 +67,7 @@ interface ColProps extends Props {
   muted?: boolean
 }
 
-function Column({ view, date, list, compact, muted, onOpen, onToggle, onAdd, onDropTo, onOpenDay }: ColProps) {
+function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, onAdd, onDropTo, onOpenDay }: ColProps) {
   const [over, setOver] = useState(false)
   const total = list.reduce((a, s) => a + s.zones.reduce((x, y) => x + y, 0) + s.nonZone, 0)
   const isToday = date === today()
@@ -106,6 +107,8 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onAdd, onD
             key={s.id}
             session={s}
             compact={compact}
+            detail={view === 'day'}
+            onPatch={onPatch}
             onOpen={onOpen}
             onToggle={onToggle}
             onDropOn={(e, beforeId) => {

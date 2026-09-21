@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import type { Session, Sport, Zones } from '../types'
-import { SPORTS } from '../lib/cards'
+import { SPORTS, cardById } from '../lib/cards'
 import { useZones } from '../lib/zones'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
+import { CoachNote } from './CoachNote'
 import { Modal } from './Modal'
 import { ZoneBar } from './ZoneBar'
 
@@ -17,6 +18,7 @@ interface Props {
 export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: Props) {
   const [s, setS] = useState(session)
   const { labels, names } = useZones()
+  const card = cardById(session.cardId)
   const set = <K extends keyof Session>(k: K, v: Session[K]) => setS((x) => ({ ...x, [k]: v }))
   const setZone = (i: number, v: number) => {
     const z = [...s.zones] as Zones
@@ -48,6 +50,7 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
                 nonZone: s.nonZone,
                 notes: s.notes,
                 done: s.done,
+                ...(s.location ? { location: s.location } : {}),
               })
               onClose()
             }}
@@ -57,6 +60,7 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose }: P
         </>
       }
     >
+      {card && <CoachNote card={card} location={s.location} onLocation={(l) => set('location', l)} />}
       <label className="field">
         <span>Namn</span>
         <input value={s.title} onChange={(e) => set('title', e.target.value)} autoFocus />

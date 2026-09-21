@@ -1,10 +1,13 @@
-import { useMemo, useRef, useState, type DragEvent, type Dispatch } from 'react'
+import { useEffect, useMemo, useRef, useState, type DragEvent, type Dispatch } from 'react'
 import type { AppState, Person, Session, TrainingCard, View } from './types'
 import { useStore, type Action } from './store'
 import { useAuth, type AuthState } from './auth'
 import { useZones } from './lib/zones'
 import { ZONE_SYSTEMS, type ZoneSystem } from './lib/cards'
 import { Segmented } from './components/Segmented'
+import { Landing } from './components/Landing'
+import { PlanGuide } from './components/PlanGuide'
+import type { GenerateChoice } from './components/GenerateModal'
 import { Overview } from './components/Overview'
 import { addDays, addMonths, cap, dayMonth, fullDate, iso, monthYear, parse, startOfWeek, today, weekNumber } from './lib/dates'
 import { cardById } from './lib/cards'
@@ -26,8 +29,39 @@ const VIEWS: [View, string][] = [
   ['overview', 'Översikt'],
 ]
 
+const ENTERED = 'haugaards-training:entered'
+const readPage = () => {
+  let entered = false
+  try {
+    entered = localStorage.getItem(ENTERED) === '1'
+  } catch {
+    /* ignorera */
+  }
+  return location.hash === '#/plan' || (!location.hash && entered) ? 'app' : 'landing'
+}
+
 export function App() {
   const auth = useAuth()
+  const [page, setPage] = useState<'landing' | 'app'>(readPage)
+  useEffect(() => {
+    const on = () => setPage(location.hash === '#/plan' ? 'app' : 'landing')
+    window.addEventListener('hashchange', on)
+    return () => window.removeEventListener('hashchange', on)
+  }, [])
+  if (page === 'landing')
+    return (
+      <Landing
+        signedIn={!auth.enabled || !!auth.user}
+        onEnter={() => {
+          try {
+            localStorage.setItem(ENTERED, '1')
+          } catch {
+            /* ignorera */
+          }
+          location.hash = '#/plan'
+        }}
+      />
+    )
   if (auth.enabled && !auth.ready) return <div className="splash" />
   if (auth.enabled && !auth.user) return <Login onSignIn={auth.signIn} />
   return <Planner auth={auth} />
@@ -85,7 +119,7 @@ function Workspace({
   const [cursor, setCursor] = useState(today())
   const [editId, setEditId] = useState<string | null>(null)
   const [pickDate, setPickDate] = useState<string | null>(null)
-  const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu'>(null)
+  const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
   const [libOpen, setLibOpen] = useState(true)
 
   const mine = useMemo(() => state.sessions.filter((s) => s.personId === person.id), [state.sessions, person.id])
@@ -131,15 +165,16 @@ function Workspace({
   const createPerson = (n: NewPerson) => {
     const id = uid()
     let sessions: Session[] = []
-    if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale)
+    if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
     if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: '2026-12-31', hoursPerWeek: n.hours })
-    dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now() }, sessions })
+      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: '2026-12-31', hoursPerWeek: n.hours, runMode: n.runMode })
+    dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode }, sessions })
   }
 
-  const regenerate = (o: { start: string; end: string; hours: number }) => {
+  const regenerate = (o: GenerateChoice) => {
+    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode } })
     const doneDays = new Set(mine.filter((s) => s.done).map((s) => s.date))
-    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours }).filter(
+    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode }).filter(
       (s) => !doneDays.has(s.date),
     )
     dispatch({ type: 'regenerate', personId: person.id, from: o.start, sessions })
@@ -148,6 +183,9 @@ function Workspace({
   return (
     <div className="app">
       <header className="topbar">
+        <a className="brand" href="#/" title="Startsida">
+          H
+        </a>
         <div className="people">
           {state.people.map((p) => (
             <button
@@ -207,6 +245,7 @@ function Workspace({
             sessions={mine}
             onOpen={(s) => setEditId(s.id)}
             onToggle={(id) => dispatch({ type: 'toggleDone', id })}
+            onPatch={(id, patch) => dispatch({ type: 'update', id, patch })}
             onAdd={setPickDate}
             onDropTo={handleDrop}
             onOpenDay={(d) => (setCursor(d), setView('day'))}
@@ -242,7 +281,12 @@ function Workspace({
       {dialog === 'person' && (
         <PersonModal people={state.people} activeId={person.id} onCreate={createPerson} onClose={() => setDialog(null)} />
       )}
-      {dialog === 'generate' && <GenerateModal name={person.name} onGenerate={regenerate} onClose={() => setDialog(null)} />}
+      {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} onGenerate={regenerate} onClose={() => setDialog(null)} />}
+      {dialog === 'guide' && (
+        <Modal wide title={`Om planen · ${person.name}`} onClose={() => setDialog(null)}>
+          <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} />
+        </Modal>
+      )}
       {dialog === 'menu' && (
         <MenuModal
           auth={auth}
@@ -250,6 +294,7 @@ function Workspace({
           personName={person.name}
           canDelete={state.people.length > 1}
           onGenerate={() => setDialog('generate')}
+          onGuide={() => setDialog('guide')}
           onDeletePerson={() => {
             if (confirm(`Ta bort ${person.name} och hela planen?`)) dispatch({ type: 'deletePerson', id: person.id })
             setDialog(null)
@@ -268,12 +313,13 @@ interface MenuProps {
   personName: string
   canDelete: boolean
   onGenerate: () => void
+  onGuide: () => void
   onDeletePerson: () => void
   onLoad: (s: AppState) => void
   onClose: () => void
 }
 
-function MenuModal({ auth, state, personName, canDelete, onGenerate, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, onDeletePerson, onLoad, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
 
@@ -313,6 +359,9 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onDeletePer
         </span>
       </div>
       <div className="menu">
+        <button className="btn" onClick={onGuide}>
+          Om planen för {personName}
+        </button>
         <button className="btn" onClick={onGenerate}>
           Autogenerera plan för {personName}
         </button>

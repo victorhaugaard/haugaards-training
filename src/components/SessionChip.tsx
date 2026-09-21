@@ -1,19 +1,25 @@
 import type { DragEvent } from 'react'
 import type { Session } from '../types'
-import { CATEGORY_COLOR } from '../lib/cards'
+import { CATEGORY_COLOR, cardById, fillZones } from '../lib/cards'
+import { useZones } from '../lib/zones'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { ZoneBar } from './ZoneBar'
 
 interface Props {
   session: Session
   compact?: boolean
+  detail?: boolean
+  onPatch: (id: string, patch: Partial<Session>) => void
   onOpen: (s: Session) => void
   onToggle: (id: string) => void
   onDropOn: (e: DragEvent, beforeId: string) => void
 }
 
-export function SessionChip({ session: s, compact, onOpen, onToggle, onDropOn }: Props) {
+export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onToggle, onDropOn }: Props) {
   const minutes = sessionMinutes(s)
+  const { labels } = useZones()
+  const card = cardById(s.cardId)
+  const loc = s.location ?? 'gym'
   return (
     <div
       className={'chip' + (s.done ? ' done' : '') + (compact ? ' compact' : '')}
@@ -54,7 +60,20 @@ export function SessionChip({ session: s, compact, onOpen, onToggle, onDropOn }:
           <>
             <div className="chip-meta">
               {fmtDuration(minutes)} · {s.sport}
+              {card?.home && (
+                <button
+                  className="loc"
+                  title="Växla mellan gym och hemma"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onPatch(s.id, { location: loc === 'gym' ? 'home' : 'gym' })
+                  }}
+                >
+                  {loc === 'gym' ? 'Gym' : 'Hemma'}
+                </button>
+              )}
             </div>
+            {detail && card && <div className="chip-detail">{fillZones((loc === 'home' && card.home ? card.home : card.coach).purpose, labels)}</div>}
             <ZoneBar zones={s.zones} nonZone={s.nonZone} thin />
           </>
         )}

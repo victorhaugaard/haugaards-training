@@ -59,3 +59,5 @@ export const dayMonth = (s: string) => fmt({ day: 'numeric', month: 'short' }).f
 export const monthYear = (s: string) => fmt({ month: 'long', year: 'numeric' }).format(parse(s))
 export const fullDate = (s: string) => fmt({ weekday: 'long', day: 'numeric', month: 'long' }).format(parse(s))
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+export const daysUntil = (s: string) => Math.round((parse(s).getTime() - parse(today()).getTime()) / 86400000)
