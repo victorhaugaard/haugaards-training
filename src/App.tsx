@@ -255,6 +255,8 @@ function Workspace({
     }
   }
 
+  const showSide = view !== 'overview' && view !== 'profile'
+  const stepping = showSide
   const noUpcoming = !mine.some((s) => s.date >= today() && s.category !== 'rest')
   const menuSession = menu ? mine.find((s) => s.id === menu.id) : undefined
   const swapSession = swapId ? mine.find((s) => s.id === swapId) : undefined
@@ -333,31 +335,34 @@ function Workspace({
           </button>
         </div>
         <div className="nav">
-          {view !== 'overview' && view !== 'profile' && (
-            <>
-              <button className="icon-btn" onClick={() => step(-1)} aria-label={tr('Föregående')}>
-                ‹
-              </button>
-              <button className="btn small" onClick={() => setCursor(today())}>
-                {tr('Idag')}
-              </button>
-              <button className="icon-btn" onClick={() => step(1)} aria-label={tr('Nästa')}>
-                ›
-              </button>
-            </>
+          {stepping && (
+            <button className="today-btn" onClick={() => setCursor(today())}>
+              {tr('Idag')}
+            </button>
           )}
-          <div className="nav-title">
-            <strong>{title}</strong>
-            {subtitle && <span>{subtitle}</span>}
+          <div className={'pager' + (stepping ? '' : ' plain')}>
+            {stepping && (
+              <button className="pager-arrow" onClick={() => step(-1)} aria-label={tr('Föregående')}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 5l-7 7 7 7" />
+                </svg>
+              </button>
+            )}
+            <div className="nav-title">
+              <strong>{title}</strong>
+              {subtitle && <span>{subtitle}</span>}
+            </div>
+            {stepping && (
+              <button className="pager-arrow" onClick={() => step(1)} aria-label={tr('Nästa')}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
         <div className="right">
           <Segmented value={view} options={VIEWS.map(([v, l]) => [v, tr(l)] as [View, string])} onChange={setView} />
-          {view !== 'overview' && view !== 'profile' && (
-            <button className="icon-btn" onClick={() => setLibOpen((o) => !o)} aria-label={tr('Visa/dölj träningskort')} title={tr('Träningskort')}>
-              ▤
-            </button>
-          )}
           <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => (view === 'profile' ? setView(backView) : (setBackView(view), setView('profile')))} title={tr('Profil')} aria-label={tr('Profil')}>
             <Avatar person={person} size={30} />
           </button>
@@ -367,9 +372,9 @@ function Workspace({
         </div>
       </header>
 
-      {view !== 'overview' && view !== 'profile' && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
-
       <div className={'layout' + (libOpen ? ' with-lib' : '')}>
+        <div className="content">
+        {showSide && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
         <main className="main" key={view + (view === 'overview' || view === 'profile' ? '' : cursor)}>
           {view === 'profile' ? (
             <ProfileView
@@ -388,7 +393,7 @@ function Workspace({
             <div className="empty-plan">
               <div>
                 <strong>{tr(mine.length ? 'Inga kommande pass' : 'Ingen träningsplan ännu')}</strong>
-                <span>{tr('Autogenerera en plan efter dina timmar, din vilodag och löpning.')}</span>
+                <span>{tr('Autogenerera en plan efter dina timmar och din vilodag.')}</span>
               </div>
               <button className="btn primary" onClick={() => setDialog('generate')}>
                 {tr('Autogenerera plan')}
@@ -410,7 +415,13 @@ function Workspace({
           </>
           )}
         </main>
-        {libOpen && view !== 'overview' && view !== 'profile' && (
+        </div>
+        {!libOpen && showSide && (
+          <button className="side-tab" onClick={() => setLibOpen(true)} aria-label={tr('Visa träningskort')}>
+            ‹ {tr('Träningskort')}
+          </button>
+        )}
+        {libOpen && showSide && (
           <aside className="side" style={{ width: sideW }}>
             <div
               className={'side-resize' + (resizing ? ' dragging' : '')}
@@ -434,7 +445,12 @@ function Workspace({
                 window.addEventListener('pointerup', up)
               }}
             />
-            <h3>{tr('Träningskort')}</h3>
+            <div className="side-head">
+              <h3>{tr('Träningskort')}</h3>
+              <button className="icon-btn" onClick={() => setLibOpen(false)} aria-label={tr('Dölj träningskort')} title={tr('Dölj träningskort')}>
+                ›
+              </button>
+            </div>
             <p className="muted small">{tr('Dra till en dag, eller tryck på ett kort för att se detaljerna.')}</p>
             <CardLibrary onPick={setInfoCard} />
           </aside>

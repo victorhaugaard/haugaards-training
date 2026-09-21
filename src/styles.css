@@ -2864,3 +2864,139 @@ button.col-title:hover,
   color: var(--muted);
   font-size: 13px;
 }
+
+/* navigering: pilar runt veckan, Idag utan kant */
+.nav {
+  gap: 10px;
+}
+.today-btn {
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 999px;
+}
+.today-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.pager.plain {
+  background: none;
+  padding: 0;
+}
+.pager-arrow {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 0;
+}
+.pager-arrow svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pager-arrow:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.nav-title {
+  margin-left: 0;
+  min-width: 200px;
+}
+
+/* sidopanelen tar hela höjden, statistiken bor bredvid */
+.content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.content .main {
+  flex: 1;
+  min-height: 0;
+}
+.side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.side-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 7;
+  writing-mode: vertical-rl;
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  background: rgba(16, 22, 42, 0.9);
+  color: var(--text);
+  padding: 16px 9px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: -8px 8px 22px -10px rgba(0, 0, 0, 0.7);
+}
+.side-tab:hover {
+  padding-right: 13px;
+}
+
+/* Autogenerera-knappen i tom kalender */
+.empty-plan .btn.primary {
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 60%, #fff), var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, #000));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22) inset, 0 10px 30px -6px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 34px -4px color-mix(in srgb, var(--accent) 55%, transparent);
+  transition: transform 0.35s var(--spring), box-shadow 0.35s var(--spring);
+}
+.empty-plan .btn.primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: shine 3.6s ease-in-out infinite;
+}
+.empty-plan .btn.primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3) inset, 0 14px 38px -6px color-mix(in srgb, var(--accent) 90%, transparent), 0 0 46px -2px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+:root[data-theme='mono'] .empty-plan .btn.primary {
+  color: #0a0a0a;
+}
+@keyframes shine {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .empty-plan .btn.primary::after {
+    animation: none;
+  }
+}

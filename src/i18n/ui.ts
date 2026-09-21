@@ -333,4 +333,7 @@ export const UI: [string, string, string][] = [
   ['Ingen träningsplan ännu', 'Ingen treningsplan ennå', 'No training plan yet'],
   ['Autogenerera en plan efter dina timmar, din vilodag och löpning.', 'Autogenerer en plan etter timene dine, hviledagen din og løping.', 'Auto-generate a plan based on your hours, your rest day and running.'],
   ['Autogenerera plan', 'Autogenerer plan', 'Auto-generate plan'],
+  ['Autogenerera en plan efter dina timmar och din vilodag.', 'Autogenerer en plan etter timene dine og hviledagen din.', 'Auto-generate a plan based on your hours and your rest day.'],
+  ['Dölj träningskort', 'Skjul treningskort', 'Hide training cards'],
+  ['Visa träningskort', 'Vis treningskort', 'Show training cards'],
 ]
