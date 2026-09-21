@@ -57,7 +57,7 @@ export const UI: [string, string, string][] = [
   ['Löpning', 'Løping', 'Running'],
   ['Rullskidor', 'Rulleski', 'Roller skiing'],
   ['Cykel', 'Sykkel', 'Cycling'],
-  ['Skidor', 'Ski', 'Skiing'],
+  ['Skidor', 'Langrenn', 'Cross-country skiing'],
   ['Stakmaskin', 'Stakemaskin', 'Ercolina'],
   ['Styrka', 'Styrke', 'Strength'],
   ['Rörlighet', 'Mobilitet', 'Mobility'],

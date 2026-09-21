@@ -57,9 +57,16 @@ export const setCurrentLang = (l: Lang) => {
 }
 export const locale = () => LOCALE[current]
 
+// Svenska visningsnamn som skiljer sig från nyckeln (nycklarna finns kvar i sparade pass)
+const SV_DISPLAY: Record<string, string> = {
+  Skidor: 'Längdskidor',
+  'Skidor distans': 'Längdskidor distans',
+  'Långpass skidor': 'Långpass längdskidor',
+}
+
 // Översätt en svensk text. {namn} ersätts med värden.
 export const tr = (sv: string, vars?: Record<string, string | number>) => {
-  let s = current === 'sv' ? sv : (dicts[current].get(sv) ?? sv)
+  let s = current === 'sv' ? (SV_DISPLAY[sv] ?? sv) : (dicts[current].get(sv) ?? sv)
   if (vars) for (const k in vars) s = s.split(`{${k}}`).join(String(vars[k]))
   return s
 }

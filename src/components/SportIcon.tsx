@@ -32,20 +32,19 @@ const PATHS: Record<Sport, React.ReactNode> = {
   ),
   Skidor: (
     <>
-      <circle cx="16.5" cy="3.6" r="2.2" fill="currentColor" stroke="none" />
-      <path d="M14.8 8 10.6 13" strokeWidth="3.8" />
-      <path d="M14.4 9.4l4.4 1.6L21.4 20" strokeWidth="1.4" />
-      <path d="M10.6 13 6.6 13.4 3.4 12.2" strokeWidth="2.8" />
-      <path d="M10.6 13 13.6 16.4 12.6 19.6" strokeWidth="2.8" />
-      <path d="M2 15.2l5.6 4.6h2" strokeWidth="1.3" />
-      <path d="M8.4 21h13q1.4 0 1.9-1.2" strokeWidth="1.3" />
+      <path d="M6 21.5 16.6 4.2q.9-1.4 2.4-1.2" strokeWidth="1.7" />
+      <path d="M18 21.5 7.4 4.2Q6.5 2.8 5 3" strokeWidth="1.7" />
+      <path d="M2.5 4.5 3.7 21.5M21.5 4.5l-1.2 17" strokeWidth="1.3" />
+      <path d="M1.5 17.5h4M18.5 17.5h4" strokeWidth="1.3" />
     </>
   ),
   Stakmaskin: (
     <>
-      <path d="M17 3v18M14 21h6M17 5.5h-5.9" />
-      <circle cx="9" cy="5.5" r="2.1" />
-      <path d="M9 7.1V15M6 15h6" />
+      <path d="M3.5 8.2h17M3.5 15.8h17" strokeWidth="1.5" />
+      <circle cx="5.5" cy="10.8" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="18.5" cy="10.8" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="5.5" cy="18.4" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="18.5" cy="18.4" r="1.7" fill="currentColor" stroke="none" />
     </>
   ),
   Styrka: <path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11" />,

@@ -49,7 +49,7 @@ export const CARD_TEXT: [string, string, string][] = [
   ['Ta med vatten och något att äta', 'Ta med vann og noe å spise', 'Bring water and something to eat'],
   ['Välj en väg med lite trafik och bra asfalt.', 'Velg en vei med lite trafikk og god asfalt.', 'Choose a road with little traffic and good asphalt.'],
   // Skidor distans
-  ['Skidor distans', 'Ski distanse', 'Ski endurance'],
+  ['Skidor distans', 'Langrenn distanse', 'Cross-country ski endurance'],
   ['På snö, lugn–distans', 'På snø, rolig–distanse', 'On snow, easy–endurance'],
   ['Skidspecifik bas på snö. Tekniken sätts under lugna former.', 'Skispesifikk basis på snø. Teknikken settes under rolige forhold.', 'Ski-specific base on snow. Technique is built under relaxed conditions.'],
   ['Lugnt tempo, mest {z1}', 'Rolig tempo, mest {z1}', 'Easy pace, mostly {z1}'],
@@ -57,7 +57,7 @@ export const CARD_TEXT: [string, string, string][] = [
   ['Testa olika spår och underlag', 'Test ulike løyper og underlag', 'Try different tracks and surfaces'],
   ['Finns ingen snö ännu? Byt mot rullskidor eller cykel.', 'Ingen snø ennå? Bytt til rulleski eller sykkel.', 'No snow yet? Switch to roller skis or cycling.'],
   // Långpass skidor
-  ['Långpass skidor', 'Langtur ski', 'Long ski session'],
+  ['Långpass skidor', 'Langtur langrenn', 'Long cross-country ski session'],
   ['På snö, långt och lugnt', 'På snø, langt og rolig', 'On snow, long and easy'],
   ['Bygger volym på snö. Det här är det viktigaste passet inför Nordenskiöldsloppet och dess 220 km.', 'Bygger volum på snø. Dette er den viktigste økten foran Nordenskiöldsloppet og dets 220 km.', 'Builds volume on snow. This is the most important session ahead of the Nordenskiöldsloppet and its 220 km.'],
   ['Lugn början, håll {z1} första timmen', 'Rolig start, hold {z1} den første timen', 'Easy start, stay in {z1} for the first hour'],
