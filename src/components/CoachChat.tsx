@@ -119,11 +119,32 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
   }, [open, unread, coach.id, onRead])
   const all: Ui[] = [...ui, ...mineFeed.map((m, i) => ({ id: -(i + 1), at: m.at, role: 'coach' as const, text: m.text, cheer: true }))].sort((a, b) => a.at - b.at)
 
-  // Nytt samtal när man byter person eller coach
+  // Samtalet sparas per person och coach och finns kvar när man stänger sidan och kommer tillbaka
+  const chatKey = `haugaards-training:chat:${person.id}:${coachId}`
+  const [loadedKey, setLoadedKey] = useState('')
   useEffect(() => {
-    history.current = []
-    setUi([])
-  }, [person.id, coachId])
+    let saved: { ui: Ui[]; api: ApiMsg[] } = { ui: [], api: [] }
+    try {
+      saved = JSON.parse(localStorage.getItem(chatKey) ?? '') as typeof saved
+    } catch {
+      /* ingen sparad historik */
+    }
+    history.current = Array.isArray(saved.api) ? saved.api : []
+    const list = Array.isArray(saved.ui) ? saved.ui : []
+    nextId.current = list.reduce((m, x) => Math.max(m, x.id), 0) + 1
+    setUi(list)
+    setLoadedKey(chatKey)
+  }, [chatKey])
+  useEffect(() => {
+    if (loadedKey !== chatKey) return // vänta tills rätt historik lästs in
+    try {
+      // ångra-data (hela planer) sparas inte
+      const lite = ui.slice(-80).map(({ undo: _u, undoPlans: _p, ...rest }) => rest)
+      localStorage.setItem(chatKey, JSON.stringify({ ui: lite, api: history.current }))
+    } catch {
+      /* ignorera */
+    }
+  }, [ui, chatKey, loadedKey])
 
   const push = (m: Omit<Ui, 'id' | 'at'>) => setUi((l) => [...l, { ...m, id: nextId.current++, at: Date.now() }])
 
@@ -220,6 +241,9 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
               </div>
             </button>
             <div className="coach-head-actions">
+              <button className="icon-btn" aria-label={tr('Stäng')} onClick={() => onOpenChange(false)}>
+                ✕
+              </button>
               {ui.length > 0 && (
                 <button
                   className="icon-btn"
@@ -233,9 +257,6 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, coachId
                   ↺
                 </button>
               )}
-              <button className="icon-btn" aria-label={tr('Stäng')} onClick={() => onOpenChange(false)}>
-                ✕
-              </button>
             </div>
           </header>
 
