@@ -22,6 +22,16 @@ const detect = (): Lang => {
   return 'sv'
 }
 
+// Standardspråk för vissa konton, används om man inte själv valt språk
+export const DEFAULT_LANG_BY_EMAIL: Record<string, Lang> = { 'ohaug01@gmail.com': 'no' }
+export const hasSavedLang = () => {
+  try {
+    return localStorage.getItem(KEY) !== null
+  } catch {
+    return false
+  }
+}
+
 let current: Lang = detect()
 const dicts: Record<Exclude<Lang, 'sv'>, Map<string, string>> = { no: new Map(), en: new Map() }
 

@@ -177,9 +177,10 @@ export interface GenerateOptions {
   end: string
   hoursPerWeek: number
   runMode: RunMode
+  restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
 }
 
-export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: GenerateOptions): Session[] => {
+export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, restDay = 0 }: GenerateOptions): Session[] => {
   const out: Session[] = []
   let weekStart = startOfWeek(start)
   let w = 0
@@ -203,7 +204,11 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode }: Ge
     const recovery = w % 4 === 3
     const odd = w % 2 === 1
     const target = hoursPerWeek * 60 * CYCLE[w % 4] * PHASE_VOLUME[phase]
-    const slots = TEMPLATES[phase].filter((s) => !(recovery && s.drop))
+    // Vilodagen byter plats med måndagen så att resten av veckans rytm ligger kvar
+    const swap = (d: number) => (restDay > 0 ? (d === 0 ? restDay : d === restDay ? 0 : d) : d)
+    const slots = TEMPLATES[phase]
+      .filter((s) => !(recovery && s.drop) && (restDay >= 0 || s.card !== 'rest'))
+      .map((s) => ({ ...s, day: swap(s.day) }))
     const qScale = recovery ? 0.75 : 1
     const isQ = (cat: string) => cat === 'quality' || cat === 'hard'
 

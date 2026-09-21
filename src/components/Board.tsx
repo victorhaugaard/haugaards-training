@@ -150,6 +150,12 @@ function Column({ view, date, list, compact, muted, onOpen, onToggle, onPatch, o
             </div>
           )
         })}
+        {visible.length === 0 && gapIndex < 0 && (
+          <div className={'rest-ghost' + (compact ? ' compact' : '')}>
+            <span className="stripe" style={{ background: 'var(--c-rest)' }} />
+            {tr(compact ? 'Vila' : 'Vilodag')}
+          </div>
+        )}
       </div>
       <button className="add" onClick={() => onAdd(date)} aria-label={tr('Lägg till pass')}>
         {compact ? '+' : tr('+ Lägg till pass')}

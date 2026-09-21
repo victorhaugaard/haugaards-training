@@ -25,11 +25,11 @@ export type Action =
   | { type: 'remote'; people: Person[]; sessions: Session[] }
 
 const initial = (): AppState => {
-  const me: Person = { id: uid(), name: 'Victor', createdAt: 0, runMode: 'little' }
+  const me: Person = { id: uid(), name: 'Victor', createdAt: 0, runMode: 'little', restDay: 0 }
   return {
     people: [me],
     activePersonId: me.id,
-    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: PLAN_END, hoursPerWeek: 12, runMode: 'little' }),
+    sessions: generatePlan({ personId: me.id, start: '2026-09-21', end: PLAN_END, hoursPerWeek: 12, runMode: 'little', restDay: 0 }),
   }
 }
 

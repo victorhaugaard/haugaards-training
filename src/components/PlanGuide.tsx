@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { RunMode, Session } from '../types'
 import { CYCLE, PHASES } from '../lib/generator'
-import { startOfWeek } from '../lib/dates'
+import { addDays, cap, startOfWeek, weekdayLong } from '../lib/dates'
 import { fmtHours } from '../lib/stats'
 import { getLang, tr } from '../i18n/core'
 import { rich } from '../i18n'
@@ -18,7 +18,7 @@ const GROUPS: [string, (s: Session) => boolean][] = [
 const dec = (n: number) => n.toFixed(1).replace('.', getLang() === 'en' ? '.' : ',')
 const mins = (s: Session) => s.zones.reduce((a, b) => a + b, 0) + s.nonZone
 
-export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; runMode: RunMode }) {
+export function PlanGuide({ sessions: all, runMode, restDay = 0 }: { sessions: Session[]; runMode: RunMode; restDay?: number }) {
   const sessions = useMemo(() => all.filter((s) => s.category !== 'race' && s.category !== 'rest'), [all])
   const st = useMemo(() => {
     const weeks = Math.max(1, new Set(sessions.map((s) => startOfWeek(s.date))).size)
@@ -98,23 +98,31 @@ export function PlanGuide({ sessions: all, runMode }: { sessions: Session[]; run
       </ol>
 
       <h4>{tr('Veckans rytm')}</h4>
+      {restDay === 0 ? (
       <ul className="rhythm">
-        <li>
-          <b>{tr('Mån')}</b> {tr('Vilodag. Kroppen bygger upp det du tränade i helgen.')}
-        </li>
-        <li>
-          <b>{tr('Tis och lör')}</b> {tr('Kvalitet: tröskel, VO₂ eller stakmaskin. Kroppen ska vara utvilad.')}
-        </li>
-        <li>
-          <b>{tr('Tor')}</b> {tr('Lättare kvalitet, tempo eller fartlek, och styrka för överkroppen. Släpps i vilovecka.')}
-        </li>
-        <li>
-          <b>{tr('Sön')}</b> {tr('Långpass, växelvis rullskidor och cykel.')}
-        </li>
-        <li>
-          <b>{tr('Ons och fre')}</b> {tr('Lugn bas, styrka (gym eller hemma) och rörlighet.')}
-        </li>
-      </ul>
+          <li>
+            <b>{tr('Mån')}</b> {tr('Vilodag. Kroppen bygger upp det du tränade i helgen.')}
+          </li>
+          <li>
+            <b>{tr('Tis och lör')}</b> {tr('Kvalitet: tröskel, VO₂ eller stakmaskin. Kroppen ska vara utvilad.')}
+          </li>
+          <li>
+            <b>{tr('Tor')}</b> {tr('Lättare kvalitet, tempo eller fartlek, och styrka för överkroppen. Släpps i vilovecka.')}
+          </li>
+          <li>
+            <b>{tr('Sön')}</b> {tr('Långpass, växelvis rullskidor och cykel.')}
+          </li>
+          <li>
+            <b>{tr('Ons och fre')}</b> {tr('Lugn bas, styrka (gym eller hemma) och rörlighet.')}
+          </li>
+        </ul>
+      ) : (
+        <p className="muted small">
+          {restDay > 0
+            ? tr('Vilodagen ligger på {dag}. Passen som annars ligger där har flyttats till måndagen.', { dag: cap(weekdayLong(addDays('2026-09-21', restDay))) })
+            : tr('Ingen fast vilodag. Lägg in vila själv där kroppen behöver det.')}
+        </p>
+      )}
 
       <h4>{tr('Före och efter tävling')}</h4>
       <ul className="rhythm">

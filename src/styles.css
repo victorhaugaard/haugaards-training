@@ -531,7 +531,7 @@ button.col-title:hover,
   font-size: 12px;
 }
 .today .daynum {
-  color: #fff;
+  color: var(--accent-text);
   background: var(--accent);
   font-weight: 600;
   min-width: 20px;
@@ -715,7 +715,7 @@ button.col-title:hover,
   width: 12px;
   height: 12px;
   fill: none;
-  stroke: #fff;
+  stroke: var(--accent-text);
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -1307,8 +1307,10 @@ button.col-title:hover,
 .landing {
   --l-bg: #0a0c0f;
   --l-mint: #4d84ff;
+  --l-glow: rgba(47, 107, 255, 0.22);
+  --l-cta-text: #ffffff;
   min-height: 100%;
-  background: radial-gradient(900px 500px at 85% -10%, rgba(47, 107, 255, 0.22), transparent 60%), var(--l-bg);
+  background: radial-gradient(900px 500px at 85% -10%, var(--l-glow), transparent 60%), var(--l-bg);
   color: #f2f4f5;
   --ring-track: rgba(255, 255, 255, 0.1);
   padding: 0 clamp(20px, 5vw, 64px) 56px;
@@ -1385,7 +1387,7 @@ button.col-title:hover,
   align-items: center;
   border: 0;
   background: var(--l-mint);
-  color: #ffffff;
+  color: var(--l-cta-text);
   padding: 14px 26px;
   border-radius: 999px;
   font-weight: 600;
@@ -1398,7 +1400,7 @@ button.col-title:hover,
   transform: translateX(4px);
 }
 .l-cta:hover {
-  box-shadow: 0 0 0 6px rgba(47, 107, 255, 0.28);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--l-mint) 28%, transparent);
 }
 .l-visual {
   position: relative;
@@ -1847,4 +1849,53 @@ button.col-title:hover,
 .l-lang button.on {
   color: #fff;
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* svartvitt tema */
+:root[data-theme='mono'] {
+  --bg: #050505;
+  --surface: #121212;
+  --surface-2: #0b0b0b;
+  --glass: rgba(6, 6, 6, 0.62);
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #f5f5f5;
+  --muted: #9a9a9a;
+  --accent: #f5f5f5;
+  --accent-text: #0a0a0a;
+  --hover: rgba(255, 255, 255, 0.08);
+  --thumb: rgba(255, 255, 255, 0.16);
+  --col: rgba(255, 255, 255, 0.05);
+  --cell: rgba(18, 18, 18, 0.6);
+  --a1: #3a3a3a;
+  --a2: #8a8a8a;
+  --a3: #1a1a1a;
+  --a4: #5e5e5e;
+  --sheen: rgba(255, 255, 255, 0.1);
+  --shadow-lift: 0 14px 36px -8px rgba(255, 255, 255, 0.16), 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='mono'] .landing {
+  --l-mint: #ffffff;
+  --l-glow: rgba(255, 255, 255, 0.1);
+  --l-cta-text: #0a0a0a;
+}
+
+/* vilodag på tomma dagar */
+.rest-ghost {
+  position: relative;
+  padding: 9px 10px 9px 14px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  overflow: hidden;
+  opacity: 0.75;
+  animation: fade 0.4s;
+}
+.rest-ghost .stripe {
+  opacity: 0.45;
+}
+.rest-ghost.compact {
+  padding: 3px 6px 3px 11px;
+  font-size: 11px;
+  border-radius: 8px;
 }

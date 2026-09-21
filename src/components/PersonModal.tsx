@@ -3,8 +3,9 @@ import type { Person, RunMode } from '../types'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
 import { tr } from '../i18n/core'
+import { RestDayField } from './RestDayField'
 
-export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number; runMode: RunMode }
+export type NewPerson = { name: string; mode: 'copy' | 'generate' | 'empty'; basedOn: string; scale: number; hours: number; runMode: RunMode; restDay: number }
 
 interface Props {
   people: Person[]
@@ -20,6 +21,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
   const [scale, setScale] = useState(80)
   const [hours, setHours] = useState(10)
   const [runMode, setRunMode] = useState<RunMode>('none')
+  const [restDay, setRestDay] = useState(0)
 
   return (
     <Modal
@@ -31,7 +33,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           <button
             className="btn primary"
             disabled={!name.trim()}
-            onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours, runMode }), onClose())}
+            onClick={() => (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours, runMode, restDay }), onClose())}
           >
             {tr('Skapa')}
           </button>
@@ -85,6 +87,7 @@ export function PersonModal({ people, activeId, onCreate, onClose }: Props) {
           </label>
         </>
       )}
+      {mode === 'generate' && <RestDayField value={restDay} onChange={setRestDay} />}
       {mode === 'generate' && (
         <label className="field">
           <span>{tr('Timmar per vecka i snitt: {h} h', { h: hours })}</span>

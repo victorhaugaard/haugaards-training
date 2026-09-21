@@ -23,8 +23,9 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
   const [editing, setEditing] = useState(false)
   const { labels, names } = useZones()
   const card = cardById(s.cardId)
+  const isRest = s.category === 'rest'
 
-  if (editing)
+  if (editing && !isRest)
     return (
       <EditModal
         session={s}
@@ -48,15 +49,23 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       title={tr(s.title)}
       onClose={onClose}
       actions={
-        <button className="btn small" onClick={() => setEditing(true)} aria-label={tr('Redigera pass')}>
-          {tr('✎ Redigera')}
-        </button>
+        isRest ? undefined : (
+          <button className="btn small" onClick={() => setEditing(true)} aria-label={tr('Redigera pass')}>
+            {tr('✎ Redigera')}
+          </button>
+        )
       }
       footer={
         <>
-          <button className={'btn ' + (s.done ? '' : 'primary')} onClick={onToggle}>
-            {tr(s.done ? '✓ Genomfört · ångra' : 'Markera som genomfört')}
-          </button>
+          {isRest ? (
+            <button className="btn danger" onClick={() => (onDelete(), onClose())}>
+              {tr('Ta bort')}
+            </button>
+          ) : (
+            <button className={'btn ' + (s.done ? '' : 'primary')} onClick={onToggle}>
+              {tr(s.done ? '✓ Genomfört · ångra' : 'Markera som genomfört')}
+            </button>
+          )}
         </>
       }
     >

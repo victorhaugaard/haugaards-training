@@ -22,8 +22,9 @@ import { PickerModal } from './components/PickerModal'
 import { PersonModal, type NewPerson } from './components/PersonModal'
 import { GenerateModal } from './components/GenerateModal'
 import { Modal } from './components/Modal'
-import { tr, LANGS, type Lang } from './i18n/core'
+import { tr, LANGS, DEFAULT_LANG_BY_EMAIL, hasSavedLang, type Lang } from './i18n/core'
 import { useLang } from './i18n'
+import { useTheme } from './lib/theme'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -44,8 +45,15 @@ const readPage = () => {
 }
 
 export function App() {
-  useLang() // renderar om hela appen när språket byts
+  const { setLang } = useLang() // renderar också om hela appen när språket byts
   const auth = useAuth()
+  const email = auth.user?.email?.toLowerCase()
+  useEffect(() => {
+    // Vissa konton startar på ett eget språk, tills man själv valt ett
+    const l = email ? DEFAULT_LANG_BY_EMAIL[email] : undefined
+    if (l && !hasSavedLang()) setLang(l)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email])
   const [page, setPage] = useState<'landing' | 'app'>(readPage)
   useEffect(() => {
     const on = () => setPage(location.hash === '#/plan' ? 'app' : 'landing')
@@ -171,14 +179,14 @@ function Workspace({
     let sessions: Session[] = []
     if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
     if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: PLAN_END, hoursPerWeek: n.hours, runMode: n.runMode })
-    dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode }, sessions })
+      sessions = generatePlan({ personId: id, start: startOfWeek(today()), end: PLAN_END, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay })
+    dispatch({ type: 'addPerson', person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay }, sessions })
   }
 
   const regenerate = (o: GenerateChoice) => {
-    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode } })
+    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay } })
     const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
-    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode }).filter(
+    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode, restDay: o.restDay }).filter(
       (s) => !doneDays.has(s.date),
     )
     dispatch({ type: 'regenerate', personId: person.id, from: o.start, sessions, fresh: o.fresh })
@@ -293,10 +301,10 @@ function Workspace({
       {dialog === 'person' && (
         <PersonModal people={state.people} activeId={person.id} onCreate={createPerson} onClose={() => setDialog(null)} />
       )}
-      {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} onGenerate={regenerate} onClose={() => setDialog(null)} />}
+      {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} initialRestDay={person.restDay ?? 0} onGenerate={regenerate} onClose={() => setDialog(null)} />}
       {dialog === 'guide' && (
         <Modal wide title={tr('Om planen · {name}', { name: person.name })} onClose={() => setDialog(null)}>
-          <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} />
+          <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} restDay={person.restDay ?? 0} />
         </Modal>
       )}
       {dialog === 'menu' && (
@@ -345,6 +353,7 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, pl
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
   const { lang, setLang } = useLang()
+  const { theme, setTheme } = useTheme()
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -384,6 +393,17 @@ function MenuModal({ auth, state, personName, canDelete, onGenerate, onGuide, pl
       <div className="field">
         <span>{tr('Språk')}</span>
         <Segmented value={lang} onChange={(l: Lang) => setLang(l)} options={LANGS} />
+      </div>
+      <div className="field">
+        <span>{tr('Färgtema')}</span>
+        <Segmented
+          value={theme}
+          onChange={setTheme}
+          options={[
+            ['blue', tr('Blå')],
+            ['mono', tr('Svartvit')],
+          ]}
+        />
       </div>
       <div className="menu">
         <button className="btn" onClick={onGuide}>

@@ -6,30 +6,34 @@ import { Modal } from './Modal'
 import { PlanGuide } from './PlanGuide'
 import { Segmented } from './Segmented'
 import { tr } from '../i18n/core'
+import { RestDayField } from './RestDayField'
 
 export interface GenerateChoice {
   start: string
   end: string
   hours: number
   runMode: RunMode
+  restDay: number
   fresh: boolean // radera hela den gamla planen först
 }
 
 interface Props {
   name: string
   initialRunMode: RunMode
+  initialRestDay: number
   onGenerate: (o: GenerateChoice) => void
   onClose: () => void
 }
 
-export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Props) {
+export function GenerateModal({ name, initialRunMode, initialRestDay, onGenerate, onClose }: Props) {
   const [start, setStart] = useState(startOfWeek(today()))
   const [end, setEnd] = useState(PLAN_END)
   const [hours, setHours] = useState(12)
   const [runMode, setRunMode] = useState<RunMode>(initialRunMode)
   const [fresh, setFresh] = useState(false)
+  const [restDay, setRestDay] = useState(initialRestDay)
 
-  const preview = useMemo(() => generatePlan({ personId: 'preview', start, end, hoursPerWeek: hours, runMode }), [start, end, hours, runMode])
+  const preview = useMemo(() => generatePlan({ personId: 'preview', start, end, hoursPerWeek: hours, runMode, restDay }), [start, end, hours, runMode, restDay])
 
   return (
     <Modal
@@ -42,7 +46,7 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
             {tr(fresh ? 'Hela den gamla planen raderas, även genomförda pass.' : 'Genomförda pass behålls. Övriga pass från startdatumet ersätts.')}
           </span>
           <span className="spacer" />
-          <button className="btn primary" onClick={() => (onGenerate({ start, end, hours, runMode, fresh }), onClose())}>
+          <button className="btn primary" onClick={() => (onGenerate({ start, end, hours, runMode, restDay, fresh }), onClose())}>
             {tr('Generera')}
           </button>
         </>
@@ -73,10 +77,11 @@ export function GenerateModal({ name, initialRunMode, onGenerate, onClose }: Pro
           ]}
         />
       </div>
+      <RestDayField value={restDay} onChange={setRestDay} />
       <label className="inline">
         <input type="checkbox" checked={fresh} onChange={(e) => setFresh(e.target.checked)} /> {tr('Börja om: radera hela den gamla planen först')}
       </label>
-      <PlanGuide sessions={preview} runMode={runMode} />
+      <PlanGuide sessions={preview} runMode={runMode} restDay={restDay} />
     </Modal>
   )
 }

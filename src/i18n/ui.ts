@@ -219,4 +219,13 @@ export const UI: [string, string, string][] = [
   ['Belastning över fyra veckor', 'Belastning over fire uker', 'Load over four weeks'],
   ['Tre veckor med ökande volym och sedan en lättare vecka. Då tar kroppen upp träningseffekten.', 'Tre uker med økende volum og deretter en lettere uke. Da tar kroppen opp treningseffekten.', 'Three weeks of rising volume followed by a lighter week. That is when the body absorbs the training effect.'],
   ['Vila', 'Hvile', 'Rest'],
+  ['Vilodag i veckan', 'Hviledag i uka', 'Rest day of the week'],
+  ['rekommenderas', 'anbefales', 'recommended'],
+  ['Ingen fast vilodag', 'Ingen fast hviledag', 'No fixed rest day'],
+  ['Vilodag är oftast dagen efter långpasset. Passen som annars ligger på vilodagen flyttas till måndagen.', 'Hviledag er oftest dagen etter langturen. Øktene som ellers ligger på hviledagen flyttes til mandagen.', 'A rest day usually comes the day after the long session. Sessions that would otherwise fall on the rest day move to Monday.'],
+  ['Vilodagen ligger på {dag}. Passen som annars ligger där har flyttats till måndagen.', 'Hviledagen ligger på {dag}. Øktene som ellers ligger der er flyttet til mandagen.', 'The rest day is on {dag}. The sessions that would normally be there have moved to Monday.'],
+  ['Ingen fast vilodag. Lägg in vila själv där kroppen behöver det.', 'Ingen fast hviledag. Legg inn hvile selv der kroppen trenger det.', 'No fixed rest day. Add rest yourself where your body needs it.'],
+  ['Färgtema', 'Fargetema', 'Color theme'],
+  ['Blå', 'Blå', 'Blue'],
+  ['Svartvit', 'Svart/hvit', 'Black & white'],
 ]

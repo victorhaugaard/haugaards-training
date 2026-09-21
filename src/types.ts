@@ -62,6 +62,7 @@ export interface Person {
   name: string
   createdAt?: number
   runMode?: RunMode
+  restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
 }
 
 export interface AppState {
