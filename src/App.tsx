@@ -31,7 +31,6 @@ import { ProfileView } from './components/ProfileView'
 import { SessionMenu } from './components/SessionMenu'
 import { Toast, type ToastData } from './components/Toast'
 import { withTotal } from './lib/sessionOps'
-import { Welcome } from './components/Welcome'
 import { Avatar } from './components/Avatar'
 import { PlanModal } from './components/PlanModal'
 import { scaleUpcoming } from './lib/sessionOps'
@@ -205,19 +204,18 @@ function Workspace({
   const [backView, setBackView] = useState<View>('week')
   const [toast, setToast] = useState<ToastData | null>(null)
 
-  // Välkomstskärm första gången vissa konton loggar in
+  // Första gången vissa konton loggar in pulserar + för att visa var man lägger till sin egen person
   const email = auth.user?.email?.toLowerCase()
   const welcomeName = email ? WELCOME_NAME_BY_EMAIL[email] : undefined
   const welcomeKey = 'haugaards-training:welcomed:' + email
-  const [welcome, setWelcome] = useState(() => {
+  const [nudge, setNudge] = useState(() => {
     if (!welcomeName) return false
     try {
       return !localStorage.getItem(welcomeKey)
     } catch {
-      return true
+      return false
     }
   })
-  const [nudge, setNudge] = useState(false)
   const [coachId, setCoachId] = useState(readCoach)
   const [chatOpen, setChatOpen] = useState(false)
   // Den som chattar: inloggad pappa har eget tilltal, annars går det på den valda personen
@@ -227,14 +225,6 @@ function Workspace({
   const { feed, add: addFeed, markRead } = useFeed(person.id)
   const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
   const [newName, setNewName] = useState<string | undefined>()
-  const closeWelcome = () => {
-    try {
-      localStorage.setItem(welcomeKey, '1')
-    } catch {
-      /* ignorera */
-    }
-    setWelcome(false)
-  }
 
   const mine = useMemo(() => state.sessions.filter((s) => s.personId === person.id), [state.sessions, person.id])
   const editing = mine.find((s) => s.id === editId)
@@ -413,7 +403,14 @@ function Workspace({
               {p.name}
             </button>
           ))}
-          <button className={'pill ghost' + (nudge ? ' pulse' : '')} onClick={() => (setNudge(false), setDialog('person'))} aria-label={tr('Lägg till person')}>
+          <button className={'pill ghost' + (nudge ? ' pulse' : '')} onClick={() => {
+              if (nudge && welcomeName) setNewName(welcomeName)
+              if (nudge) {
+                saveSetting(welcomeKey, '1')
+                setNudge(false)
+              }
+              setDialog('person')
+            }} aria-label={tr('Lägg till person')}>
             +
           </button>
         </div>
@@ -615,13 +612,6 @@ function Workspace({
           date={swapSession.date}
           onClose={() => setSwapId(null)}
           onPick={(card, _date, location) => dispatch({ type: 'replaceWithCard', id: swapSession.id, card, location })}
-        />
-      )}
-      {welcome && welcomeName && (
-        <Welcome
-          name={welcomeName}
-          onCreate={() => (closeWelcome(), setNewName(welcomeName), setDialog('person'))}
-          onLookAround={() => (closeWelcome(), setNudge(true))}
         />
       )}
       {notice && !chatOpen && <NoticeToast notice={notice} relation={viewer.relation} onOpen={() => (setChatOpen(true), setNotice(null))} onClose={() => setNotice(null)} />}
