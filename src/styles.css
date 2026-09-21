@@ -3386,7 +3386,7 @@ button.col-title:hover,
 
 /* logotyp */
 .l-logo {
-  height: 34px;
+  height: 60px;
   width: auto;
   display: block;
   user-select: none;
@@ -3427,4 +3427,90 @@ button.col-title:hover,
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(242, 244, 245, 0.9);
   border-bottom-left-radius: 6px;
+}
+
+/* coachrutan: text till vänster, en chatt till höger */
+.l-coach {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: center;
+}
+.l-coach-main {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  min-width: 0;
+}
+.l-coach-stack button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin-left: -8px;
+  border-radius: 50%;
+  transition: transform 0.35s var(--spring);
+}
+.l-coach-stack button:first-child {
+  margin-left: 0;
+}
+.l-coach-stack button:hover {
+  transform: translateY(-4px) scale(1.08);
+  z-index: 2;
+}
+.l-coach-stack button.on {
+  transform: translateY(-3px) scale(1.12);
+  z-index: 3;
+}
+.l-coach-stack button .coach-avatar {
+  box-shadow: 0 0 0 2px #0b1020;
+}
+.l-coach-stack button.on .coach-avatar {
+  box-shadow: 0 0 0 2px #0b1020, 0 0 0 4px var(--l-mint);
+}
+.l-chatwin {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 12, 24, 0.55);
+  overflow: hidden;
+}
+.l-chathead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.l-chathead div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+.l-chathead strong {
+  font-size: 14px;
+}
+.l-chathead span {
+  font-size: 12px;
+  color: rgba(242, 244, 245, 0.55);
+}
+.l-chatwin .l-chat {
+  margin-top: 0;
+  max-width: none;
+  padding: 16px;
+  min-height: 300px;
+  justify-content: flex-start;
+}
+.l-chatwin .bubble.coach {
+  max-width: 92%;
+}
+@media (max-width: 900px) {
+  .l-coach {
+    grid-template-columns: 1fr;
+  }
+}
+.l-coach-stack button .coach-avatar,
+.l-coach-stack button .coach-avatar:first-child {
+  margin-left: 0;
 }

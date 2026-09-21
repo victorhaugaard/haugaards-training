@@ -5,7 +5,7 @@ import { Ring } from './Ring'
 import { tr, LANGS, getLang } from '../i18n/core'
 import { useLang } from '../i18n'
 import { CoachAvatar } from './CoachAvatar'
-import { COACHES, coachById, readCoach } from '../lib/coaches'
+import { COACHES, coachById, readCoach, saveCoach } from '../lib/coaches'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -22,6 +22,9 @@ const FEATURES = [
 
 export function Landing({ onEnter }: { onEnter: () => void }) {
   const { setLang } = useLang()
+  const [selId, setSelId] = useState(readCoach)
+  const sel = coachById(selId)
+  const choose = (id: string) => (setSelId(id), saveCoach(id)) // gäller också i appen
   const [imgOk, setImgOk] = useState(true)
   return (
     <div className="landing">
@@ -93,28 +96,40 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
       </section>
 
       <section className="l-coach">
-        <CoachAvatar coach={coachById(readCoach())} size={84} />
-        <div>
-          <div className="l-label">{tr('Dina coacher')}</div>
-          <h2>{tr('Din tränare finns alltid till hands')}</h2>
-          <p>{tr('Blir du sjuk, skadar dig eller får ont om tid? Fråga din coach. Coachen flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.')}</p>
-          <div className="l-coach-row">
-            <div className="l-coach-stack">
-              {COACHES.map((c) => (
-                <CoachAvatar key={c.id} coach={c} size={34} />
-              ))}
+        <div className="l-coach-main">
+          <CoachAvatar coach={sel} size={84} />
+          <div>
+            <div className="l-label">{tr('Dina coacher')}</div>
+            <h2>{tr('Din tränare finns alltid till hands')}</h2>
+            <p>{tr('Blir du sjuk, skadar dig eller får ont om tid? Fråga din coach. Coachen flyttar och skjuter upp pass, lägger in rehab, sänker eller ökar mängden och bygger om planen åt dig. Du ser vad som ändrats och kan ångra allt med ett klick.')}</p>
+            <div className="l-coach-row">
+              <div className="l-coach-stack" role="listbox" aria-label={tr('Välj coach')}>
+                {COACHES.map((c) => (
+                  <button key={c.id} role="option" aria-selected={c.id === sel.id} className={c.id === sel.id ? 'on' : ''} title={c.name} onClick={() => choose(c.id)}>
+                    <CoachAvatar coach={c} size={38} />
+                  </button>
+                ))}
+              </div>
+              <span>{tr('Tryck på en coach för att se hur den pratar.')}</span>
             </div>
-            <span>{tr('Välj mellan tio coacher, från Smirnov till Farmor & Farfar.')}</span>
           </div>
-          <div className="l-chat" aria-hidden="true">
+        </div>
+
+        <div className="l-chatwin">
+          <div className="l-chathead">
+            <CoachAvatar coach={sel} size={32} />
+            <div>
+              <strong>{sel.name}</strong>
+              <span>{tr(sel.tagline)}</span>
+            </div>
+          </div>
+          <div className="l-chat" key={sel.id}>
+            <span className="bubble coach">{tr(sel.greeting, { who: tr('du'), name: tr('du') })}</span>
             {['Jag har en skada', 'Jag är sjuk – ändra min plan', 'Jag vill öka antal träningstimmar'].map((q, i) => (
-              <span key={q} className="bubble me" style={{ animationDelay: `${0.15 * i}s` }}>
+              <span key={q} className="bubble me" style={{ animationDelay: `${0.25 + 0.15 * i}s` }}>
                 {tr(q)}
               </span>
             ))}
-            <span className="bubble coach" style={{ animationDelay: '0.6s' }}>
-              {tr('Berätta vad som har hänt, så anpassar jag planen.')}
-            </span>
           </div>
         </div>
       </section>
