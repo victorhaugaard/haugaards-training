@@ -3313,3 +3313,73 @@ button.col-title:hover,
   gap: 2px;
   flex: none;
 }
+
+/* styrkabyggare */
+.ex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+}
+.ex-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+.ex-row.on {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.ex-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.ex-name em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ex-sets {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.ex-sets input {
+  width: 52px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  color: var(--text);
+  text-align: center;
+}
+.sc-ex {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sc-ex-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sc-ex-row em {
+  font-style: normal;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

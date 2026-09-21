@@ -40,6 +40,8 @@ import { CoachAvatar } from './components/CoachAvatar'
 import { NoticeToast, type Notice } from './components/NoticeToast'
 import { useFeed } from './lib/feed'
 import { findCheers, pickCheer } from './lib/cheers'
+import { StrengthBuilder, type StrengthValue } from './components/StrengthBuilder'
+import { sessionMinutes } from './lib/stats'
 
 const VIEWS: [View, string][] = [
   ['day', 'Dag'],
@@ -191,6 +193,7 @@ function Workspace({
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const [swapId, setSwapId] = useState<string | null>(null)
   const [planOpen, setPlanOpen] = useState<string | null>(null)
+  const [editExId, setEditExId] = useState<string | null>(null)
   const [backView, setBackView] = useState<View>('week')
   const [toast, setToast] = useState<ToastData | null>(null)
 
@@ -316,6 +319,27 @@ function Workspace({
   const deleteWithUndo = (s: Session) => {
     dispatch({ type: 'delete', id: s.id })
     setToast({ id: Date.now(), text: tr('Passet togs bort'), undo: () => dispatch({ type: 'addSession', session: s }) })
+  }
+
+  // Eget styrkepass från byggaren
+  const buildStrength = (v: StrengthValue) => {
+    const session: Session = {
+      id: uid(),
+      personId: person.id,
+      date: v.date,
+      order: 0,
+      cardId: 'strength-custom',
+      title: v.title,
+      sport: 'Styrka',
+      category: 'strength',
+      zones: [0, 0, 0, 0, 0],
+      nonZone: v.minutes,
+      notes: '',
+      done: false,
+      location: v.location,
+      exercises: v.exercises,
+    }
+    dispatch({ type: 'addSession', session })
   }
 
   const createPerson = (n: NewPerson) => {
@@ -517,9 +541,27 @@ function Workspace({
           onToggle={() => dispatch({ type: 'toggleDone', id: editing.id })}
           onDelete={() => deleteWithUndo(editing)}
           onDuplicate={() => dispatch({ type: 'duplicate', id: editing.id })}
+          onEditExercises={() => (setEditId(null), setEditExId(editing.id))}
         />
       )}
-      {infoCard && (
+      {infoCard?.id === 'strength-custom' && (
+        <StrengthBuilder date={cursor} onSave={buildStrength} onClose={() => setInfoCard(null)} />
+      )}
+      {editExId && mine.find((s) => s.id === editExId) && (
+        <StrengthBuilder
+          editing
+          date={mine.find((s) => s.id === editExId)!.date}
+          initial={{
+            title: mine.find((s) => s.id === editExId)!.title,
+            exercises: mine.find((s) => s.id === editExId)!.exercises,
+            minutes: sessionMinutes(mine.find((s) => s.id === editExId)!),
+            location: mine.find((s) => s.id === editExId)!.location,
+          }}
+          onSave={(v) => dispatch({ type: 'update', id: editExId, patch: { title: v.title, exercises: v.exercises, nonZone: v.minutes, location: v.location } })}
+          onClose={() => setEditExId(null)}
+        />
+      )}
+      {infoCard && infoCard.id !== 'strength-custom' && (
         <CardInfoModal
           card={infoCard}
           defaultDate={cursor}
@@ -577,6 +619,7 @@ function Workspace({
           date={pickDate}
           onClose={() => setPickDate(null)}
           onPick={(card: TrainingCard, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
+          onBuild={buildStrength}
         />
       )}
       {dialog === 'person' && (

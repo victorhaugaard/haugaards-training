@@ -9,6 +9,7 @@ import { Modal } from './Modal'
 import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
 import { ZoneRows } from './ZoneRows'
+import { exerciseById } from '../lib/exercises'
 
 interface Props {
   session: Session
@@ -16,11 +17,12 @@ interface Props {
   onToggle: () => void
   onDelete: () => void
   onDuplicate: () => void
+  onEditExercises?: () => void
   onClose: () => void
 }
 
 // Träningsinformation som kort. Redigering öppnas med knappen uppe till höger.
-export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onClose }: Props) {
+export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onEditExercises, onClose }: Props) {
   const [editing, setEditing] = useState(false)
   const card = cardById(s.cardId)
   const isRest = s.category === 'rest'
@@ -74,6 +76,25 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       <ZoneRows zones={s.zones} nonZone={s.nonZone} sport={s.sport} />
 
       {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={(l) => onPatch({ location: l })} />}
+
+      {s.exercises && s.exercises.length > 0 && (
+        <div className="sc-ex">
+          <div className="stat-label">{tr('Övningar')}</div>
+          {s.exercises.map((e, i) => (
+            <div key={i} className="sc-ex-row">
+              <span>{tr(exerciseById(e.id)?.name ?? e.id)}</span>
+              <em>
+                {e.sets} × {e.reps}
+              </em>
+            </div>
+          ))}
+        </div>
+      )}
+      {onEditExercises && s.cardId === 'strength-custom' && (
+        <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={onEditExercises}>
+          {tr('Redigera övningar')}
+        </button>
+      )}
 
       {s.notes && (
         <div className="sc-notes">

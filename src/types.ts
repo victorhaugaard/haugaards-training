@@ -40,6 +40,13 @@ export interface TrainingCard {
   home?: Coach // alternativ version hemma med lätta redskap
 }
 
+// En vald övning i ett eget styrkepass
+export interface Exercise {
+  id: string
+  sets: number
+  reps: string
+}
+
 export interface Session {
   id: string
   personId: string
@@ -55,6 +62,7 @@ export interface Session {
   done: boolean
   location?: Location
   raceId?: string // sätts på tävlingen och passen i nedtrappningen runt den
+  exercises?: Exercise[] // övningar i ett eget styrkepass
 }
 
 export interface Person {

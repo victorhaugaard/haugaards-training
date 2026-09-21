@@ -229,6 +229,60 @@ export const CARDS: TrainingCard[] = [
       tip: 'Använd tyngre band eller sänk hastigheten om det blir för lätt.',
     },
   }),
+  card('strength-legs', 'Benstyrka', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 60, 'Knäböj, marklyft och enbensövningar', {
+    purpose: 'Bygger kraft i ben och höfter, som ger stabilitet och tryck i varje skidtag och backe.',
+    how: ['Uppvärmning 10 minuter med lätta set', 'Knäböj eller marklyft 4×5, utfall 3×8 per ben', 'Vadhöjningar och höftlyft 3×12'],
+    tip: 'Kör tungt men med bra teknik. Lämna 1–2 reps kvar i tanken.',
+  }, {
+    home: {
+      purpose: 'Bygger benstyrka hemma med kroppsvikt och lätta redskap.',
+      how: ['Uppvärmning 10 minuter', 'Enbensböj eller bulgarisk split squat 4×8 per ben, step-ups 3×10', 'Höftlyft 3×15 och vadhöjningar 3×15'],
+      tip: 'Sänk dig långsamt, tre sekunder ner, så blir det tungt nog.',
+    },
+  }),
+  card('strength-back', 'Ryggstyrka', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 45, 'Rodd, drag och ryggresningar', {
+    purpose: 'Bygger en stark rygg som bär stakningen och skyddar ländryggen på långa pass.',
+    how: ['Rodd med skivstång 4×8, chins eller latsdrag 3×8', 'Ryggresningar 3×12 och face pulls 3×15', 'Avsluta med superman 2×12'],
+    tip: 'Dra med ryggen, inte med armarna. Håll bröstet uppe.',
+  }, {
+    home: {
+      purpose: 'Ryggstyrka hemma med gummiband och hantlar.',
+      how: ['Hantelrodd 4×10 per arm', 'Ryggresningar och superman 3×12', 'Face pulls med gummiband 3×15'],
+      tip: 'Klämm ihop skulderbladen och håll en sekund i toppläget.',
+    },
+  }),
+  card('strength-core', 'Bål & stabilitet', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 30, 'Planka, rotation och dead bug', {
+    purpose: 'En stark bål ger kraftöverföring mellan över- och underkropp i varje skidtag.',
+    how: ['Planka och sidoplanka 3 × 45 s', 'Dead bug 3×10 och pallof press 3×10 per sida', 'Hängande benlyft eller hollow hold 3×12'],
+    tip: 'Kvalitet framför kvantitet. Håll ländryggen stilla och andas.',
+  }, {
+    home: {
+      purpose: 'Bålträning hemma utan redskap.',
+      how: ['Planka, sidoplanka och hollow hold 3 × 40 s', 'Dead bug och rysk twist 3×12', 'Bålrotation med gummiband 3×12'],
+      tip: 'Bra som avslutning efter ett lugnt pass.',
+    },
+  }),
+  card('strength-explosive', 'Explosiv styrka', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 40, 'Hopp, kettlebell och kast', {
+    purpose: 'Tränar snabbhet och kraft i avstampet och stakningen. Bra som skärpa.',
+    how: ['Uppvärmning 10 minuter', 'Boxhopp eller sidohopp 3×6, kettlebell swings 3×15', 'Medicinbollskast 3×8 och burpees 3×10'],
+    tip: 'Explosivt men kontrollerat. Vila fullt mellan seten.',
+  }, {
+    home: {
+      purpose: 'Explosiv träning hemma med kroppsvikt.',
+      how: ['Uppvärmning 10 minuter', 'Sidohopp 3×10 och burpees 3×10', 'Hopp upp från knäböj 3×8'],
+      tip: 'Landa mjukt på framfoten och böj knäna.',
+    },
+  }),
+  card('strength-stability', 'Knä- & höftstabilitet', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 30, 'Förebygger skador, skonsamt', {
+    purpose: 'Stärker höfter och knän så att du klarar mer träning utan skador. Extra bra om du har känsliga knän.',
+    how: ['Step-downs 3×10 per ben, enbensbalans 3 × 30 s', 'Höftabduktion med band och monster walk 3×12', 'Nordic hamstring 3×5 och copenhagen plank 3 × 20 s'],
+    tip: 'Långsamt och kontrollerat. Knät ska peka åt samma håll som tårna.',
+  }),
+  card('strength-custom', 'Eget styrkepass', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 45, 'Välj övningarna själv', {
+    purpose: 'Ett styrkepass där du väljer övningarna själv, för gym eller hemma.',
+    how: ['Välj övningar och antal set och reps', 'Värm upp 10 minuter före första setet', 'Lämna 1–2 reps kvar i tanken'],
+    tip: 'Blanda ben, rygg och bål så blir passet balanserat.',
+  }),
   card('mobility', 'Rörlighet & core', 'Rörlighet', 'strength', 'Styrka', [0, 0, 0, 0, 0], 30, 'Kort och lätt', {
     purpose: 'Håller kroppen smidig och skadefri. Bra på lugna dagar.',
     how: ['10 minuter höft- och ryggrörlighet', '10 minuter bål: planka, sidoplanka, dead bug', '5–10 minuter stretch eller skumrulle'],
