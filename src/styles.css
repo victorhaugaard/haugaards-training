@@ -1482,21 +1482,8 @@ button.col-title:hover,
   gap: 10px;
   margin-top: 28px;
 }
-.l-features span {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  padding: 7px 14px;
-  font-size: 13px;
-  color: rgba(242, 244, 245, 0.75);
-}
 
 @media (max-width: 800px) {
-  .l-hero {
-    grid-template-columns: 1fr;
-  }
-  .l-visual {
-    aspect-ratio: 16 / 11;
-  }
   .l-pillars {
     grid-template-columns: 1fr;
   }
@@ -4088,4 +4075,70 @@ body {
 
 .l-chatwin .l-chat {
   padding: 40px 16px 20px;
+}
+
+/* bilden ligger bredvid texten tills skärmen är riktigt smal (zoom räknas också) */
+.l-hero {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+}
+.l-copy,
+.l-visual {
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .l-hero {
+    grid-template-columns: 1fr;
+  }
+  .l-visual {
+    aspect-ratio: 16 / 11;
+  }
+}
+
+/* funktioner under exempelveckan */
+.l-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 32px;
+}
+.l-features .l-feat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), rgba(12, 16, 30, 0.5);
+  color: rgba(242, 244, 245, 0.86);
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.35s var(--spring), border-color 0.2s;
+}
+.l-features .l-feat:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.l-feat-icon {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, var(--l-mint), color-mix(in srgb, var(--l-mint) 45%, #000));
+  box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--l-mint) 70%, transparent);
+}
+.l-feat-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+:root[data-theme='mono'] .l-feat-icon {
+  color: #0a0a0a;
 }

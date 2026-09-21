@@ -8,6 +8,7 @@ import { CoachAvatar } from './CoachAvatar'
 import { COACHES, coachById, readCoach, saveCoach } from '../lib/coaches'
 import { WeekDemo } from './WeekDemo'
 import { LEGAL } from '../lib/legal'
+import { SportIcon } from './SportIcon'
 
 const PILLARS = [
   { value: 0.8, big: '10–15 h', label: 'Träning per vecka', text: 'Skalad från elitens upplägg till en vecka som går att leva med.' },
@@ -15,11 +16,26 @@ const PILLARS = [
   { value: 0.9, big: '≈ 90 %', label: 'Lugn träning', text: 'Mycket grund, få hårda pass. Så tränar längdskidåkarna i världseliten.' },
 ]
 
-const FEATURES = [
-  'Coachens beskrivning till varje pass',
-  'Ercolina, Zwift och Tacx som en del av planen',
-  'Gym eller hemma med lätta redskap',
-  'Skonsamt för knäna, mest cykel och rullskidor',
+// Funktioner under exempelveckan, med en liten ikon var
+const FEATURES: { text: string; icon: React.ReactNode }[] = [
+  {
+    text: 'Coachens beskrivning till varje pass',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 5.5h16v11H10l-5 4v-4H4z" />
+      </svg>
+    ),
+  },
+  { text: 'Ercolina, Zwift och Tacx som en del av planen', icon: <SportIcon sport="Cykel" size={22} /> },
+  { text: 'Gym eller hemma med lätta redskap', icon: <SportIcon sport="Styrka" size={22} /> },
+  {
+    text: 'Skonsamt för knäna, mest cykel och rullskidor',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10z" />
+      </svg>
+    ),
+  },
 ]
 
 export function Landing({ onEnter }: { onEnter: () => void }) {
@@ -140,7 +156,10 @@ export function Landing({ onEnter }: { onEnter: () => void }) {
 
       <section className="l-features">
         {FEATURES.map((f) => (
-          <span key={f}>{tr(f)}</span>
+          <div key={f.text} className="l-feat">
+            <span className="l-feat-icon">{f.icon}</span>
+            <span>{tr(f.text)}</span>
+          </div>
         ))}
       </section>
 

@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function PersonModal({ people, activeId, initialName, onCreate, onClose }: Props) {
-  const [name, setName] = useState(initialName ?? tr('Pappa'))
+  const [name, setName] = useState(initialName ?? 'Øivind')
   const [mode, setMode] = useState<NewPerson['mode']>(initialName ? 'generate' : 'copy')
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
