@@ -8,6 +8,7 @@ import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
 import { TOUCH, useMedia } from '../lib/useMedia'
+import { StravaMark } from './StravaMark'
 
 interface Props {
   session: Session
@@ -87,6 +88,11 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
       <span className="chip-icon" title={tr(s.sport)}>
         <SportIcon sport={s.sport} size={compact ? 12 : 16} />
       </span>
+      {s.stravaId && !compact && (
+        <span className="chip-strava" title={tr('Importerat från Strava')}>
+          <StravaMark size={12} />
+        </span>
+      )}
       <div className="chip-main">
         <div className="chip-title">{tr(s.title)}</div>
         {!compact && (

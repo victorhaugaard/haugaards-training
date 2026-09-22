@@ -4202,3 +4202,52 @@ body {
     transform: translate3d(8%, 4%, 0);
   }
 }
+
+/* Strava */
+.chip-strava {
+  position: absolute;
+  top: 8px;
+  right: 30px;
+  display: grid;
+  place-items: center;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.sc-strava {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 1px 8px 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #fc5200 16%, transparent);
+  color: #fc5200;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pf-strava {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.pf-strava-text {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pf-strava-text p {
+  margin: 0;
+}
+.pf-strava-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pf-strava-on {
+  color: var(--c-easy);
+  font-size: 13px;
+  font-weight: 600;
+}

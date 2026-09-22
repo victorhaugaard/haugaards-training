@@ -1,5 +1,9 @@
 {
   "functions": {
-    "api/coach.ts": { "maxDuration": 60 }
+    "api/coach.ts": { "maxDuration": 60 },
+    "api/strava-webhook.ts": { "maxDuration": 30 },
+    "api/strava-callback.ts": { "maxDuration": 15 },
+    "api/strava-connect.ts": { "maxDuration": 10 },
+    "api/strava-disconnect.ts": { "maxDuration": 10 }
   }
 }

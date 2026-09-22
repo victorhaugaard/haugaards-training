@@ -6,6 +6,11 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.token.email in ['victortomashaugaard@gmail.com', 'ohaug01@gmail.com'];
     }
+    // Strava-tokens skrivs och läses bara av servern (Admin SDK, som kringgår de här reglerna).
+    // Ingen klient, inte ens era egna inloggade konton, ska kunna läsa dem.
+    match /stravaTokens/{athleteId} {
+      allow read, write: if false;
+    }
     match /{document=**} {
       allow read, write: if allowed();
     }

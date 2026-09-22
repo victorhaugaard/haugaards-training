@@ -410,4 +410,17 @@ export const UI: [string, string, string][] = [
   ['© {year} {company}. Alla rättigheter förbehållna.', '© {year} {company}. Alle rettigheter forbeholdt.', '© {year} {company}. All rights reserved.'],
   ['Senast uppdaterad {date}', 'Sist oppdatert {date}', 'Last updated {date}'],
   ['Den här sidan finns på svenska och engelska.', 'Denne siden finnes på svensk og engelsk.', 'This page is available in Swedish and English.'],
+  // ——— Strava ———
+  ['Strava är nu ihopkopplat.', 'Strava er nå koblet til.', 'Strava is now connected.'],
+  ['Anslutningen till Strava avbröts.', 'Tilkoblingen til Strava ble avbrutt.', 'The connection to Strava was cancelled.'],
+  ['Kunde inte koppla ihop Strava. Försök igen.', 'Kunne ikke koble til Strava. Prøv igjen.', 'Could not connect to Strava. Please try again.'],
+  ['Strava', 'Strava', 'Strava'],
+  ['Passen läggs till automatiskt och matchas mot planen när du loggar dem i Strava.', 'Øktene legges til automatisk og matches mot planen når du logger dem i Strava.', 'Sessions are added automatically and matched against the plan when you log them in Strava.'],
+  ['Anslut Strava', 'Koble til Strava', 'Connect Strava'],
+  ['Ansluter…', 'Kobler til…', 'Connecting…'],
+  ['Ihopkopplat', 'Koblet til', 'Connected'],
+  ['Koppla bort', 'Koble fra', 'Disconnect'],
+  ['Kunde inte ansluta till Strava just nu.', 'Kunne ikke koble til Strava akkurat nå.', 'Could not connect to Strava right now.'],
+  ['Kunde inte koppla bort Strava.', 'Kunne ikke koble fra Strava.', 'Could not disconnect Strava.'],
+  ['Importerat från Strava', 'Importert fra Strava', 'Imported from Strava'],
 ]

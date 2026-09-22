@@ -10,6 +10,8 @@ import { ZoneBar } from './ZoneBar'
 import { ZoneLegend } from './Overview'
 import { Avatar } from './Avatar'
 import { resizeToSquare, uploadAvatar } from '../lib/avatar'
+import { connectStrava, disconnectStrava } from '../lib/strava'
+import { StravaMark } from './StravaMark'
 
 interface Props {
   person: Person
@@ -20,6 +22,7 @@ interface Props {
   onOpenPlan: (plan: PlanRecord) => void
   onGuide: () => void
   onGenerate: () => void
+  getToken?: () => Promise<string | undefined>
 }
 
 const SOURCE: Record<PlanRecord['source'], string> = {
@@ -86,7 +89,10 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
   )
 }
 
-export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan, onGuide, onGenerate }: Props) {
+export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan, onGuide, onGenerate, getToken }: Props) {
+  const [stravaBusy, setStravaBusy] = useState(false)
+  const [stravaError, setStravaError] = useState(false)
+  const connectedToStrava = Boolean(person.stravaAthleteId)
   const [menu, setMenu] = useState(false)
   const [planMenu, setPlanMenu] = useState(false)
   useEffect(() => {
@@ -238,6 +244,57 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
           <div className="stat-label">{tr('Intensitet i avklarade pass')}</div>
           <ZoneBar zones={totals.zones} nonZone={totals.nonZone} />
           <ZoneLegend st={{ zones: totals.zones, nonZone: totals.nonZone }} />
+        </section>
+      )}
+
+      {getToken && (
+        <section className="ov-card pf-strava">
+          <StravaMark size={26} />
+          <div className="pf-strava-text">
+            <div className="stat-label">{tr('Strava')}</div>
+            <p className="muted small">{tr('Passen läggs till automatiskt och matchas mot planen när du loggar dem i Strava.')}</p>
+            {stravaError && <p className="error">{tr(connectedToStrava ? 'Kunde inte koppla bort Strava.' : 'Kunde inte ansluta till Strava just nu.')}</p>}
+          </div>
+          {connectedToStrava ? (
+            <div className="pf-strava-status">
+              <span className="pf-strava-on">✓ {tr('Ihopkopplat')}</span>
+              <button
+                className="btn small danger"
+                disabled={stravaBusy}
+                onClick={async () => {
+                  setStravaBusy(true)
+                  setStravaError(false)
+                  try {
+                    // Servern tar bort fältet; den vanliga Firestore-lyssnaren uppdaterar personen strax efteråt
+                    await disconnectStrava(person.id, getToken)
+                  } catch {
+                    setStravaError(true)
+                  } finally {
+                    setStravaBusy(false)
+                  }
+                }}
+              >
+                {tr('Koppla bort')}
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn small"
+              disabled={stravaBusy}
+              onClick={async () => {
+                setStravaBusy(true)
+                setStravaError(false)
+                try {
+                  await connectStrava(person.id, getToken)
+                } catch {
+                  setStravaBusy(false)
+                  setStravaError(true)
+                }
+              }}
+            >
+              {stravaBusy ? tr('Ansluter…') : tr('Anslut Strava')}
+            </button>
+          )}
         </section>
       )}
 

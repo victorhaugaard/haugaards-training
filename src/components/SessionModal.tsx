@@ -10,6 +10,7 @@ import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
 import { ZoneRows } from './ZoneRows'
 import { exerciseById } from '../lib/exercises'
+import { StravaMark } from './StravaMark'
 
 interface Props {
   session: Session
@@ -74,6 +75,11 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
         </span>
         {cap(fullDate(s.date))} · {tr(s.sport)}
         {s.category !== 'rest' && <> · {fmtDuration(total)}</>}
+        {s.stravaId && (
+          <span className="sc-strava" title={tr('Importerat från Strava')}>
+            <StravaMark size={13} /> Strava
+          </span>
+        )}
       </div>
 
       <ZoneRows zones={s.zones} nonZone={s.nonZone} sport={s.sport} />

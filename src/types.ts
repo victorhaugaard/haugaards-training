@@ -63,6 +63,8 @@ export interface Session {
   location?: Location
   raceId?: string // sätts på tävlingen och passen i nedtrappningen runt den
   exercises?: Exercise[] // övningar i ett eget styrkepass
+  stravaId?: string // Strava-aktivitetens id, för att undvika dubbletter
+  stravaAuto?: boolean // true om passet skapades av synken (inget planerat pass matchade), annars en ihopkopplad matchning
 }
 
 export interface Person {
@@ -72,6 +74,7 @@ export interface Person {
   runMode?: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
   photoUrl?: string // profilbild
+  stravaAthleteId?: number // satt när personen kopplat sitt Strava-konto (själva token ligger bara på servern)
 }
 
 // Ett avklarat pass i kompakt form, sparas i historiken när en plan avslutas

@@ -89,16 +89,19 @@ const readLibOpen = () => {
   }
 }
 type Page = 'landing' | 'app' | 'privacy' | 'terms'
-const pageFromHash = (): Page => (location.hash === '#/plan' ? 'app' : location.hash === '#/privacy' ? 'privacy' : location.hash === '#/terms' ? 'terms' : 'landing')
+// Allt efter ett ? i hashen (t.ex. #/plan?strava=connected) hör till frågeparametrarna, inte routen
+const hashPath = () => location.hash.split('?')[0]
+export const hashQuery = () => new URLSearchParams(location.hash.split('?')[1] ?? '')
+const pageFromHash = (): Page => (hashPath() === '#/plan' ? 'app' : hashPath() === '#/privacy' ? 'privacy' : hashPath() === '#/terms' ? 'terms' : 'landing')
 const readPage = (): Page => {
-  if (location.hash === '#/privacy' || location.hash === '#/terms') return pageFromHash()
+  if (hashPath() === '#/privacy' || hashPath() === '#/terms') return pageFromHash()
   let entered = false
   try {
     entered = localStorage.getItem(ENTERED) === '1'
   } catch {
     /* ignorera */
   }
-  return location.hash === '#/plan' || (!location.hash && entered) ? 'app' : 'landing'
+  return hashPath() === '#/plan' || (!location.hash && entered) ? 'app' : 'landing'
 }
 
 export function App() {
@@ -203,6 +206,20 @@ function Workspace({
   const [editExId, setEditExId] = useState<string | null>(null)
   const [backView, setBackView] = useState<View>('week')
   const [toast, setToast] = useState<ToastData | null>(null)
+
+  // Meddelande efter att man kommer tillbaka från Strava-anslutningen
+  useEffect(() => {
+    const status = hashQuery().get('strava')
+    if (!status) return
+    location.hash = '#/plan' // städa bort frågeparametern
+    const text = {
+      connected: tr('Strava är nu ihopkopplat.'),
+      denied: tr('Anslutningen till Strava avbröts.'),
+      error: tr('Kunde inte koppla ihop Strava. Försök igen.'),
+    }[status]
+    if (text) setToast({ id: Date.now(), text })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Första gången vissa konton loggar in pulserar + för att visa var man lägger till sin egen person
   const email = auth.user?.email?.toLowerCase()
@@ -481,6 +498,7 @@ function Workspace({
               onOpenPlan={(pl) => setPlanOpen(pl.id)}
               onGuide={() => setDialog('guide')}
               onGenerate={() => setDialog('generate')}
+              getToken={auth.user ? () => auth.user!.getIdToken() : undefined}
             />
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
