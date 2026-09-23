@@ -36,6 +36,16 @@
   --c-race: #d8b25a;
   --c-other: #737b8f;
   --c-rest: #5a6b93;
+  /* idrotter: fast, validerad kategorisk ordning (aldrig omordnad efter vad som råkar visas) */
+  --sport-cykel: #3987e5;
+  --sport-stakmaskin: #d95926;
+  --sport-rullskidor: #199e70;
+  --sport-lopning: #c98500;
+  --sport-rorlighet: #d55181;
+  --sport-styrka: #008300;
+  --sport-skidor: #9085e9;
+  --sport-tavling: #e66767;
+  --sport-ovrigt: #737b8f;
   --radius: 14px;
   --spring: cubic-bezier(0.32, 0.72, 0, 1);
   --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -4250,4 +4260,116 @@ body {
   color: var(--c-easy);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* timmar per idrott: ring/stapel-kort i profilen */
+.sport-breakdown {
+  gap: 16px;
+}
+.sb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sb-donut {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  margin: 4px auto;
+}
+.sb-donut svg circle {
+  transition: stroke-dasharray 0.7s var(--spring), stroke-dashoffset 0.7s var(--spring);
+}
+.sb-donut-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+}
+.sb-donut-label b {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.sb-donut-label span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.sb-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sb-bar-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.sb-bar-label {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-bar-track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.sb-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.7s var(--spring);
+}
+.sb-bar-row b {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+.sb-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 14px;
+}
+.sb-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.sb-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.sb-legend span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-legend b {
+  margin-left: auto;
+  color: var(--text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.sb-legend em {
+  font-style: normal;
+  min-width: 30px;
+  text-align: right;
 }

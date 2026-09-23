@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { RunMode } from '../types'
-import { startOfWeek, today } from '../lib/dates'
+import { today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
 import { GenerateForm, type GenValue } from './GenerateForm'
 import { Modal } from './Modal'
@@ -17,7 +17,8 @@ interface Props {
 }
 
 export function GenerateModal({ name, initialRunMode, initialRestDay, onGenerate, onClose }: Props) {
-  const [v, setV] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 12, runMode: initialRunMode, restDay: initialRestDay, fresh: false })
+  // Från idag som förval: allt före det och redan genomförda pass rör vi inte
+  const [v, setV] = useState<GenValue>({ start: today(), end: PLAN_END, hours: 12, runMode: initialRunMode, restDay: initialRestDay, fresh: false })
 
   return (
     <Modal
@@ -26,9 +27,6 @@ export function GenerateModal({ name, initialRunMode, initialRestDay, onGenerate
       onClose={onClose}
       footer={
         <>
-          <span className="muted small">
-            {tr(v.fresh ? 'Hela den gamla planen raderas, även genomförda pass.' : 'Genomförda pass behålls. Övriga pass från startdatumet ersätts.')}
-          </span>
           <span className="spacer" />
           <button className="btn primary" onClick={() => (onGenerate(v), onClose())}>
             {tr('Generera')}

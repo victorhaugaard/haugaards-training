@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { RunMode } from '../types'
-import { addDays } from '../lib/dates'
+import { addDays, dayMonth } from '../lib/dates'
 import { generatePlan } from '../lib/generator'
 import { tr } from '../i18n/core'
 import { PlanGuide } from './PlanGuide'
@@ -41,6 +41,13 @@ export function GenerateForm({ value: v, onChange, showFresh }: Props) {
           <input type="date" value={v.end} min={addDays(v.start, 7)} onChange={(e) => e.target.value && onChange({ end: e.target.value })} />
         </label>
       </div>
+      {showFresh && (
+        <p className="muted small">
+          {v.fresh
+            ? tr('Hela den gamla planen raderas, även genomförda pass.')
+            : tr('Pass innan {date} och redan genomförda pass ändras inte. Övriga pass ersätts.', { date: dayMonth(v.start) })}
+        </p>
+      )}
       <label className="field">
         <span>{tr('Timmar per vecka i snitt: {h} h', { h: v.hours })}</span>
         <input type="range" min={6} max={15} step={0.5} value={v.hours} onChange={(e) => onChange({ hours: +e.target.value })} />

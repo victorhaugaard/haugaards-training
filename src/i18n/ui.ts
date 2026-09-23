@@ -423,4 +423,17 @@ export const UI: [string, string, string][] = [
   ['Kunde inte ansluta till Strava just nu.', 'Kunne ikke koble til Strava akkurat nå.', 'Could not connect to Strava right now.'],
   ['Kunde inte koppla bort Strava.', 'Kunne ikke koble fra Strava.', 'Could not disconnect Strava.'],
   ['Importerat från Strava', 'Importert fra Strava', 'Imported from Strava'],
+  // ——— Timmar per idrott (profil) ———
+  ['Timmar per idrott', 'Timer per idrett', 'Hours per sport'],
+  ['Ring', 'Ring', 'Ring'],
+  ['Stapel', 'Stolpe', 'Bar'],
+  ['totalt', 'totalt', 'total'],
+  ['Timmar per idrott, ring', 'Timer per idrett, ring', 'Hours per sport, ring chart'],
+  // ——— Teknik: rullskidor/skidor ———
+  ['Teknik', 'Teknikk', 'Technique'],
+  ['Valfri teknik', 'Valgfri teknikk', 'Any technique'],
+  ['Klassiskt', 'Klassisk', 'Classic'],
+  ['Fristil', 'Fristil', 'Skate'],
+  ['Stakning', 'Staking', 'Double poling'],
+  ['Pass innan {date} och redan genomförda pass ändras inte. Övriga pass ersätts.', 'Økter før {date} og allerede gjennomførte økter endres ikke. Øvrige økter erstattes.', 'Sessions before {date} and already-completed sessions are not changed. Other sessions are replaced.'],
 ]

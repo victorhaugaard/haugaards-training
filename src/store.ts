@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { collection, doc, onSnapshot, writeBatch } from 'firebase/firestore'
-import type { AppState, Location, Person, PlanParams, PlanRecord, Session, TrainingCard } from './types'
+import type { AppState, Location, Person, PlanParams, PlanRecord, Session, Technique, TrainingCard } from './types'
 import { db } from './firebase'
 import { PLAN_END, generatePlan } from './lib/generator'
 import { uid } from './lib/id'
@@ -10,7 +10,7 @@ const KEY = 'haugaards-training:v1'
 const ACTIVE_KEY = 'haugaards-training:active'
 
 export type Action =
-  | { type: 'addFromCard'; card: TrainingCard; date: string; beforeId?: string; location?: Location }
+  | { type: 'addFromCard'; card: TrainingCard; date: string; beforeId?: string; location?: Location; technique?: Technique | '' }
   | { type: 'update'; id: string; patch: Partial<Session> }
   | { type: 'move'; id: string; date: string; beforeId?: string }
   | { type: 'delete'; id: string }
@@ -25,7 +25,7 @@ export type Action =
   | { type: 'updatePlan'; id: string; patch: Partial<PlanRecord> }
   | { type: 'setPersonPlans'; personId: string; plans: PlanRecord[] }
   | { type: 'addSession'; session: Session }
-  | { type: 'replaceWithCard'; id: string; card: TrainingCard; location?: Location }
+  | { type: 'replaceWithCard'; id: string; card: TrainingCard; location?: Location; technique?: Technique | '' }
   | { type: 'clearPlan'; personId: string }
   | { type: 'setPersonSessions'; personId: string; sessions: Session[] }
   | { type: 'load'; state: AppState }
@@ -79,6 +79,7 @@ const reducer = (state: AppState, a: Action): AppState => {
         notes: '',
         done: false,
         ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
+        ...(a.technique !== undefined ? { technique: a.technique } : {}),
       }
       // Infoga före ett visst pass om det angetts, annars sist på dagen
       const day = state.sessions.filter((x) => x.personId === s.personId && x.date === a.date).sort((x, y) => x.order - y.order)
@@ -156,6 +157,7 @@ const reducer = (state: AppState, a: Action): AppState => {
                 notes: '',
                 done: false,
                 ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
+                ...(a.technique !== undefined ? { technique: a.technique } : {}),
               }
             : s,
         ),

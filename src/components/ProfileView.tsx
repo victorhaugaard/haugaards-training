@@ -12,6 +12,7 @@ import { Avatar } from './Avatar'
 import { resizeToSquare, uploadAvatar } from '../lib/avatar'
 import { connectStrava, disconnectStrava } from '../lib/strava'
 import { StravaMark } from './StravaMark'
+import { SportBreakdown } from './SportBreakdown'
 
 interface Props {
   person: Person
@@ -245,6 +246,10 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
           <ZoneBar zones={totals.zones} nonZone={totals.nonZone} />
           <ZoneLegend st={{ zones: totals.zones, nonZone: totals.nonZone }} />
         </section>
+      )}
+
+      {totals.minutes > 0 && (
+        <SportBreakdown sessions={list} />
       )}
 
       {getToken && (

@@ -1,17 +1,19 @@
 import { useState } from 'react'
-import type { Location, TrainingCard } from '../types'
+import type { Location, Technique, TrainingCard } from '../types'
 import { CATEGORY_COLOR } from '../lib/cards'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { tr } from '../i18n/core'
+import { hasTechnique, techniqueOptions } from '../lib/technique'
 import { CoachNote } from './CoachNote'
 import { Modal } from './Modal'
+import { Segmented } from './Segmented'
 import { SportIcon } from './SportIcon'
 import { ZoneRows } from './ZoneRows'
 
 interface Props {
   card: TrainingCard
   defaultDate: string
-  onAdd: (card: TrainingCard, date: string, location?: Location) => void
+  onAdd: (card: TrainingCard, date: string, location?: Location, technique?: Technique | '') => void
   onClose: () => void
   onBack?: () => void
   actionLabel?: string // t.ex. vid byte av pass
@@ -22,6 +24,7 @@ interface Props {
 export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actionLabel, hideDate }: Props) {
   const [date, setDate] = useState(defaultDate)
   const [location, setLocation] = useState<Location>('gym')
+  const [technique, setTechnique] = useState<Technique | ''>('')
 
   return (
     <Modal
@@ -41,7 +44,7 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actio
           <button
             className="btn primary"
             onClick={() => {
-              onAdd(card, date, card.home ? location : undefined)
+              onAdd(card, date, card.home ? location : undefined, hasTechnique(card.sport) ? technique : undefined)
               onClose()
             }}
           >
@@ -57,6 +60,12 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actio
         {tr(card.sport)}
         {card.category !== 'rest' && <> · {fmtDuration(sessionMinutes(card))}</>} · {tr(card.hint)}
       </div>
+      {hasTechnique(card.sport) && (
+        <div className="field">
+          <span>{tr('Teknik')}</span>
+          <Segmented value={technique} onChange={setTechnique} options={techniqueOptions()} />
+        </div>
+      )}
       <ZoneRows zones={card.zones} nonZone={card.nonZone} sport={card.sport} />
       <CoachNote card={card} location={location} onLocation={setLocation} />
     </Modal>

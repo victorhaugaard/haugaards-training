@@ -9,6 +9,7 @@ import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
 import { TOUCH, useMedia } from '../lib/useMedia'
 import { StravaMark } from './StravaMark'
+import { techniqueSuffix } from '../lib/technique'
 
 interface Props {
   session: Session
@@ -98,7 +99,7 @@ export function SessionChip({ session: s, compact, detail, onPatch, onOpen, onTo
         {!compact && (
           <>
             <div className="chip-meta">
-              {s.category === 'rest' ? tr('Vila') : `${fmtDuration(minutes)} · ${tr(s.sport)}`}
+              {s.category === 'rest' ? tr('Vila') : `${fmtDuration(minutes)} · ${tr(s.sport)}${techniqueSuffix(s)}`}
               {card?.home && (
                 <button
                   className="loc"

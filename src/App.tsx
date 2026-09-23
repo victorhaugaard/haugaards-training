@@ -608,7 +608,7 @@ function Workspace({
           card={infoCard}
           defaultDate={cursor}
           onClose={() => setInfoCard(null)}
-          onAdd={(card, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
+          onAdd={(card, date, location, technique) => dispatch({ type: 'addFromCard', card, date, location, technique })}
         />
       )}
       {planOpen && state.plans.find((p) => p.id === planOpen) && (
@@ -644,7 +644,7 @@ function Workspace({
           swap
           date={swapSession.date}
           onClose={() => setSwapId(null)}
-          onPick={(card, _date, location) => dispatch({ type: 'replaceWithCard', id: swapSession.id, card, location })}
+          onPick={(card, _date, location, technique) => dispatch({ type: 'replaceWithCard', id: swapSession.id, card, location, technique })}
         />
       )}
       {notice && !chatOpen && <NoticeToast notice={notice} relation={viewer.relation} onOpen={() => (setChatOpen(true), setNotice(null))} onClose={() => setNotice(null)} />}
@@ -653,7 +653,7 @@ function Workspace({
         <PickerModal
           date={pickDate}
           onClose={() => setPickDate(null)}
-          onPick={(card: TrainingCard, date, location) => dispatch({ type: 'addFromCard', card, date, location })}
+          onPick={(card: TrainingCard, date, location, technique) => dispatch({ type: 'addFromCard', card, date, location, technique })}
           onBuild={buildStrength}
         />
       )}

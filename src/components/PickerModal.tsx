@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Location, TrainingCard } from '../types'
+import type { Location, Technique, TrainingCard } from '../types'
 import { fullDate, cap } from '../lib/dates'
 import { tr } from '../i18n/core'
 import { CardInfoModal } from './CardInfoModal'
@@ -9,7 +9,7 @@ import { StrengthBuilder, type StrengthValue } from './StrengthBuilder'
 
 interface Props {
   date: string
-  onPick: (c: TrainingCard, date: string, location?: Location) => void
+  onPick: (c: TrainingCard, date: string, location?: Location, technique?: Technique | '') => void
   onClose: () => void
   swap?: boolean // byt ut ett befintligt pass i stället för att lägga till
   onBuild?: (v: StrengthValue) => void // eget styrkepass

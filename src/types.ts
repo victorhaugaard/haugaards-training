@@ -15,6 +15,7 @@ export type Sport =
 export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other' | 'rest'
 
 export type Location = 'gym' | 'home'
+export type Technique = 'classic' | 'skate' | 'pole' // klassiskt, fristil, ren stakning (rullskidor/skidor)
 export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
 
 export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Tävling & övrigt'
@@ -65,6 +66,7 @@ export interface Session {
   exercises?: Exercise[] // övningar i ett eget styrkepass
   stravaId?: string // Strava-aktivitetens id, för att undvika dubbletter
   stravaAuto?: boolean // true om passet skapades av synken (inget planerat pass matchade), annars en ihopkopplad matchning
+  technique?: Technique | '' // teknik för rullskidor/skidor. '' = ospecificerad (skiljs från "inte satt" så att fältet går att nollställa)
 }
 
 export interface Person {

@@ -11,6 +11,7 @@ import { SportIcon } from './SportIcon'
 import { ZoneRows } from './ZoneRows'
 import { exerciseById } from '../lib/exercises'
 import { StravaMark } from './StravaMark'
+import { techniqueSuffix } from '../lib/technique'
 
 interface Props {
   session: Session
@@ -74,6 +75,7 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
           <SportIcon sport={s.sport} size={18} />
         </span>
         {cap(fullDate(s.date))} · {tr(s.sport)}
+        {techniqueSuffix(s)}
         {s.category !== 'rest' && <> · {fmtDuration(total)}</>}
         {s.stravaId && (
           <span className="sc-strava" title={tr('Importerat från Strava')}>

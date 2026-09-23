@@ -7,6 +7,7 @@ import { Segmented } from './Segmented'
 import { Modal } from './Modal'
 import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
+import { hasTechnique, techniqueOptions } from '../lib/technique'
 
 interface Props {
   session: Session
@@ -59,6 +60,7 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onB
                 notes: s.notes,
                 done: s.done,
                 ...(s.location ? { location: s.location } : {}),
+                ...(hasTechnique(s.sport) ? { technique: s.technique ?? '' } : {}),
               })
               onBack()
             }}
@@ -115,6 +117,12 @@ export function EditModal({ session, onSave, onDelete, onDuplicate, onClose, onB
               ['home', tr('Hemma')],
             ]}
           />
+        </div>
+      )}
+      {hasTechnique(s.sport) && (
+        <div className="field">
+          <span>{tr('Teknik')}</span>
+          <Segmented value={s.technique ?? ''} onChange={(t) => set('technique', t)} options={techniqueOptions()} />
         </div>
       )}
       {(s.nonZone > 0 || s.sport === 'Styrka' || s.sport === 'Rörlighet') && (
