@@ -70,7 +70,7 @@ function Donut({ rows, total }: { rows: Row[]; total: number }) {
   const stroke = 22
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
-  const gap = rows.length > 1 ? 3 : 0 // synlig lucka mellan varje segment
+  const gap = rows.length > 1 ? 4 : 0 // synlig lucka mellan varje segment
   let offset = 0
   return (
     <div className="sb-donut">
@@ -98,7 +98,7 @@ function Donut({ rows, total }: { rows: Row[]; total: number }) {
               fill="none"
               stroke={`url(#sb-grad-${i})`}
               strokeWidth={stroke}
-              strokeLinecap="round"
+              strokeLinecap="butt"
               strokeDasharray={`${len} ${c - len}`}
               strokeDashoffset={-offset}
               transform={`rotate(-90 ${size / 2} ${size / 2})`}
