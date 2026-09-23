@@ -17,6 +17,7 @@ export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'othe
 export type Location = 'gym' | 'home'
 export type Technique = 'classic' | 'skate' | 'pole' // klassiskt, fristil, ren stakning (rullskidor/skidor)
 export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
+export type SportFocus = 'balanced' | 'ski' // blandat upplägg, eller mer ren längdskidåkning/rullskidor istället för cykel/Zwift
 
 export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Tävling & övrigt'
 
@@ -75,6 +76,7 @@ export interface Person {
   createdAt?: number
   runMode?: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
+  focus?: SportFocus
   photoUrl?: string // profilbild
   stravaAthleteId?: number // satt när personen kopplat sitt Strava-konto (själva token ligger bara på servern)
 }
@@ -112,6 +114,7 @@ export interface PlanRecord {
   hours?: number
   runMode?: RunMode
   restDay?: number
+  focus?: SportFocus
   source: 'generated' | 'copied' | 'coach' | 'earlier'
   archive?: PlanArchive
 }
@@ -122,6 +125,7 @@ export interface PlanParams {
   hours?: number
   runMode?: RunMode
   restDay?: number
+  focus?: SportFocus
   source: PlanRecord['source']
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { RunMode } from '../types'
+import type { RunMode, SportFocus } from '../types'
 import { today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
 import { GenerateForm, type GenValue } from './GenerateForm'
@@ -12,13 +12,14 @@ interface Props {
   name: string
   initialRunMode: RunMode
   initialRestDay: number
+  initialFocus: SportFocus
   onGenerate: (o: GenerateChoice) => void
   onClose: () => void
 }
 
-export function GenerateModal({ name, initialRunMode, initialRestDay, onGenerate, onClose }: Props) {
+export function GenerateModal({ name, initialRunMode, initialRestDay, initialFocus, onGenerate, onClose }: Props) {
   // Från idag som förval: allt före det och redan genomförda pass rör vi inte
-  const [v, setV] = useState<GenValue>({ start: today(), end: PLAN_END, hours: 12, runMode: initialRunMode, restDay: initialRestDay, fresh: false })
+  const [v, setV] = useState<GenValue>({ start: today(), end: PLAN_END, hours: 12, runMode: initialRunMode, restDay: initialRestDay, focus: initialFocus, fresh: false })
 
   return (
     <Modal

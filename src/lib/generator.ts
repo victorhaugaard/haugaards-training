@@ -1,4 +1,4 @@
-import type { RunMode, Session, Zones } from '../types'
+import type { RunMode, Session, SportFocus, Zones } from '../types'
 import { cardById } from './cards'
 import { RACES, type RaceDef } from './races'
 import { addDays, parse, startOfWeek } from './dates'
@@ -152,6 +152,23 @@ const LOW_IMPACT: Record<string, string> = {
   'int-hill': 'int-rs',
 }
 
+// Fokus "ren längdskidåkning": cykel- och Zwift/Tacx-pass byts mot sin rullskidmotsvarighet.
+// Stakmaskinen (Ercolina, på rullskidor) är redan skidspecifik och rörs inte.
+const SKI_FOCUS_SWAP: Record<string, string> = {
+  'easy-bike': 'rs-easy',
+  'long-bike': 'rs-long',
+  'int-bike': 'int-rs',
+  'zw-endu': 'rs-easy',
+  'zw-cad': 'rs-easy',
+  'zw-group': 'rs-easy',
+  'zw-sst': 'int-rs',
+  'zw-tempo': 'int-rs',
+  'zw-ou': 'int-rs',
+  'zw-pyr': 'int-rs',
+  'zw-3030': 'int-rs',
+  'zw-vo2': 'int-rs',
+}
+
 const PHASE_VOLUME: Record<Phase, number> = { base: 0.97, build: 1.03, specific: 1.0, sharpen: 0.9, winter: 1.05, season: 0.95 }
 // 3 veckor upp, 1 vecka ned
 export const CYCLE = [0.98, 1.08, 1.14, 0.75]
@@ -178,9 +195,10 @@ export interface GenerateOptions {
   hoursPerWeek: number
   runMode: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
+  focus?: SportFocus // 'ski' byter cykel/Zwift mot rullskidor där det går
 }
 
-export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, restDay = 0 }: GenerateOptions): Session[] => {
+export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, restDay = 0, focus = 'balanced' }: GenerateOptions): Session[] => {
   const out: Session[] = []
   let weekStart = startOfWeek(start)
   let w = 0
@@ -194,8 +212,10 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, rest
   const resolve = (s: Slot, odd: boolean) => {
     let id = odd && s.odd ? s.odd : s.card
     const c = cardById(id)!
-    // löppass byts mot cykel om löpning inte önskas, eller om passet inte är veckans enda löptur
-    if (c.sport === 'Löpning' && !s.sport && (runMode === 'none' || !s.keepRun) && LOW_IMPACT[id]) id = LOW_IMPACT[id]
+    // löppass byts mot cykel om löpning inte önskas (eller fokus är ren skidåkning), eller om passet inte är veckans enda löptur
+    if (c.sport === 'Löpning' && !s.sport && (runMode === 'none' || focus === 'ski' || !s.keepRun) && LOW_IMPACT[id]) id = LOW_IMPACT[id]
+    // fokus "ren längdskidåkning": cykel/Zwift blir rullskidor
+    if (focus === 'ski' && SKI_FOCUS_SWAP[id]) id = SKI_FOCUS_SWAP[id]
     return cardById(id)!
   }
 
@@ -304,11 +324,12 @@ export const raceSessions = (personId: string, start: string, end: string = PLAN
 }
 
 // Kopiera en annan persons plan (t.ex. pappa baserat på mig) med volymskalning.
-// Med runMode 'none' byts löppass mot cykel/rullskidor.
-export const copyPlan = (source: Session[], personId: string, scale: number, runMode: RunMode): Session[] =>
+// Med runMode 'none' byts löppass mot cykel/rullskidor. Med focus 'ski' byts cykel/Zwift mot rullskidor.
+export const copyPlan = (source: Session[], personId: string, scale: number, runMode: RunMode, focus: SportFocus = 'balanced'): Session[] =>
   source.map((s) => {
     let base: Session = s
-    const swap = runMode === 'none' && s.sport === 'Löpning' ? cardById(LOW_IMPACT[s.cardId] ?? '') : undefined
+    const swapId = runMode === 'none' && s.sport === 'Löpning' ? (LOW_IMPACT[s.cardId] ?? '') : focus === 'ski' ? (SKI_FOCUS_SWAP[s.cardId] ?? '') : ''
+    const swap = swapId ? cardById(swapId) : undefined
     if (swap) {
       const f = swap.flex ? sessionMinutes(s) / sessionMinutes(swap) : 1
       base = {

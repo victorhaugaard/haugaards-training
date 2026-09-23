@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Person, RunMode } from '../types'
+import type { Person, RunMode, SportFocus } from '../types'
 import { startOfWeek, today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
 import { GenerateForm, type GenValue } from './GenerateForm'
@@ -15,6 +15,7 @@ export type NewPerson = {
   hours: number
   runMode: RunMode
   restDay: number
+  focus: SportFocus
   start: string
   end: string
 }
@@ -33,7 +34,7 @@ export function PersonModal({ people, activeId, initialName, onCreate, onClose }
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
   // Skonsamt som förval för nya personer
-  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, fresh: false })
+  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, focus: 'balanced', fresh: false })
 
   return (
     <Modal
@@ -47,7 +48,7 @@ export function PersonModal({ people, activeId, initialName, onCreate, onClose }
             className="btn primary"
             disabled={!name.trim()}
             onClick={() =>
-              (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, start: gen.start, end: gen.end }), onClose())
+              (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, focus: gen.focus, start: gen.start, end: gen.end }), onClose())
             }
           >
             {tr('Skapa')}
@@ -81,6 +82,17 @@ export function PersonModal({ people, activeId, initialName, onCreate, onClose }
               options={[
                 ['none', tr('Ingen (skonsamt)')],
                 ['little', tr('Lite då och då')],
+              ]}
+            />
+          </div>
+          <div className="field">
+            <span>{tr('Fokus')}</span>
+            <Segmented
+              value={gen.focus}
+              onChange={(focus) => setGen((g) => ({ ...g, focus }))}
+              options={[
+                ['balanced', tr('Blandat')],
+                ['ski', tr('Ren längdskidåkning')],
               ]}
             />
           </div>

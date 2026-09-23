@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { RunMode } from '../types'
+import type { RunMode, SportFocus } from '../types'
 import { addDays, dayMonth } from '../lib/dates'
 import { generatePlan } from '../lib/generator'
 import { tr } from '../i18n/core'
@@ -13,6 +13,7 @@ export interface GenValue {
   hours: number
   runMode: RunMode
   restDay: number
+  focus: SportFocus
   fresh: boolean // radera hela den gamla planen först
 }
 
@@ -26,8 +27,8 @@ interface Props {
 // datum, timmar, löpning, vilodag och en förklaring av planen som uppdateras direkt.
 export function GenerateForm({ value: v, onChange, showFresh }: Props) {
   const preview = useMemo(
-    () => generatePlan({ personId: 'preview', start: v.start, end: v.end, hoursPerWeek: v.hours, runMode: v.runMode, restDay: v.restDay }),
-    [v.start, v.end, v.hours, v.runMode, v.restDay],
+    () => generatePlan({ personId: 'preview', start: v.start, end: v.end, hoursPerWeek: v.hours, runMode: v.runMode, restDay: v.restDay, focus: v.focus }),
+    [v.start, v.end, v.hours, v.runMode, v.restDay, v.focus],
   )
   return (
     <>
@@ -62,6 +63,18 @@ export function GenerateForm({ value: v, onChange, showFresh }: Props) {
             ['little', tr('Lite då och då')],
           ]}
         />
+      </div>
+      <div className="field">
+        <span>{tr('Fokus')}</span>
+        <Segmented
+          value={v.focus}
+          onChange={(focus) => onChange({ focus })}
+          options={[
+            ['balanced', tr('Blandat')],
+            ['ski', tr('Ren längdskidåkning')],
+          ]}
+        />
+        <span className="hint">{tr(v.focus === 'ski' ? 'Cykel och Zwift/Tacx byts mot rullskidor där det går. Stakmaskinen är redan skidspecifik.' : 'Blandar cykel, rullskidor, stakmaskin och Zwift/Tacx, som idag.')}</span>
       </div>
       <RestDayField value={v.restDay} onChange={(restDay) => onChange({ restDay })} />
       {showFresh && (

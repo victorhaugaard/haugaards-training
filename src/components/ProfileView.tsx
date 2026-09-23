@@ -51,6 +51,7 @@ function Row({ s, plan }: { s: DoneSession; plan?: number }) {
 
 function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: ReturnType<typeof planStats>; active?: boolean; onOpen?: () => void }) {
   const runText = plan.runMode ? tr(plan.runMode === 'none' ? 'Ingen (skonsamt)' : 'Lite då och då') : ''
+  const focusText = plan.focus === 'ski' ? tr('Ren längdskidåkning') : ''
   return (
     <div
       className={'ov-card plan-card' + (active ? ' active' : '') + (onOpen ? ' clickable' : '')}
@@ -77,7 +78,12 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
           {fmtHours(stats.doneMinutes)} / {fmtHours(stats.dueMinutes)}
         </div>
         <div className="stat-sub">
-          {[plan.hours ? tr('{h} h/vecka', { h: plan.hours }) : '', runText && `${tr('Löpning')}: ${runText}`, plan.restDay !== undefined ? `${tr('Vilodag')}: ${restName(plan.restDay)}` : '']
+          {[
+            plan.hours ? tr('{h} h/vecka', { h: plan.hours }) : '',
+            runText && `${tr('Löpning')}: ${runText}`,
+            plan.restDay !== undefined ? `${tr('Vilodag')}: ${restName(plan.restDay)}` : '',
+            focusText && `${tr('Fokus')}: ${focusText}`,
+          ]
             .filter(Boolean)
             .join(' · ')}
         </div>

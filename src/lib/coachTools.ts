@@ -1,5 +1,5 @@
 // Verktygen Coach Smirnov kan använda. De körs i appen mot personens pass och returnerar en ny lista.
-import type { Category, Person, PlanParams, RunMode, Session, Sport, Zones } from '../types'
+import type { Category, Person, PlanParams, RunMode, Session, Sport, SportFocus, Zones } from '../types'
 import { CARDS, SPORTS, cardById } from './cards'
 import { addDays, parse, startOfWeek, today, weekdayShort } from './dates'
 import { PLAN_END, generatePlan } from './generator'
@@ -188,15 +188,16 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
       const hours = Math.max(6, Math.min(20, num(input.hours_per_week, 12)))
       const runMode: RunMode = input.run_mode === 'none' || input.run_mode === 'little' ? input.run_mode : (ctx.person.runMode ?? 'little')
       const restDay = typeof input.rest_day === 'number' ? Math.max(-1, Math.min(6, Math.round(input.rest_day))) : (ctx.person.restDay ?? 0)
+      const focus: SportFocus = input.sport_focus === 'balanced' || input.sport_focus === 'ski' ? input.sport_focus : (ctx.person.focus ?? 'balanced')
       const doneDays = new Set(sessions.filter((s) => s.done).map((s) => s.date))
-      const generated = generatePlan({ personId: ctx.personId, start, end, hoursPerWeek: hours, runMode, restDay }).filter((s) => !doneDays.has(s.date))
+      const generated = generatePlan({ personId: ctx.personId, start, end, hoursPerWeek: hours, runMode, restDay, focus }).filter((s) => !doneDays.has(s.date))
       const kept = sessions.filter((s) => !(s.date >= start && !s.done && !(s.category === 'race' && !s.raceId)))
       return {
         sessions: [...kept, ...generated],
-        result: `Regenerated plan from ${start} to ${end}: ${hours} h/week, run_mode ${runMode}, rest_day ${restDay}. ${generated.length} sessions created.`,
+        result: `Regenerated plan from ${start} to ${end}: ${hours} h/week, run_mode ${runMode}, rest_day ${restDay}, sport_focus ${focus}. ${generated.length} sessions created.`,
         summary: tr('Byggde om planen från {date}', { date: start }),
-        personPatch: { runMode, restDay },
-        newPlan: { start, end, hours, runMode, restDay, source: 'coach' },
+        personPatch: { runMode, restDay, focus },
+        newPlan: { start, end, hours, runMode, restDay, focus, source: 'coach' },
       }
     }
 

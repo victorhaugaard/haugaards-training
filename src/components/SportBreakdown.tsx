@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { DoneSession, Sport } from '../types'
 import { sportColor, SPORT_ORDER } from '../lib/sportColors'
 import { fmtHours } from '../lib/stats'
@@ -53,7 +53,7 @@ export function SportBreakdown({ sessions }: { sessions: DoneSession[] }) {
       <ul className="sb-legend">
         {rows.map((r) => (
           <li key={r.sport} title={`${tr(r.sport)}: ${fmtHours(r.minutes)} (${Math.round(r.pct * 100)}%)`}>
-            <i style={{ background: r.color }} />
+            <i style={{ '--bar': r.color } as CSSProperties} />
             <SportIcon sport={r.sport} size={13} />
             <span>{tr(r.sport)}</span>
             <b>{fmtHours(r.minutes)}</b>
@@ -75,17 +75,28 @@ function Donut({ rows, total }: { rows: Row[]; total: number }) {
   return (
     <div className="sb-donut">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={tr('Timmar per idrott, ring')}>
+        <defs>
+          {rows.map((row, i) => (
+            // Ljusare upptill, passets egen färg nedåt – samma känsla som intensitetsstaplarna
+            <linearGradient key={row.sport} id={`sb-grad-${i}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={row.color} stopOpacity={0.65} />
+              <stop offset="100%" stopColor={row.color} />
+            </linearGradient>
+          ))}
+        </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-2)" strokeWidth={stroke} />
-        {rows.map((row) => {
+        {rows.map((row, i) => {
           const len = Math.max(0, row.pct * c - gap)
           const el = (
             <circle
               key={row.sport}
+              className="sb-arc"
+              style={{ '--bar': row.color } as CSSProperties}
               cx={size / 2}
               cy={size / 2}
               r={r}
               fill="none"
-              stroke={row.color}
+              stroke={`url(#sb-grad-${i})`}
               strokeWidth={stroke}
               strokeLinecap="round"
               strokeDasharray={`${len} ${c - len}`}
@@ -110,11 +121,11 @@ function Donut({ rows, total }: { rows: Row[]; total: number }) {
 function Bars({ rows, max }: { rows: Row[]; max: number }) {
   return (
     <div className="sb-bars">
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <div key={r.sport} className="sb-bar-row">
           <span className="sb-bar-label">{tr(r.sport)}</span>
           <div className="sb-bar-track">
-            <i style={{ width: `${(r.minutes / max) * 100}%`, background: r.color }} />
+            <i style={{ '--bar': r.color, width: `${(r.minutes / max) * 100}%`, animationDelay: `${-i * 0.7}s` } as CSSProperties} />
           </div>
           <b>{fmtHours(r.minutes)}</b>
         </div>

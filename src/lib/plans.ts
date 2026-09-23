@@ -67,6 +67,7 @@ export const newPlanRecord = (plans: PlanRecord[], personId: string, params: Pla
   ...(params.hours !== undefined ? { hours: params.hours } : {}),
   ...(params.runMode ? { runMode: params.runMode } : {}),
   ...(params.restDay !== undefined ? { restDay: params.restDay } : {}),
+  ...(params.focus ? { focus: params.focus } : {}),
 })
 
 // Äldre data saknar planposter. Skapa en pågående plan per person som har pass.

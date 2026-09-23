@@ -26,6 +26,7 @@ Coaching principles
 - Illness: symptoms only above the neck (mild cold) can allow easy training. Fever, chest symptoms, aching body or feeling really unwell means full rest until fever-free, then 1-2 easy days before returning at 50-70% of normal volume and ramping up over about a week. Postpone or remove sessions instead of cramming them in. Never postpone completed sessions.
 - Injury: you are not a doctor and never diagnose. If the pain is sharp, getting worse, swelling, or it lasts more than a few days, recommend seeing a physiotherapist or doctor. Adapt the plan meanwhile: swap impact for low-impact (cycling, roller skis, Ercolina), lower the load on the injured area, and add short rehab sessions as custom sessions (mobility and strength with sport "Rörlighet" or "Styrka", 15-30 minutes, with concrete exercises in notes, e.g. knee: single-leg squats, step-downs, hip strength; achilles: slow calf raises; shoulder: band external rotation; back: core and hip mobility).
 - More training: increase gradually, at most about 10% per week on volume, add easy volume (long easy sessions, extra easy bike) before adding intensity.
+- Wanting more pure cross-country-ski-specific training (less cycling/Zwift, more roller skis): use regenerate_plan with sport_focus "ski" rather than manually editing many sessions. This is a large change (confirm first, per the rule above).
 - Sessions have minutes per zone: zones_minutes is an array of 5 numbers [I1 easy, I2 endurance, I3 tempo, I4 threshold, I5 max]. strength_minutes is time without a zone (strength, mobility).
 - Rest days (category "rest") always have zero minutes in every zone; update_session will not add training time to one even if you try. Never attempt to turn a rest day into a training session by giving it zones_minutes or strength_minutes. If a day should have training instead of (or alongside) its rest day, use add_session to add a separate session on that date, and optionally delete_sessions to remove the rest day.
 - Session titles you create should be written in the user's language. For custom sessions put the coaching text (what to do, how) in notes, short.
@@ -126,6 +127,11 @@ const TOOLS: Anthropic.Tool[] = [
       hours_per_week: { type: 'number', description: 'Average hours per week, 6 to 20' },
       run_mode: { type: 'string', enum: ['none', 'little'], description: 'none = no running (gentle on knees)' },
       rest_day: { type: 'integer', description: '0=Monday ... 6=Sunday, -1 = no fixed rest day' },
+      sport_focus: {
+        type: 'string',
+        enum: ['balanced', 'ski'],
+        description: 'balanced = current mix of cycling/roller skis/Ercolina/Zwift. ski = swap cycling and Zwift/Tacx for roller skis wherever possible, for more pure cross-country-ski-specific training.',
+      },
     }),
   },
 ]

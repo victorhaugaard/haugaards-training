@@ -375,19 +375,20 @@ function Workspace({
   const createPerson = (n: NewPerson) => {
     const id = uid()
     let sessions: Session[] = []
-    if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode)
+    if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode, n.focus)
     if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: n.start, end: n.end, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay })
+      sessions = generatePlan({ personId: id, start: n.start, end: n.end, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay, focus: n.focus })
     const first = sessions.map((s) => s.date).sort()[0] ?? startOfWeek(today())
     dispatch({
       type: 'addPerson',
-      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay },
+      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay, focus: n.focus },
       sessions,
       plan: {
         start: n.mode === 'copy' ? first : n.start,
         end: n.mode === 'copy' ? PLAN_END : n.end,
         runMode: n.runMode,
         restDay: n.restDay,
+        focus: n.focus,
         source: n.mode === 'copy' ? 'copied' : 'generated',
         ...(n.mode === 'generate' ? { hours: n.hours } : {}),
       },
@@ -395,9 +396,9 @@ function Workspace({
   }
 
   const regenerate = (o: GenerateChoice) => {
-    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay } })
+    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus } })
     const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
-    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode, restDay: o.restDay }).filter(
+    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus }).filter(
       (s) => !doneDays.has(s.date),
     )
     dispatch({
@@ -406,7 +407,7 @@ function Workspace({
       from: o.start,
       sessions,
       fresh: o.fresh,
-      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, source: 'generated' },
+      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, source: 'generated' },
     })
   }
 
@@ -532,8 +533,8 @@ function Workspace({
         </main>
         </div>
         {!libOpen && showSide && (
-          <button className="side-tab" onClick={() => setLibOpen(true)} aria-label={tr('Visa träningskort')}>
-            ‹ {tr('Träningskort')}
+          <button className="side-tab" onClick={() => setLibOpen(true)} aria-label={tr('Visa träningspass')}>
+            ‹ {tr('Träningspass')}
           </button>
         )}
         {libOpen && showSide && (
@@ -561,8 +562,8 @@ function Workspace({
               }}
             />
             <div className="side-head">
-              <h3>{tr('Träningskort')}</h3>
-              <button className="icon-btn" onClick={() => setLibOpen(false)} aria-label={tr('Dölj träningskort')} title={tr('Dölj träningskort')}>
+              <h3>{tr('Träningspass')}</h3>
+              <button className="icon-btn" onClick={() => setLibOpen(false)} aria-label={tr('Dölj träningspass')} title={tr('Dölj träningspass')}>
                 ›
               </button>
             </div>
@@ -660,7 +661,16 @@ function Workspace({
       {dialog === 'person' && (
         <PersonModal people={state.people} activeId={person.id} initialName={newName} onCreate={createPerson} onClose={() => (setDialog(null), setNewName(undefined))} />
       )}
-      {dialog === 'generate' && <GenerateModal name={person.name} initialRunMode={person.runMode ?? 'little'} initialRestDay={person.restDay ?? 0} onGenerate={regenerate} onClose={() => setDialog(null)} />}
+      {dialog === 'generate' && (
+        <GenerateModal
+          name={person.name}
+          initialRunMode={person.runMode ?? 'little'}
+          initialRestDay={person.restDay ?? 0}
+          initialFocus={person.focus ?? 'balanced'}
+          onGenerate={regenerate}
+          onClose={() => setDialog(null)}
+        />
+      )}
       {dialog === 'guide' && (
         <Modal wide title={tr('Om planen · {name}', { name: person.name })} onClose={() => setDialog(null)}>
           <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} restDay={person.restDay ?? 0} />
