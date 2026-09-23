@@ -102,19 +102,27 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
       const s = find(input.session_id)
       if (!s) return err(ctx, 'unknown session_id')
       if (protectedSession(s)) return err(ctx, 'race and completed sessions are protected; ask the user')
+      const isRest = s.category === 'rest' // vilodagar ska alltid ha noll minuter, oavsett vad som skickas in
       let next: Session = { ...s }
       if (typeof input.title === 'string' && input.title.trim()) next.title = input.title.trim()
       if (typeof input.notes === 'string') next.notes = input.notes
       if ((SPORTS as readonly string[]).includes(String(input.sport))) next.sport = input.sport as Sport
-      if (isZones(input.zones_minutes)) next.zones = input.zones_minutes.map(clampMin) as Zones
-      if (input.strength_minutes !== undefined) next.nonZone = clampMin(num(input.strength_minutes))
-      if (typeof input.scale === 'number' && input.scale > 0.1 && input.scale < 3) {
-        next = { ...next, zones: scaleZones(next.zones, input.scale), nonZone: clampMin(next.nonZone * input.scale) }
+      const triedTime = isZones(input.zones_minutes) || input.strength_minutes !== undefined || typeof input.scale === 'number'
+      if (!isRest) {
+        if (isZones(input.zones_minutes)) next.zones = input.zones_minutes.map(clampMin) as Zones
+        if (input.strength_minutes !== undefined) next.nonZone = clampMin(num(input.strength_minutes))
+        if (typeof input.scale === 'number' && input.scale > 0.1 && input.scale < 3) {
+          next = { ...next, zones: scaleZones(next.zones, input.scale), nonZone: clampMin(next.nonZone * input.scale) }
+        }
       }
       if (isDate(input.date) && input.date !== s.date) next = { ...next, date: input.date, order: nextOrder(sessions, input.date) }
       return {
         sessions: sessions.map((x) => (x.id === s.id ? next : x)),
-        result: `Updated. Now: ${describe(next)}`,
+        result:
+          `Updated. Now: ${describe(next)}` +
+          (isRest && triedTime
+            ? ' NOTE: this is a rest day (category "rest") and always has zero training minutes; the zone/time change was not applied. To add training on this day, use add_session for a separate session instead (the rest day can stay alongside it, or be removed with delete_sessions).'
+            : ''),
         summary: tr('Ändrade {title}', { title: tr(next.title) }),
       }
     }
