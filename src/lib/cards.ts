@@ -289,6 +289,56 @@ export const CARDS: TrainingCard[] = [
     tip: 'Gör det hemma på mattan. Kort och regelbundet slår långt och sällan.',
   }),
 
+  // ——— Gym & kondition ———
+  card('cond-steady', 'Lugn kondition', 'Kondition', 'easy', 'Gym & kondition', [45, 0, 0, 0, 0], 0, 'Crosstrainer, roddmaskin eller cykel', {
+    purpose: 'Bygger grundkondition utan att slita. Grunden som gör att du orkar de hårda passen.',
+    how: ['Välj crosstrainer, roddmaskin eller motionscykel', 'Håll {z1} hela passet, du ska kunna prata', 'Byt maskin halvvägs om du vill ha omväxling'],
+    tip: 'Det ska kännas lätt. Det är de lugna passen som gör att du återhämtar dig till nästa hårda.',
+  }, { flex: true }),
+  card('cond-threshold', 'Konditionspass tröskel 4×6 min', 'Kondition', 'quality', 'Gym & kondition', [21, 0, 0, 24, 0], 0, 'Roddmaskin eller crosstrainer', {
+    purpose: 'Höjer tröskeln, alltså hur hårt du kan hålla länge.',
+    how: ['Värm upp 10 minuter i {z1}', '4 × 6 minuter i {z4}, 2 minuter lugnt mellan', 'Avsluta med 5 minuter lugnt'],
+    tip: 'Jämnt tempo i alla fyra. Är sista intervallen klart sämst gick du ut för hårt.',
+  }),
+  card('cond-intervals', 'Konditionsintervaller 8×2 min', 'Kondition', 'hard', 'Gym & kondition', [20, 0, 0, 6, 14], 0, 'Roddmaskin, airbike eller löpband', {
+    purpose: 'Höjer maxkonditionen med korta, hårda intervaller.',
+    how: ['Värm upp 10 minuter och kör två korta stegringar', '8 × 2 minuter i {z5}, 1 minuts lugn vila', 'Varva ner 5 minuter'],
+    tip: 'Hårt men kontrollerat. Du ska kunna hålla samma tempo i alla åtta.',
+  }),
+  card('hiit-tabata', 'HIIT Tabata 4 block', 'Kondition', 'hard', 'Gym & kondition', [14, 0, 0, 4, 12], 0, 'Korta maxdrag, 20 s på och 10 s vila', {
+    purpose: 'Mycket effekt på kort tid. Höjer maxkondition och snabbhet.',
+    how: ['Värm upp 8 minuter med lätt rörelse och några korta ruscher', '4 block à 4 minuter: 20 sekunder max, 10 sekunder vila. Airbike, roddmaskin eller burpees', '2 minuter lugnt mellan blocken'],
+    tip: 'Fullt ös på varje 20-sekundersdrag. Hellre fyra riktiga block än sex halvhjärtade.',
+  }, {
+    home: {
+      purpose: 'Tabata hemma utan redskap. Kort och effektivt.',
+      how: ['Värm upp 8 minuter med jogg på stället och höga knän', '4 block à 4 minuter (20 s max, 10 s vila): burpees, jump squats, mountain climbers, höga knän', '2 minuter lugnt mellan blocken'],
+      tip: 'Landa mjukt. Lägg en matta under om golvet är hårt.',
+    },
+  }),
+  card('hiit-circuit', 'Cirkelträning', 'Kondition', 'quality', 'Gym & kondition', [15, 5, 10, 10, 0], 0, 'Stationer med kroppsvikt och kettlebell', {
+    purpose: 'Kombinerar styrka och kondition i samma pass.',
+    how: ['Värm upp 10 minuter', '3–4 varv av 6 stationer, 40 sekunder arbete och 20 sekunder byte: kettlebell swing, roddmaskin, utfall, armhävningar, boxhopp, planka', '2 minuter vila mellan varven'],
+    tip: 'Håll tekniken även när det blir tungt. Sänk vikten hellre än att slarva.',
+  }, {
+    home: {
+      purpose: 'Cirkelträning hemma med kroppsvikt.',
+      how: ['Värm upp 10 minuter', '3–4 varv av 6 stationer, 40 s arbete och 20 s vila: knäböj, armhävningar, utfall, mountain climbers, höftlyft, planka', '2 minuter vila mellan varven'],
+      tip: 'Använd en ryggsäck med böcker som vikt om det blir för lätt.',
+    },
+  }),
+  card('hiit-amrap', 'AMRAP 20 min', 'Kondition', 'hard', 'Gym & kondition', [10, 0, 5, 10, 5], 0, 'Så många varv som möjligt', {
+    purpose: 'Hård och rolig kondition där du tävlar mot dig själv.',
+    how: ['Värm upp 10 minuter', '20 minuter: så många varv som möjligt av 10 kettlebell swings, 10 burpees, 15 air squats och 200 m rodd', 'Skriv upp antal varv och slå det nästa gång'],
+    tip: 'Hitta ett tempo du kan hålla i 20 minuter. Den som rusar första fem dör sist.',
+  }, {
+    home: {
+      purpose: 'AMRAP hemma utan redskap.',
+      how: ['Värm upp 10 minuter', '20 minuter: så många varv som möjligt av 10 burpees, 15 knäböj, 10 armhävningar och 20 mountain climbers', 'Skriv upp antal varv'],
+      tip: 'Dela upp burpees i mindre set tidigt, så orkar du hela vägen.',
+    },
+  }),
+
   // ——— Tävling & övrigt ———
   card('race', 'Tävling', 'Tävling', 'race', 'Tävling & övrigt', [30, 0, 0, 40, 20], 0, 'Skriv själv, t.ex. ett annat lopp', {
     purpose: 'Dags att prestera. Skriv namn och uppskattad tid.',
@@ -307,7 +357,7 @@ export const CARDS: TrainingCard[] = [
   }),
 ]
 
-export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'Tävling & övrigt']
+export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'Gym & kondition', 'Tävling & övrigt']
 
 export const cardById = (id: string) => CARDS.find((c) => c.id === id)
 
@@ -323,7 +373,7 @@ export const ZONE_SYSTEMS: Record<ZoneSystem, { title: string; labels: string[];
 
 export const fillZones = (text: string, labels: string[]) => text.replace(/\{z([1-5])\}/g, (_, n) => labels[+n - 1])
 
-export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Rörlighet', 'Tävling', 'Vila', 'Övrigt'] as const
+export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Tävling', 'Vila', 'Övrigt'] as const
 
 export const CATEGORY_COLOR: Record<Category, string> = {
   easy: 'var(--c-easy)',

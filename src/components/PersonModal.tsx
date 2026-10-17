@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import type { Person, RunMode, SportFocus } from '../types'
+import type { Person, RunMode, SportFocus, TrainSport } from '../types'
 import { startOfWeek, today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
-import { GenerateForm, type GenValue } from './GenerateForm'
+import { planTypeOf } from '../lib/trainSports'
+import { GenerateForm, sportsPatch, type GenValue } from './GenerateForm'
+import { SportPicker } from './SportPicker'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
 import { tr } from '../i18n/core'
@@ -16,6 +18,7 @@ export type NewPerson = {
   runMode: RunMode
   restDay: number
   focus: SportFocus
+  sports: TrainSport[]
   start: string
   end: string
 }
@@ -24,55 +27,83 @@ interface Props {
   people: Person[]
   activeId: string
   initialName?: string
+  onboarding?: boolean // ny familjemedlem som loggar in för första gången
   onCreate: (p: NewPerson) => void
   onClose: () => void
 }
 
-export function PersonModal({ people, activeId, initialName, onCreate, onClose }: Props) {
-  const [name, setName] = useState(initialName ?? 'Øivind')
-  const [mode, setMode] = useState<NewPerson['mode']>(initialName ? 'generate' : 'copy')
+export function PersonModal({ people, activeId, initialName, onboarding, onCreate, onClose }: Props) {
+  const [step, setStep] = useState<'sports' | 'plan'>('sports')
+  const [name, setName] = useState(initialName ?? (onboarding ? '' : 'Øivind'))
+  const [mode, setMode] = useState<NewPerson['mode']>(initialName || onboarding ? 'generate' : 'copy')
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
   // Skonsamt som förval för nya personer
-  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, focus: 'balanced', fresh: false })
+  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, focus: 'balanced', sports: [], fresh: false })
+  const fitness = planTypeOf(gen.sports) === 'fitness'
+  const effMode = fitness && mode === 'copy' ? 'generate' : mode // en skidplan går inte att kopiera till en annan plan-typ
 
   return (
     <Modal
-      wide={mode === 'generate'}
-      title={tr('Lägg till person')}
+      wide={step === 'sports' || effMode === 'generate'}
+      title={tr(onboarding ? 'Välkommen! Skapa din plan' : 'Lägg till person')}
       onClose={onClose}
       footer={
         <>
+          <span className="step-dots" aria-hidden>
+            <i className={step === 'sports' ? 'on' : ''} />
+            <i className={step === 'plan' ? 'on' : ''} />
+          </span>
           <span className="spacer" />
-          <button
-            className="btn primary"
-            disabled={!name.trim()}
-            onClick={() =>
-              (onCreate({ name: name.trim(), mode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, focus: gen.focus, start: gen.start, end: gen.end }), onClose())
-            }
-          >
-            {tr('Skapa')}
-          </button>
+          {step === 'sports' ? (
+            <button className="btn primary" disabled={!name.trim() || !gen.sports.length} onClick={() => setStep('plan')}>
+              {tr('Nästa')}
+            </button>
+          ) : (
+            <>
+              <button className="btn" onClick={() => setStep('sports')}>
+                {tr('Tillbaka')}
+              </button>
+              <button
+                className="btn primary"
+                onClick={() =>
+                  (onCreate({ name: name.trim(), mode: effMode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, focus: gen.focus, sports: gen.sports, start: gen.start, end: gen.end }), onClose())
+                }
+              >
+                {tr('Skapa')}
+              </button>
+            </>
+          )}
         </>
       }
     >
-      <label className="field">
-        <span>{tr('Namn')}</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      </label>
+      {step === 'sports' && (
+        <>
+          <label className="field">
+            <span>{tr('Namn')}</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+          </label>
+          <div className="field">
+            <span>{tr('Vilka sporter håller du på med? Välj en eller flera.')}</span>
+            <SportPicker value={gen.sports} onChange={(sports) => setGen((g) => ({ ...g, ...sportsPatch(g, sports, 10) }))} />
+          </div>
+        </>
+      )}
+      {step === 'plan' && (
       <div className="field">
         <span>{tr('Startplan')}</span>
         <Segmented
-          value={mode}
+          value={effMode}
           onChange={setMode}
           options={[
-            ['copy', tr('Baserad på annan')],
+            ...(fitness ? [] : ([['copy', tr('Baserad på annan')]] as [NewPerson['mode'], string][])),
             ['generate', tr('Autogenerera')],
             ['empty', tr('Tom')],
           ]}
         />
       </div>
-      {mode === 'copy' && (
+      )}
+      {step === 'plan' && effMode === 'copy' && (
         <>
           <div className="field">
             <span>{tr('Löpning')}</span>
@@ -112,7 +143,7 @@ export function PersonModal({ people, activeId, initialName, onCreate, onClose }
           </label>
         </>
       )}
-      {mode === 'generate' && <GenerateForm value={gen} onChange={(p) => setGen((g) => ({ ...g, ...p }))} />}
+      {step === 'plan' && effMode === 'generate' && <GenerateForm value={gen} onChange={(p) => setGen((g) => ({ ...g, ...p }))} />}
     </Modal>
   )
 }

@@ -1,18 +1,40 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Bara ni två (Google-kontona) får läsa och skriva. Byt ut e-postadresserna.
+    // Admins är fasta. Övriga konton läggs till i appen (Meny → Hantera åtkomst) som dokument i access/{e-post}.
+    // Samma admin-lista finns i src/lib/access.ts och storage.rules.
+    function email() {
+      return request.auth.token.email.lower();
+    }
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function isAdmin() {
+      return signedIn() && email() in ['victortomashaugaard@gmail.com', 'ohaug01@gmail.com'];
+    }
     function allowed() {
-      return request.auth != null
-        && request.auth.token.email in ['victortomashaugaard@gmail.com', 'ohaug01@gmail.com'];
+      return isAdmin() || (signedIn() && exists(/databases/$(database)/documents/access/$(email())));
     }
-    // Strava-tokens skrivs och läses bara av servern (Admin SDK, som kringgår de här reglerna).
-    // Ingen klient, inte ens era egna inloggade konton, ska kunna läsa dem.
-    match /stravaTokens/{athleteId} {
-      allow read, write: if false;
-    }
-    match /{document=**} {
+
+    // Hushållets gemensamma data
+    match /people/{id} {
       allow read, write: if allowed();
     }
+    match /sessions/{id} {
+      allow read, write: if allowed();
+    }
+    match /plans/{id} {
+      allow read, write: if allowed();
+    }
+
+    // Åtkomstlistan: alla med åtkomst kan se den, bara admins ändrar.
+    // Man får alltid läsa sin egen rad, så att appen kan visa om man har blivit tillagd.
+    match /access/{addr} {
+      allow read: if allowed() || (signedIn() && addr == email());
+      allow write: if isAdmin()
+        && (request.method == 'delete' || (request.resource.data.email == addr && addr == addr.lower()));
+    }
+
+    // Strava-tokens (stravaTokens) har ingen regel alls: bara servern (Admin SDK) kommer åt dem.
   }
 }

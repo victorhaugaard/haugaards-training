@@ -1,7 +1,8 @@
 // Delad inloggningskontroll för serverfunktionerna (coach, Strava-anslutning).
-// Verifierar Firebase ID-token och kollar mot en lista över tillåtna e-postadresser.
+// Verifierar Firebase ID-token och kollar mot listan i miljövariabeln eller åtkomstlistan i Firestore (access/{e-post}).
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { IncomingMessage } from 'node:http'
+import { adminEnabled, getAdminDb } from './_admin'
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'))
 
@@ -17,11 +18,21 @@ export const verifyUser = async (req: IncomingMessage, allowedEnv: string, token
   try {
     const { payload } = await jwtVerify(token, JWKS, { issuer: `https://securetoken.google.com/${projectId}`, audience: projectId })
     const allowed = (process.env[allowedEnv] || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
-    if (!allowed.length) return { ok: false, status: 403, error: 'allowlist_missing' }
+    if (!allowed.length && !adminEnabled) return { ok: false, status: 403, error: 'allowlist_missing' }
     const email = String(payload.email || '').toLowerCase()
-    if (!payload.email_verified || !allowed.includes(email)) return { ok: false, status: 403, error: 'forbidden' }
-    return { ok: true, email }
+    if (!payload.email_verified || !email) return { ok: false, status: 403, error: 'forbidden' }
+    if (allowed.includes(email) || (await inAccessList(email))) return { ok: true, email }
+    return { ok: false, status: 403, error: 'forbidden' }
   } catch {
     return { ok: false, status: 401, error: 'unauthorized' }
+  }
+}
+
+const inAccessList = async (email: string) => {
+  if (!adminEnabled) return false
+  try {
+    return (await getAdminDb().collection('access').doc(email).get()).exists
+  } catch {
+    return false
   }
 }

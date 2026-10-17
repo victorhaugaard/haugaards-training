@@ -13,12 +13,13 @@ const GROUPS: [string, (s: Session) => boolean][] = [
   ['Skidor', (s) => s.sport === 'Skidor'],
   ['Löpning', (s) => s.sport === 'Löpning'],
   ['Styrka & rörlighet', (s) => s.sport === 'Styrka' || s.sport === 'Rörlighet'],
+  ['HIIT & kondition', (s) => s.sport === 'Kondition'],
 ]
 
 const dec = (n: number) => n.toFixed(1).replace('.', getLang() === 'en' ? '.' : ',')
 const mins = (s: Session) => s.zones.reduce((a, b) => a + b, 0) + s.nonZone
 
-export function PlanGuide({ sessions: all, runMode, restDay = 0 }: { sessions: Session[]; runMode: RunMode; restDay?: number }) {
+export function PlanGuide({ sessions: all, runMode, restDay = 0, fitness }: { sessions: Session[]; runMode: RunMode; restDay?: number; fitness?: boolean }) {
   const sessions = useMemo(() => all.filter((s) => s.category !== 'race' && s.category !== 'rest'), [all])
   const st = useMemo(() => {
     const weeks = Math.max(1, new Set(sessions.map((s) => startOfWeek(s.date))).size)
@@ -40,41 +41,97 @@ export function PlanGuide({ sessions: all, runMode, restDay = 0 }: { sessions: S
     }
   }, [sessions])
 
+  const restName = cap(weekdayLong(addDays('2026-09-21', restDay)))
+  const tiles = (
+    <div className="tiles">
+      <div>
+        <b>{fmtHours(st.perWeek)}</b>
+        <span>{tr('i snitt per vecka')}</span>
+      </div>
+      <div>
+        <b>{st.lowPct}%</b>
+        <span>{tr('av zontiden är lugn')}</span>
+      </div>
+      <div>
+        <b>{dec(st.sessionsPerWeek)}</b>
+        <span>{tr('pass per vecka')}</span>
+      </div>
+      <div>
+        <b>{dec(st.qualityPerWeek)}</b>
+        <span>{tr('hårda pass per vecka')}</span>
+      </div>
+    </div>
+  )
+  const bars = (
+    <div className="sportbars">
+      {st.bySport.map((g) => (
+        <div key={g.label}>
+          <span>{tr(g.label)}</span>
+          <div className="sb-track">
+            <i style={{ width: `${(g.perWeek / st.maxSport) * 100}%` }} />
+          </div>
+          <b>{fmtHours(g.perWeek)}</b>
+        </div>
+      ))}
+    </div>
+  )
+  const cycle = (
+    <>
+      <h4>{tr('Belastning över fyra veckor')}</h4>
+      <div className="cycle">
+        {CYCLE.map((c, i) => (
+          <div key={i}>
+            <div className="cy-bar">
+              <i style={{ height: `${(c / 1.14) * 100}%` }} className={i === 3 ? 'rest' : ''} />
+            </div>
+            <span>{i === 3 ? tr('Vila') : tr('Vecka {n}', { n: i + 1 })}</span>
+            <b>{Math.round(c * 100)}%</b>
+          </div>
+        ))}
+      </div>
+      <p className="muted small">{tr('Tre veckor med ökande volym och sedan en lättare vecka. Då tar kroppen upp träningseffekten.')}</p>
+    </>
+  )
+
+  if (fitness)
+    return (
+      <div className="guide">
+        <p>
+          {tr(
+            'Styrka & kondition är en plan utan lopp och skidfaser. Dina valda sporter varvas jämnt över veckan: hårda pass med lugnare dagar emellan, styrka två till tre gånger i veckan och veckans längsta pass på helgen. Passen roterar mellan olika varianter så att det inte blir enformigt.',
+          )}
+        </p>
+        {tiles}
+        <h4>{tr('Vad du tränar')}</h4>
+        {bars}
+        <h4>{tr('Veckans rytm')}</h4>
+        <ul className="rhythm">
+          <li>
+            <b>{tr('Vila')}</b>{' '}
+            {restDay >= 0 ? tr('Vilodagen ligger på {dag}. Kroppen bygger upp det du tränat.', { dag: restName }) : tr('Ingen fast vilodag. Lägg in vila själv där kroppen behöver det.')}
+          </li>
+          <li>
+            <b>{tr('Hårda pass')}</b> {tr('HIIT, intervaller eller tröskel. Högst tre i veckan, aldrig två dagar i rad.')}
+          </li>
+          <li>
+            <b>{tr('Styrka')}</b> {tr('Helkropp, ben, överkropp och bål roterar. Gym eller hemma, välj på passet.')}
+          </li>
+          <li>
+            <b>{tr('Helgen')}</b> {tr('Veckans längsta lugna pass, löpning, cykel eller lugn kondition.')}
+          </li>
+        </ul>
+        {cycle}
+      </div>
+    )
+
   return (
     <div className="guide">
       <p>{rich(tr('Säsongens mål är **Gsieser Tal Lauf** (20 feb), **Vasaloppet** (7 mars), **Birkebeinerrennet** och **Nordenskiöldsloppet** (båda 20 mars, så du behöver välja ett av dem). Planen går hela vägen till 20 mars och bygger på hur längdskidelitens höst ser ut: mycket lugn träning som grund, få men välplanerade hårda pass, en riktig vilodag varje vecka och en lättare vecka var fjärde. Uthållighet, långpass och matintag prioriteras, eftersom loppen avgörs av hållbarhet mer än fart.'))}</p>
 
-      <div className="tiles">
-        <div>
-          <b>{fmtHours(st.perWeek)}</b>
-          <span>{tr('i snitt per vecka')}</span>
-        </div>
-        <div>
-          <b>{st.lowPct}%</b>
-          <span>{tr('av zontiden är lugn')}</span>
-        </div>
-        <div>
-          <b>{dec(st.sessionsPerWeek)}</b>
-          <span>{tr('pass per vecka')}</span>
-        </div>
-        <div>
-          <b>{dec(st.qualityPerWeek)}</b>
-          <span>{tr('hårda pass per vecka')}</span>
-        </div>
-      </div>
+      {tiles}
 
       <h4>{tr('Vad du tränar')}</h4>
-      <div className="sportbars">
-        {st.bySport.map((g) => (
-          <div key={g.label}>
-            <span>{tr(g.label)}</span>
-            <div className="sb-track">
-              <i style={{ width: `${(g.perWeek / st.maxSport) * 100}%` }} />
-            </div>
-            <b>{fmtHours(g.perWeek)}</b>
-          </div>
-        ))}
-      </div>
+      {bars}
       <p className="muted small">
         {tr(
           runMode === 'none'
@@ -119,7 +176,7 @@ export function PlanGuide({ sessions: all, runMode, restDay = 0 }: { sessions: S
       ) : (
         <p className="muted small">
           {restDay > 0
-            ? tr('Vilodagen ligger på {dag}. Passen som annars ligger där har flyttats till måndagen.', { dag: cap(weekdayLong(addDays('2026-09-21', restDay))) })
+            ? tr('Vilodagen ligger på {dag}. Passen som annars ligger där har flyttats till måndagen.', { dag: restName })
             : tr('Ingen fast vilodag. Lägg in vila själv där kroppen behöver det.')}
         </p>
       )}
@@ -137,19 +194,7 @@ export function PlanGuide({ sessions: all, runMode, restDay = 0 }: { sessions: S
         </li>
       </ul>
 
-      <h4>{tr('Belastning över fyra veckor')}</h4>
-      <div className="cycle">
-        {CYCLE.map((c, i) => (
-          <div key={i}>
-            <div className="cy-bar">
-              <i style={{ height: `${(c / 1.14) * 100}%` }} className={i === 3 ? 'rest' : ''} />
-            </div>
-            <span>{i === 3 ? tr('Vila') : tr('Vecka {n}', { n: i + 1 })}</span>
-            <b>{Math.round(c * 100)}%</b>
-          </div>
-        ))}
-      </div>
-      <p className="muted small">{tr('Tre veckor med ökande volym och sedan en lättare vecka. Då tar kroppen upp träningseffekten.')}</p>
+      {cycle}
     </div>
   )
 }

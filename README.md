@@ -1,6 +1,6 @@
 # Träning
 
-Minimalistisk träningsplanerare för längdskidor. React + Vite + Firebase.
+Minimalistisk träningsplanerare för familjen: skidplan mot loppen, eller Styrka & kondition (löpning, styrka, HIIT, cykel) för den som inte åker skidor. React + Vite + Firebase.
 
 ```
 npm install
@@ -14,10 +14,14 @@ Utan Firebase-nycklar körs appen lokalt (localStorage). Med nycklar synkas allt
 1. Skapa projekt på console.firebase.google.com.
 2. **Build → Authentication → Sign-in method**: aktivera *Google*.
 3. **Build → Firestore Database**: skapa databas (production mode).
-4. **Firestore → Rules**: klistra in [firestore.rules](firestore.rules) med era två e-postadresser och publicera.
+4. **Firestore → Rules**: klistra in [firestore.rules](firestore.rules) och publicera. Admin-kontona står i reglerna (och i [src/lib/access.ts](src/lib/access.ts)).
 5. **Project settings → Your apps → Web (`</>`)**: registrera en webbapp och kopiera config.
 6. `cp .env.example .env.local` och fyll i värdena. Starta om `npm run dev`.
 7. **Authentication → Settings → Authorized domains**: lägg till Vercel-domänen när ni deployar.
+
+## Fler familjemedlemmar
+
+Admins (Victor och pappa) lägger till fler Google-konton i appen under **Meny → Hantera åtkomst**. Listan sparas i Firestore-samlingen `access` och reglerna släpper in de kontona, utan kodändring. Första gången en ny familjemedlem loggar in får hen välja sina sporter (sportkort) och skapa sin plan. Utan längdskidor blir det plan-typen *Styrka & kondition*: inga lopp eller skidfaser, bara de valda sporterna i fyraveckorscykler. Coachen och Strava fungerar också för de tillagda kontona (servern läser samma lista via `FIREBASE_SERVICE_ACCOUNT`).
 
 ## Vercel
 
@@ -43,7 +47,7 @@ Funktionen kräver inloggning med Firebase och att kontot står i listan. Lokalt
 ## Profilbilder (Firebase Storage)
 
 1. **Build → Storage → Get started** i Firebase Console.
-2. Klistra in [storage.rules](storage.rules) under *Rules* och publicera.
+2. Klistra in [storage.rules](storage.rules) under *Rules* och publicera. Reglerna slår upp åtkomstlistan i Firestore; godkänn när konsolen frågar om att ge Storage behörighet att läsa Firestore.
 3. Om ditt projekt är äldre kan bucketen heta `<projekt>.appspot.com`. Sätt då `VITE_FIREBASE_STORAGE_BUCKET` i `.env.local` och i Vercel.
 
 Bilden beskärs till en kvadrat på 256 px och sparas som `avatars/<personId>.jpg`. Utan Firebase sparas den lokalt i webbläsaren.

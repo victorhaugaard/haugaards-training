@@ -1,8 +1,10 @@
 // Verktygen Coach Smirnov kan använda. De körs i appen mot personens pass och returnerar en ny lista.
-import type { Category, Person, PlanParams, RunMode, Session, Sport, SportFocus, Zones } from '../types'
+import type { Category, Person, PlanParams, RunMode, Session, Sport, SportFocus, TrainSport, Zones } from '../types'
 import { CARDS, SPORTS, cardById } from './cards'
 import { addDays, parse, startOfWeek, today, weekdayShort } from './dates'
-import { PLAN_END, generatePlan } from './generator'
+import { PLAN_END } from './generator'
+import { buildPlan } from './buildPlan'
+import { TRAIN_SPORTS, personSports, planTypeOf } from './trainSports'
 import { uid } from './id'
 import { sessionMinutes } from './stats'
 import { tr } from '../i18n/core'
@@ -183,21 +185,25 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
     }
 
     case 'regenerate_plan': {
+      const ids = TRAIN_SPORTS.map((t) => t.id as string)
+      const asked = Array.isArray(input.sports) ? (input.sports as unknown[]).map(String).filter((x) => ids.includes(x)) : []
+      const sports = (asked.length ? asked : personSports(ctx.person)) as TrainSport[]
+      const fitness = planTypeOf(sports) === 'fitness'
       const start = isDate(input.start) ? input.start : startOfWeek(today())
       const end = isDate(input.end) ? input.end : PLAN_END
-      const hours = Math.max(6, Math.min(20, num(input.hours_per_week, 12)))
+      const hours = fitness ? Math.max(2, Math.min(10, num(input.hours_per_week, 5))) : Math.max(6, Math.min(20, num(input.hours_per_week, 12)))
       const runMode: RunMode = input.run_mode === 'none' || input.run_mode === 'little' ? input.run_mode : (ctx.person.runMode ?? 'little')
       const restDay = typeof input.rest_day === 'number' ? Math.max(-1, Math.min(6, Math.round(input.rest_day))) : (ctx.person.restDay ?? 0)
       const focus: SportFocus = input.sport_focus === 'balanced' || input.sport_focus === 'ski' ? input.sport_focus : (ctx.person.focus ?? 'balanced')
       const doneDays = new Set(sessions.filter((s) => s.done).map((s) => s.date))
-      const generated = generatePlan({ personId: ctx.personId, start, end, hoursPerWeek: hours, runMode, restDay, focus }).filter((s) => !doneDays.has(s.date))
+      const generated = buildPlan(ctx.personId, { start, end, hours, runMode, restDay, focus, sports }).filter((s) => !doneDays.has(s.date))
       const kept = sessions.filter((s) => !(s.date >= start && !s.done && !(s.category === 'race' && !s.raceId)))
       return {
         sessions: [...kept, ...generated],
-        result: `Regenerated plan from ${start} to ${end}: ${hours} h/week, run_mode ${runMode}, rest_day ${restDay}, sport_focus ${focus}. ${generated.length} sessions created.`,
+        result: `Regenerated ${fitness ? 'fitness' : 'ski'} plan from ${start} to ${end}: ${hours} h/week, sports ${sports.join(',')}, run_mode ${runMode}, rest_day ${restDay}, sport_focus ${focus}. ${generated.length} sessions created.`,
         summary: tr('Byggde om planen från {date}', { date: start }),
-        personPatch: { runMode, restDay, focus },
-        newPlan: { start, end, hours, runMode, restDay, focus, source: 'coach' },
+        personPatch: { runMode, restDay, focus, sports },
+        newPlan: { start, end, hours, runMode, restDay, focus, sports, source: 'coach' },
       }
     }
 

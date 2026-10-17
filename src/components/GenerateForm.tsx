@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
-import type { RunMode, SportFocus } from '../types'
+import type { RunMode, SportFocus, TrainSport } from '../types'
 import { addDays, dayMonth } from '../lib/dates'
-import { generatePlan } from '../lib/generator'
+import { buildPlan } from '../lib/buildPlan'
+import { planTypeOf } from '../lib/trainSports'
+import { FITNESS_DEFAULT_HOURS } from '../lib/fitnessGenerator'
 import { tr } from '../i18n/core'
 import { PlanGuide } from './PlanGuide'
 import { RestDayField } from './RestDayField'
@@ -14,8 +16,13 @@ export interface GenValue {
   runMode: RunMode
   restDay: number
   focus: SportFocus
+  sports: TrainSport[]
   fresh: boolean // radera hela den gamla planen först
 }
+
+// Byter sporter och, om plan-typen ändras, ett rimligt förval för timmar
+export const sportsPatch = (v: GenValue, sports: TrainSport[], skiHours = 12): Partial<GenValue> =>
+  planTypeOf(sports) === planTypeOf(v.sports) ? { sports } : { sports, hours: planTypeOf(sports) === 'fitness' ? FITNESS_DEFAULT_HOURS : skiHours }
 
 interface Props {
   value: GenValue
@@ -26,10 +33,8 @@ interface Props {
 // Samma autogenerera-skärm används för ny plan och när man lägger till en person:
 // datum, timmar, löpning, vilodag och en förklaring av planen som uppdateras direkt.
 export function GenerateForm({ value: v, onChange, showFresh }: Props) {
-  const preview = useMemo(
-    () => generatePlan({ personId: 'preview', start: v.start, end: v.end, hoursPerWeek: v.hours, runMode: v.runMode, restDay: v.restDay, focus: v.focus }),
-    [v.start, v.end, v.hours, v.runMode, v.restDay, v.focus],
-  )
+  const fitness = planTypeOf(v.sports) === 'fitness'
+  const preview = useMemo(() => buildPlan('preview', v), [v.start, v.end, v.hours, v.runMode, v.restDay, v.focus, v.sports]) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <div className="row">
@@ -51,38 +56,48 @@ export function GenerateForm({ value: v, onChange, showFresh }: Props) {
       )}
       <label className="field">
         <span>{tr('Timmar per vecka i snitt: {h} h', { h: v.hours })}</span>
-        <input type="range" min={6} max={15} step={0.5} value={v.hours} onChange={(e) => onChange({ hours: +e.target.value })} />
+        <input type="range" min={fitness ? 2 : 6} max={fitness ? 8 : 15} step={0.5} value={v.hours} onChange={(e) => onChange({ hours: +e.target.value })} />
       </label>
-      <div className="field">
-        <span>{tr('Löpning')}</span>
-        <Segmented
-          value={v.runMode}
-          onChange={(runMode) => onChange({ runMode })}
-          options={[
-            ['none', tr('Ingen (skonsamt)')],
-            ['little', tr('Lite då och då')],
-          ]}
-        />
-      </div>
-      <div className="field">
-        <span>{tr('Fokus')}</span>
-        <Segmented
-          value={v.focus}
-          onChange={(focus) => onChange({ focus })}
-          options={[
-            ['balanced', tr('Blandat')],
-            ['ski', tr('Ren längdskidåkning')],
-          ]}
-        />
-        <span className="hint">{tr(v.focus === 'ski' ? 'Cykel och Zwift/Tacx byts mot rullskidor där det går. Stakmaskinen är redan skidspecifik.' : 'Blandar cykel, rullskidor, stakmaskin och Zwift/Tacx, som idag.')}</span>
-      </div>
+      {!fitness && (
+        <>
+          <div className="field">
+            <span>{tr('Löpning')}</span>
+            <Segmented
+              value={v.runMode}
+              onChange={(runMode) => onChange({ runMode })}
+              options={[
+                ['none', tr('Ingen (skonsamt)')],
+                ['little', tr('Lite då och då')],
+              ]}
+            />
+          </div>
+          <div className="field">
+            <span>{tr('Fokus')}</span>
+            <Segmented
+              value={v.focus}
+              onChange={(focus) => onChange({ focus })}
+              options={[
+                ['balanced', tr('Blandat')],
+                ['ski', tr('Ren längdskidåkning')],
+              ]}
+            />
+            <span className="hint">
+              {tr(
+                v.focus === 'ski'
+                  ? 'Cykel och Zwift/Tacx byts mot rullskidor där det går. Stakmaskinen är redan skidspecifik.'
+                  : 'Blandar cykel, rullskidor, stakmaskin och Zwift/Tacx, som idag.',
+              )}
+            </span>
+          </div>
+        </>
+      )}
       <RestDayField value={v.restDay} onChange={(restDay) => onChange({ restDay })} />
       {showFresh && (
         <label className="inline">
           <input type="checkbox" checked={v.fresh} onChange={(e) => onChange({ fresh: e.target.checked })} /> {tr('Börja om: radera hela den gamla planen först')}
         </label>
       )}
-      <PlanGuide sessions={preview} runMode={v.runMode} restDay={v.restDay} />
+      <PlanGuide sessions={preview} runMode={v.runMode} restDay={v.restDay} fitness={fitness} />
     </>
   )
 }

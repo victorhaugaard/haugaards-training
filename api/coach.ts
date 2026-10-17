@@ -1,13 +1,12 @@
 // Coach Smirnov: Vercel-funktion (och lokal middleware i `npm run dev`).
 // API-nyckeln ligger bara här på servern. Planändringarna görs i appen via verktygsanrop.
 import Anthropic from '@anthropic-ai/sdk'
-import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { verifyUser } from './_auth'
 
 const MODEL = process.env.COACH_MODEL || 'claude-haiku-4-5'
-const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'))
 
-const SYSTEM = `You are an experienced cross-country ski coach built into a training planner app used by two people: Victor and his father (Øivind). The plan is stored in the app; you can read and modify it with tools. Your personality and way of speaking are described in the CHARACTER section that follows this prompt. Character only changes tone, humor and word choice. The coaching itself, the safety advice and the way you use tools are always the same.
+const SYSTEM = `You are an experienced endurance and fitness coach (cross-country skiing is your specialty) built into a family training planner app. Victor and his father (Øivind) train for cross-country ski races; other family members may do strength training, running, HIIT and gym conditioning instead. The plan is stored in the app; you can read and modify it with tools. Your personality and way of speaking are described in the CHARACTER section that follows this prompt. Character only changes tone, humor and word choice. The coaching itself, the safety advice and the way you use tools are always the same.
 
 Your job
 - Answer training questions briefly and concretely.
@@ -31,7 +30,9 @@ Coaching principles
 - Rest days (category "rest") always have zero minutes in every zone; update_session will not add training time to one even if you try. Never attempt to turn a rest day into a training session by giving it zones_minutes or strength_minutes. If a day should have training instead of (or alongside) its rest day, use add_session to add a separate session on that date, and optionally delete_sessions to remove the rest day.
 - Session titles you create should be written in the user's language. For custom sessions put the coaching text (what to do, how) in notes, short.
 
-The plan's fixed goals (races) are in the context. Do not invent facts about the app you are not sure of.`
+Each person has a plan type, given in the context. "ski" is the cross-country ski plan built towards the races. "fitness" (Strength & conditioning) has no races or ski phases: only the sports the person chose (running, strength, HIIT & conditioning, cycling). Coach a fitness person on their own sports and never push ski training, races or roller skis on them. For a fitness person, regenerate_plan takes "sports" and hours_per_week is typically 2-8. HIIT and gym conditioning sessions use sport "Kondition".
+
+The plan's fixed goals (races, for the ski plan) are in the context. Do not invent facts about the app you are not sure of.`
 
 const RULES = `Character rules
 - You are an AI playing a playful coaching character. If you play a real, well-known person you are only inspired by their public image and style. You are not that person: never claim to be them, never invent quotes, personal stories, opinions or facts about them, and never mock or insult anyone.
@@ -79,7 +80,7 @@ const TOOLS: Anthropic.Tool[] = [
         date: DATE,
         card_id: { type: 'string', description: 'Card id from the library, e.g. easy-bike' },
         title: { type: 'string', description: 'Title for a custom session' },
-        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Rörlighet', 'Övrigt'] },
+        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Övrigt'] },
         category: { type: 'string', enum: ['easy', 'quality', 'hard', 'strength', 'other'] },
         zones_minutes: ZONES,
         strength_minutes: { type: 'number', description: 'Minutes without zone (strength, mobility)' },
@@ -97,7 +98,7 @@ const TOOLS: Anthropic.Tool[] = [
         session_id: ID,
         title: { type: 'string' },
         notes: { type: 'string' },
-        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Rörlighet', 'Övrigt'] },
+        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Övrigt'] },
         date: DATE,
         zones_minutes: ZONES,
         strength_minutes: { type: 'number' },
@@ -127,6 +128,11 @@ const TOOLS: Anthropic.Tool[] = [
       hours_per_week: { type: 'number', description: 'Average hours per week, 6 to 20' },
       run_mode: { type: 'string', enum: ['none', 'little'], description: 'none = no running (gentle on knees)' },
       rest_day: { type: 'integer', description: '0=Monday ... 6=Sunday, -1 = no fixed rest day' },
+      sports: {
+        type: 'array',
+        items: { type: 'string', enum: ['ski', 'run', 'strength', 'hiit', 'bike'] },
+        description: 'The sports the plan is built from. Including "ski" gives the ski plan; otherwise the Strength & conditioning plan with only these sports. Omit to keep the current sports.',
+      },
       sport_focus: {
         type: 'string',
         enum: ['balanced', 'ski'],
@@ -156,23 +162,10 @@ const readBody = async (req: Req): Promise<any> => {
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
 }
 
-// Endast inloggade och tillåtna konton får använda coachen
-const authorize = async (req: Req): Promise<{ ok: true } | { ok: false; status: number; error: string }> => {
-  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID
-  if (!projectId) return { ok: true } // lokalt utan Firebase
-  const header = String(req.headers['authorization'] || '')
-  const token = header.startsWith('Bearer ') ? header.slice(7) : ''
-  if (!token) return { ok: false, status: 401, error: 'unauthorized' }
-  try {
-    const { payload } = await jwtVerify(token, JWKS, { issuer: `https://securetoken.google.com/${projectId}`, audience: projectId })
-    const allowed = (process.env.COACH_ALLOWED_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
-    if (!allowed.length) return { ok: false, status: 403, error: 'allowlist_missing' }
-    const email = String(payload.email || '').toLowerCase()
-    if (!payload.email_verified || !allowed.includes(email)) return { ok: false, status: 403, error: 'forbidden' }
-    return { ok: true }
-  } catch {
-    return { ok: false, status: 401, error: 'unauthorized' }
-  }
+// Endast inloggade och tillåtna konton får använda coachen (lokalt utan Firebase är den öppen)
+const authorize = async (req: Req) => {
+  if (!process.env.FIREBASE_PROJECT_ID && !process.env.VITE_FIREBASE_PROJECT_ID) return { ok: true as const }
+  return verifyUser(req, 'COACH_ALLOWED_EMAILS')
 }
 
 export default async function handler(req: Req, res: ServerResponse) {

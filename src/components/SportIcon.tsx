@@ -54,6 +54,12 @@ const PATHS: Record<Sport, React.ReactNode> = {
       <path d="M12 8v6M7.5 11l4.5-2 4.5 2M12 14l-3.5 6M12 14l3.5 6" />
     </>
   ),
+  Kondition: (
+    <>
+      <path d="M8.5 9.5a3.5 3.5 0 1 1 7 0" />
+      <path d="M7 10.5h10l.9 1.7a6.5 6.5 0 1 1-11.8 0z" />
+    </>
+  ),
   Tävling: <path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6" />,
   Vila: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
   Övrigt: <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth="3" />,

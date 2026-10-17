@@ -10,6 +10,7 @@ export type Sport =
   | 'Styrka'
   | 'Rörlighet'
   | 'Tävling'
+  | 'Kondition'
   | 'Övrigt'
 
 export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other' | 'rest'
@@ -18,8 +19,11 @@ export type Location = 'gym' | 'home'
 export type Technique = 'classic' | 'skate' | 'pole' // klassiskt, fristil, ren stakning (rullskidor/skidor)
 export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
 export type SportFocus = 'balanced' | 'ski' // blandat upplägg, eller mer ren längdskidåkning/rullskidor istället för cykel/Zwift
+// Sporterna man väljer när man skapar sin plan. Med längdskidor byggs skidplanen, annars Styrka & kondition.
+export type TrainSport = 'ski' | 'run' | 'strength' | 'hiit' | 'bike'
+export type PlanType = 'ski' | 'fitness'
 
-export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Tävling & övrigt'
+export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Gym & kondition' | 'Tävling & övrigt'
 
 // Coachens beskrivning av ett pass. {z1}–{z5} ersätts med aktuellt zonsystem.
 export interface Coach {
@@ -77,6 +81,8 @@ export interface Person {
   runMode?: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
   focus?: SportFocus
+  sports?: TrainSport[] // saknas för äldre personer = längdskidor
+  ownerEmail?: string // kontot som personen tillhör, så att rätt person väljs vid inloggning
   photoUrl?: string // profilbild
   stravaAthleteId?: number // satt när personen kopplat sitt Strava-konto (själva token ligger bara på servern)
 }
@@ -115,6 +121,7 @@ export interface PlanRecord {
   runMode?: RunMode
   restDay?: number
   focus?: SportFocus
+  sports?: TrainSport[]
   source: 'generated' | 'copied' | 'coach' | 'earlier'
   archive?: PlanArchive
 }
@@ -126,6 +133,7 @@ export interface PlanParams {
   runMode?: RunMode
   restDay?: number
   focus?: SportFocus
+  sports?: TrainSport[]
   source: PlanRecord['source']
 }
 

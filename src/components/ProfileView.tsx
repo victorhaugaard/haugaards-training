@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { TRAIN_SPORTS, planTypeOf } from '../lib/trainSports'
 import type { DoneSession, Person, PlanRecord, Session, Sport } from '../types'
 import { addDays, cap, dayMonth, monthYear, weekdayLong } from '../lib/dates'
 import { planStats, toDone } from '../lib/plans'
@@ -50,8 +51,10 @@ function Row({ s, plan }: { s: DoneSession; plan?: number }) {
 }
 
 function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: ReturnType<typeof planStats>; active?: boolean; onOpen?: () => void }) {
-  const runText = plan.runMode ? tr(plan.runMode === 'none' ? 'Ingen (skonsamt)' : 'Lite då och då') : ''
-  const focusText = plan.focus === 'ski' ? tr('Ren längdskidåkning') : ''
+  const fitness = planTypeOf(plan.sports) === 'fitness'
+  const runText = plan.runMode && !fitness ? tr(plan.runMode === 'none' ? 'Ingen (skonsamt)' : 'Lite då och då') : ''
+  const focusText = plan.focus === 'ski' && !fitness ? tr('Ren längdskidåkning') : ''
+  const sportsText = fitness ? (plan.sports ?? []).map((id) => tr(TRAIN_SPORTS.find((t) => t.id === id)?.label ?? id)).join(', ') : ''
   return (
     <div
       className={'ov-card plan-card' + (active ? ' active' : '') + (onOpen ? ' clickable' : '')}
@@ -66,6 +69,7 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
       <div className="plan-main">
         <div className="stat-label">
           {tr('Plan {n}', { n: plan.seq })} · {tr(SOURCE[plan.source])}
+          {fitness && ` · ${tr('Styrka & kondition')}`}
         </div>
         <div className="plan-title">
           {dayMonth(plan.start)} – {dayMonth(plan.end)}
@@ -83,6 +87,7 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
             runText && `${tr('Löpning')}: ${runText}`,
             plan.restDay !== undefined ? `${tr('Vilodag')}: ${restName(plan.restDay)}` : '',
             focusText && `${tr('Fokus')}: ${focusText}`,
+            sportsText,
           ]
             .filter(Boolean)
             .join(' · ')}

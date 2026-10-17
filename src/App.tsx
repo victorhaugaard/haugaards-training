@@ -11,7 +11,11 @@ import type { GenerateChoice } from './components/GenerateModal'
 import { Overview } from './components/Overview'
 import { addDays, addMonths, cap, dayMonth, fullDate, iso, monthYear, parse, startOfWeek, today, weekNumber } from './lib/dates'
 import { cardById } from './lib/cards'
-import { PLAN_END, copyPlan, generatePlan, phaseFor, PHASE_LABEL } from './lib/generator'
+import { PLAN_END, copyPlan, phaseFor, PHASE_LABEL } from './lib/generator'
+import { buildPlan } from './lib/buildPlan'
+import { personPlanType, personSports } from './lib/trainSports'
+import { isAdmin } from './lib/access'
+import { AccessModal } from './components/AccessModal'
 import { uid } from './lib/id'
 import { Board } from './components/Board'
 import { CardLibrary } from './components/CardLibrary'
@@ -162,11 +166,17 @@ function Planner({ auth }: { auth: AuthState }) {
   const [state, dispatch, status] = useStore(auth.enabled)
   const person = state.people.find((p) => p.id === state.activePersonId) ?? state.people[0]
   if (status.error) {
+    const denied = /permission|insufficient/i.test(status.error)
+    const who = auth.user?.email ?? ''
     return (
       <div className="splash">
         <div className="login">
-          <h1>{tr('Ingen åtkomst')}</h1>
-          <p className="muted">{status.error}</p>
+          <h1>{tr(denied ? 'Ingen åtkomst än' : 'Något gick fel')}</h1>
+          <p className="muted">
+            {denied
+              ? tr('Kontot {email} har inte fått åtkomst. Be Victor lägga till det under Meny → Hantera åtkomst, och logga sedan in igen.', { email: who })
+              : status.error}
+          </p>
           <button className="btn" onClick={() => auth.signOut()}>
             {tr('Logga ut')}
           </button>
@@ -193,7 +203,7 @@ function Workspace({
   const [cursor, setCursor] = useState(today())
   const [editId, setEditId] = useState<string | null>(null)
   const [pickDate, setPickDate] = useState<string | null>(null)
-  const [dialog, setDialog] = useState<null | 'person' | 'generate' | 'menu' | 'guide'>(null)
+  const [dialog, setDialog] = useState<null | 'person' | 'onboard' | 'generate' | 'menu' | 'guide' | 'access'>(null)
   const [libOpen, setLibOpen] = useState(readLibOpen)
   const [sideW, setSideW] = useState(readSideW)
   const [resizing, setResizing] = useState(false)
@@ -253,6 +263,25 @@ function Workspace({
     if (own.id !== person.id) dispatch({ type: 'setPerson', id: own.id })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.people, email])
+  // Familjemedlemmar som lagts till via Hantera åtkomst: välj deras egen person, eller låt dem skapa en första gången
+  const ownPerson = email ? state.people.find((p) => p.ownerEmail === email) : undefined
+  useEffect(() => {
+    if (!ownPerson) return
+    const key = 'haugaards-training:own-person:' + email
+    try {
+      if (localStorage.getItem(key) === ownPerson.id) return
+    } catch {
+      /* ignorera */
+    }
+    saveSetting(key, ownPerson.id)
+    if (ownPerson.id !== person.id) dispatch({ type: 'setPerson', id: ownPerson.id })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownPerson?.id])
+  const needsOnboarding = auth.enabled && !!email && !isAdmin(email) && !viewerInfo && !ownPerson
+  useEffect(() => {
+    if (needsOnboarding) setDialog((d) => d ?? 'onboard')
+  }, [needsOnboarding])
+  const fitness = personPlanType(person) === 'fitness'
   const [notice, setNotice] = useState<Notice | null>(null)
   const { feed, add: addFeed, markRead } = useFeed(person.id)
   const changeCoach = (id: string) => (setCoachId(id), saveCoach(id))
@@ -283,7 +312,7 @@ function Workspace({
         ? tr('Vecka {n}', { n: weekNumber(cursor) })
         : cap(monthYear(cursor))
   const subtitle =
-    view === 'profile' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])} · ${tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? tr(PHASE_LABEL[phaseFor(cursor)]) : ''
+    view === 'profile' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])}${fitness ? '' : ' · ' + tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? (fitness ? '' : tr(PHASE_LABEL[phaseFor(cursor)])) : ''
 
   const handleDrop = (e: DragEvent, date: string, beforeId?: string) => {
     e.preventDefault()
@@ -372,16 +401,15 @@ function Workspace({
     dispatch({ type: 'addSession', session })
   }
 
-  const createPerson = (n: NewPerson) => {
+  const createPerson = (n: NewPerson, ownerEmail?: string) => {
     const id = uid()
     let sessions: Session[] = []
     if (n.mode === 'copy') sessions = copyPlan(state.sessions.filter((s) => s.personId === n.basedOn), id, n.scale, n.runMode, n.focus)
-    if (n.mode === 'generate')
-      sessions = generatePlan({ personId: id, start: n.start, end: n.end, hoursPerWeek: n.hours, runMode: n.runMode, restDay: n.restDay, focus: n.focus })
+    if (n.mode === 'generate') sessions = buildPlan(id, n)
     const first = sessions.map((s) => s.date).sort()[0] ?? startOfWeek(today())
     dispatch({
       type: 'addPerson',
-      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay, focus: n.focus },
+      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay, focus: n.focus, sports: n.sports, ...(ownerEmail ? { ownerEmail } : {}) },
       sessions,
       plan: {
         start: n.mode === 'copy' ? first : n.start,
@@ -389,6 +417,7 @@ function Workspace({
         runMode: n.runMode,
         restDay: n.restDay,
         focus: n.focus,
+        sports: n.sports,
         source: n.mode === 'copy' ? 'copied' : 'generated',
         ...(n.mode === 'generate' ? { hours: n.hours } : {}),
       },
@@ -396,18 +425,16 @@ function Workspace({
   }
 
   const regenerate = (o: GenerateChoice) => {
-    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus } })
+    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports } })
     const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
-    const sessions = generatePlan({ personId: person.id, start: o.start, end: o.end, hoursPerWeek: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus }).filter(
-      (s) => !doneDays.has(s.date),
-    )
+    const sessions = buildPlan(person.id, o).filter((s) => !doneDays.has(s.date))
     dispatch({
       type: 'regenerate',
       personId: person.id,
       from: o.start,
       sessions,
       fresh: o.fresh,
-      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, source: 'generated' },
+      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, source: 'generated' },
     })
   }
 
@@ -659,21 +686,33 @@ function Workspace({
         />
       )}
       {dialog === 'person' && (
-        <PersonModal people={state.people} activeId={person.id} initialName={newName} onCreate={createPerson} onClose={() => (setDialog(null), setNewName(undefined))} />
+        <PersonModal people={state.people} activeId={person.id} initialName={newName} onCreate={(n) => createPerson(n, needsOnboarding ? email : undefined)} onClose={() => (setDialog(null), setNewName(undefined))} />
       )}
+      {dialog === 'onboard' && (
+        <PersonModal
+          people={state.people}
+          activeId={person.id}
+          onboarding
+          initialName={auth.user?.displayName?.split(' ')[0] ?? ''}
+          onCreate={(n) => createPerson(n, email)}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog === 'access' && email && <AccessModal me={email} onClose={() => setDialog(null)} />}
       {dialog === 'generate' && (
         <GenerateModal
           name={person.name}
           initialRunMode={person.runMode ?? 'little'}
           initialRestDay={person.restDay ?? 0}
           initialFocus={person.focus ?? 'balanced'}
+          initialSports={personSports(person)}
           onGenerate={regenerate}
           onClose={() => setDialog(null)}
         />
       )}
       {dialog === 'guide' && (
         <Modal wide title={tr('Om planen · {name}', { name: person.name })} onClose={() => setDialog(null)}>
-          <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} restDay={person.restDay ?? 0} />
+          <PlanGuide sessions={mine} runMode={person.runMode ?? 'little'} restDay={person.restDay ?? 0} fitness={fitness} />
         </Modal>
       )}
       {dialog === 'menu' && (
@@ -697,6 +736,7 @@ function Workspace({
             setDialog(null)
           }}
           onLoad={(s) => dispatch({ type: 'load', state: s })}
+          onAccess={isAdmin(email) ? () => setDialog('access') : undefined}
           onClose={() => setDialog(null)}
         />
       )}
@@ -717,10 +757,11 @@ interface MenuProps {
   onClearPlan: () => void
   onDeletePerson: () => void
   onLoad: (s: AppState) => void
+  onAccess?: () => void
   onClose: () => void
 }
 
-function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDelete, planCount, onClearPlan, onDeletePerson, onLoad, onClose }: MenuProps) {
+function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDelete, planCount, onClearPlan, onDeletePerson, onLoad, onAccess, onClose }: MenuProps) {
   const file = useRef<HTMLInputElement>(null)
   const zones = useZones()
   const { lang, setLang } = useLang()
@@ -788,6 +829,11 @@ function MenuModal({ relation, coachId, onCoach, auth, state, personName, canDel
         </div>
       </div>
       <div className="menu">
+        {onAccess && (
+          <button className="btn small" onClick={onAccess}>
+            {tr('Hantera åtkomst')}
+          </button>
+        )}
         <div className="menu-row">
           <button className="btn small" onClick={exportJson} title={tr('Exportera allt (JSON)')}>
             {tr('Exportera')}

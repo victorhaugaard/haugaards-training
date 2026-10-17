@@ -3,6 +3,7 @@ import { CARDS } from './cards'
 import { addDays, parse, today, weekdayShort } from './dates'
 import { sessionMinutes } from './stats'
 import { getLang } from '../i18n/core'
+import { personPlanType, personSports } from './trainSports'
 
 // Sammanfattning som Coach Smirnov får med varje fråga
 export const buildContext = (person: Person, sessions: Session[], zoneLabels: string[]) => {
@@ -23,6 +24,7 @@ export const buildContext = (person: Person, sessions: Session[], zoneLabels: st
   const weekdayLong = parse(t).toLocaleDateString('en-GB', { weekday: 'long' })
   return [
     `Today: ${t} (${weekdayLong}). Active person: ${person.name}. App language: ${getLang()}.`,
+    `Plan type: ${personPlanType(person) === 'fitness' ? 'fitness (Strength & conditioning, no races)' : 'ski (cross-country ski plan towards the races)'}. Sports: ${personSports(person).join(', ')}.`,
     `Running: ${person.runMode === 'none' ? 'none (knee-friendly)' : 'a little now and then'}. Rest day: ${person.restDay === undefined || person.restDay === 0 ? 'Monday' : person.restDay === -1 ? 'none fixed' : 'weekday index ' + person.restDay}.`,
     `Zone labels shown to the user: ${zoneLabels.join(', ')} (data is always [I1..I5]).`,
     `Upcoming races: ${races || 'none'}.`,
