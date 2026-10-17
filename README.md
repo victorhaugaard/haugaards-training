@@ -16,7 +16,7 @@ Utan Firebase-nycklar körs appen lokalt (localStorage). Med nycklar synkas allt
 3. **Build → Firestore Database**: skapa databas (production mode).
 4. **Firestore → Rules**: klistra in [firestore.rules](firestore.rules) och publicera. Admin-kontona står i reglerna (och i [src/lib/access.ts](src/lib/access.ts)).
 5. **Project settings → Your apps → Web (`</>`)**: registrera en webbapp och kopiera config.
-6. `cp .env.example .env.local` och fyll i värdena. Starta om `npm run dev`.
+6. Skapa `.env.local` och fyll i värdena (se README nedan för vilka variabler som behövs). Starta om `npm run dev`.
 7. **Authentication → Settings → Authorized domains**: lägg till Vercel-domänen när ni deployar.
 
 ## Fler familjemedlemmar

@@ -4,3 +4,6 @@ dist
 .DS_Store
 .env.local
 .env*.local
+
+# Innehåller riktiga nycklar lokalt, ska aldrig committas
+.env.example
