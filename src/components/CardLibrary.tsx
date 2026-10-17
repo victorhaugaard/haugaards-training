@@ -67,7 +67,7 @@ export function CardLibrary({ onPick, templates, onNewTemplate, onPickTemplate }
               <span>+</span> {tr('Skapa eget pass')}
             </button>
           )}
-          {g === 'Mina pass' && !mine.length && <p className="lib-empty">{tr('Dina egna pass sparas här och syns bara för dig.')}</p>}
+          {g === 'Mina pass' && !mine.length && <p className="lib-empty">{tr('Egna pass sparas här och hör till den valda personen.')}</p>}
           {inGroup(g).map((c) => (
             <div
               key={c.id}

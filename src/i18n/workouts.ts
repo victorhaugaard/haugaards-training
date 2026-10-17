@@ -2,7 +2,7 @@
 export const WORKOUT_TEXT: [string, string, string][] = [
   // Gränssnitt
   ['Skapa eget pass', 'Lag egen økt', 'Create your own session'],
-  ['Dina egna pass sparas här och syns bara för dig.', 'Dine egne økter lagres her og vises bare for deg.', 'Your own sessions are saved here and only shown to you.'],
+  ['Egna pass sparas här och hör till den valda personen.', 'Egne økter lagres her og hører til den valgte personen.', 'Your own sessions are saved here and belong to the selected person.'],
   ['{n} övningar', '{n} øvelser', '{n} exercises'],
   ['1 övning', '1 øvelse', '1 exercise'],
   ['ingen vila', 'ingen pause', 'no rest'],
