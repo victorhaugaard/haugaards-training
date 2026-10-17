@@ -6,6 +6,7 @@ import { addDays, startOfWeek } from './dates'
 import { CYCLE } from './generator'
 import { uid } from './id'
 import { sessionMinutes } from './stats'
+import { TRAIN_SPORTS } from './trainSports'
 
 export const FITNESS_DEFAULT_HOURS = 5
 
@@ -15,6 +16,8 @@ const POOL: Record<Exclude<TrainSport, 'ski'>, Item[]> = {
   strength: ['S', 'S', 'S', 'mobility', 'strength-stability'], // S byts mot helkropp eller Push/Pull/Ben nedan
   run: ['easy-run', ['int-4x8', 'fartlek', 'tempo', 'int-short'], 'long-run', 'easy-run'],
   hiit: [['hiit-circuit', 'hiit-amrap'], 'cond-steady', ['hiit-tabata', 'cond-threshold', 'cond-intervals'], 'cond-steady'],
+  // '' = hoppa över varvet när styrka också är vald, så att den hinner få tre pass (Push/Pull/Ben) innan CrossFit får sitt andra
+  crossfit: [['cf-amrap', 'cf-emom', 'cf-fortime'], '', ['cf-chipper', 'cf-intervals', 'cf-strength-wod'], '', ['cf-emom', 'cf-fortime', 'cf-amrap'], 'cond-steady'],
   bike: ['easy-bike', ['zw-sst', 'zw-vo2'], 'long-bike', 'zw-endu'],
 }
 
@@ -35,16 +38,18 @@ export interface FitnessOptions {
 
 // Veckans pass: sporterna turas om (så att alla valda får plats), med tak för antalet hårda pass.
 const pickWeek = (sports: TrainSport[], n: number, w: number) => {
-  const chosen = sports.filter((s): s is Exclude<TrainSport, 'ski'> => s !== 'ski')
+  const order = TRAIN_SPORTS.map((t) => t.id)
+  const chosen = sports.filter((s): s is Exclude<TrainSport, 'ski'> => s !== 'ski').sort((a, b) => order.indexOf(a) - order.indexOf(b))
   const list = chosen.length ? chosen : (['strength'] as const)
   const ids: string[] = []
   let hard = 0
   for (let round = 0; ids.length < n && round < 6; round++) {
     for (const sp of list) {
       if (ids.length >= n) break
-      const item = POOL[sp][round]
+      const pool = sp === 'crossfit' && !list.includes('strength') ? POOL.crossfit.filter(Boolean) : POOL[sp]
+      const item = pool[round]
       if (!item) continue
-      const id = Array.isArray(item) ? item[(w + ids.length) % item.length] : item
+      const id = Array.isArray(item) ? item[w % item.length] : item
       if (id === 'S') {
         ids.push(id)
         continue

@@ -60,6 +60,12 @@ const PATHS: Record<Sport, React.ReactNode> = {
       <path d="M7 10.5h10l.9 1.7a6.5 6.5 0 1 1-11.8 0z" />
     </>
   ),
+  CrossFit: (
+    <>
+      <circle cx="12" cy="13.5" r="7" />
+      <path d="M12 13.5V9.5M10 3h4M12 3v3.5M18.2 6.8l1.3-1.3" />
+    </>
+  ),
   Tävling: <path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6" />,
   Vila: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
   Övrigt: <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth="3" />,

@@ -6,6 +6,7 @@ export const TRAIN_SPORTS: { id: TrainSport; label: string; hint: string; icon: 
   { id: 'run', label: 'Löpning', hint: 'Lugna rundor, intervaller och långpass', icon: 'Löpning' },
   { id: 'strength', label: 'Styrketräning', hint: 'Gym eller hemma, hela kroppen', icon: 'Styrka' },
   { id: 'hiit', label: 'HIIT & kondition', hint: 'Cirkelträning, intervaller och kondition på gym', icon: 'Kondition' },
+  { id: 'crossfit', label: 'CrossFit', hint: 'WOD:s som AMRAP, EMOM och For time', icon: 'CrossFit' },
   { id: 'bike', label: 'Cykel', hint: 'Ute eller inomhus på Zwift/Tacx', icon: 'Cykel' },
 ]
 

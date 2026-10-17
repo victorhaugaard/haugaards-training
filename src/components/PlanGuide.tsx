@@ -14,6 +14,7 @@ const GROUPS: [string, (s: Session) => boolean][] = [
   ['Löpning', (s) => s.sport === 'Löpning'],
   ['Styrka & rörlighet', (s) => s.sport === 'Styrka' || s.sport === 'Rörlighet'],
   ['HIIT & kondition', (s) => s.sport === 'Kondition'],
+  ['CrossFit', (s) => s.sport === 'CrossFit'],
 ]
 
 const dec = (n: number) => n.toFixed(1).replace('.', getLang() === 'en' ? '.' : ',')

@@ -334,6 +334,74 @@ export const CARDS: TrainingCard[] = [
     tip: 'Gör det hemma på mattan. Kort och regelbundet slår långt och sällan.',
   }),
 
+  // ——— CrossFit ———
+  card('cf-amrap', 'AMRAP 20: chins, armhävningar, knäböj', 'CrossFit', 'hard', 'CrossFit', [12, 0, 5, 13, 5], 0, 'Så många varv som möjligt på 20 minuter', {
+    purpose: 'En klassisk CrossFit-WOD som bygger uthållighet i hela kroppen. Du tävlar mot klockan och dig själv.',
+    how: ['Värm upp 10 minuter: rodd, lätta knäböj och armhävningar', '20 minuter: 5 chins, 10 armhävningar, 15 knäböj, så många varv du hinner', 'Skriv upp antal varv. Målet är 8 eller fler'],
+    tip: 'Dela upp reps tidigt i stället för att köra slut på första varven. Skala chins med gummiband.',
+  }, {
+    home: {
+      purpose: 'AMRAP hemma med kroppsvikt och ett stadigt bord.',
+      how: ['Värm upp 10 minuter', '20 minuter: 5 inverterade rodd under bordet, 10 armhävningar, 15 knäböj', 'Skriv upp antal varv'],
+      tip: 'Armhävningar på knä räknas också. Hellre fler varv med bra form.',
+    },
+  }),
+  card('cf-emom', 'EMOM 16 min', 'CrossFit', 'hard', 'CrossFit', [12, 0, 4, 10, 6], 0, 'En ny övning varje minut', {
+    purpose: 'Every minute on the minute: jämnt tempo och inbyggd vila. Bygger kondition och arbetskapacitet.',
+    how: ['Värm upp 10 minuter', 'Starta en ny övning varje hel minut, 4 varv: kettlebell swings, burpees, wall balls, rodd', 'Vila resten av minuten och avsluta med 5 minuter lugnt'],
+    tip: 'Välj reps så att du får 15–20 sekunders vila varje minut. Hinner du inte, sänk reps.',
+  }, {
+    home: {
+      purpose: 'EMOM hemma utan stora redskap.',
+      how: ['Värm upp 10 minuter', 'Varje hel minut, 4 varv: hopp från knäböj, burpees, push press med hantlar, hopprep', 'Vila resten av minuten'],
+      tip: 'Saknar du hopprep, kör höga knän i 40 sekunder.',
+    },
+  }),
+  card('cf-fortime', '21-15-9: thrusters och chins', 'CrossFit', 'hard', 'CrossFit', [12, 0, 0, 8, 8], 0, 'For time, så snabbt du kan', {
+    purpose: 'Kort och mycket intensivt. Ett av de mest kända CrossFit-uppläggen, bra att testa sig mot.',
+    how: ['Värm upp 12 minuter med lätta thrusters och chins', '21, 15 och 9 reps av thrusters och chins, så snabbt du kan', 'Skriv upp tiden'],
+    tip: 'Välj en vikt du klarar 10 thrusters i rad med. Skala chins med band eller hopp.',
+  }, {
+    home: {
+      purpose: '21-15-9 hemma med hantlar.',
+      how: ['Värm upp 10 minuter', '21, 15 och 9 reps av thrusters med hantlar och burpees', 'Skriv upp tiden'],
+      tip: 'Ryggsäck med böcker fungerar som vikt.',
+    },
+  }),
+  card('cf-chipper', 'Chipper', 'CrossFit', 'hard', 'CrossFit', [12, 0, 8, 12, 3], 0, 'En lång lista, beta av den', {
+    purpose: 'Många reps av flera övningar i följd. Tränar uthållighet och att hålla tempot.',
+    how: ['Värm upp 10 minuter', 'Beta av i ordning: 50 wall balls, 40 kettlebell swings, 30 boxhopp, 20 burpees, 10 chins', 'Dela upp i små set och fortsätt röra dig'],
+    tip: 'Den första övningen lurar. Ta det lugnt där, det är i slutet det avgörs.',
+  }, {
+    home: {
+      purpose: 'Chipper hemma med kroppsvikt.',
+      how: ['Värm upp 10 minuter', '50 knäböj, 40 kettlebell swings (eller hopp från knäböj), 30 utfall, 20 burpees, 10 armhävningar', 'Dela upp i små set'],
+      tip: 'Skriv upp tiden och försök slå den om några veckor.',
+    },
+  }),
+  card('cf-strength-wod', 'Styrka + WOD', 'CrossFit', 'quality', 'CrossFit', [10, 0, 5, 8, 2], 20, 'Tung lyftdel och en kort AMRAP', {
+    purpose: 'Typiskt CrossFit-pass: först en tung teknikövning, sedan en kort WOD.',
+    how: ['Värm upp 10 minuter med tom stång', 'Frivändning 5 × 3 med 2 minuters vila, öka vikten för varje set', 'AMRAP 10 minuter: 8 toes to bar, 12 wall balls, 30 double unders'],
+    tip: 'Tekniken i frivändningen går före vikten. Filma gärna ett set.',
+  }, {
+    home: {
+      purpose: 'Styrka och WOD hemma med hantlar.',
+      how: ['Värm upp 10 minuter', 'Push press 5 × 5 med hantlar', 'AMRAP 10 minuter: 15 sit-ups, 10 burpees, 30 hopprep'],
+      tip: 'Välj hantlar du klarar 8 push press med, kör 5.',
+    },
+  }),
+  card('cf-intervals', 'Intervaller: rodd, thrusters, burpees', 'CrossFit', 'hard', 'CrossFit', [12, 0, 0, 12, 8], 0, '5 varv, lika lång vila som arbete', {
+    purpose: 'CrossFit-intervaller med vila mellan varven. Hög intensitet men går att hålla jämnt.',
+    how: ['Värm upp 10 minuter', '5 varv: 250 m rodd, 10 thrusters, 10 burpees', 'Vila lika länge som varvet tog'],
+    tip: 'Sikta på samma tid i alla fem varv.',
+  }, {
+    home: {
+      purpose: 'Intervaller hemma.',
+      how: ['Värm upp 10 minuter', '5 varv: 40 s höga knän, 10 thrusters med hantlar, 10 burpees', 'Vila lika länge som varvet tog'],
+      tip: 'Håll jämnt tempo i alla varv.',
+    },
+  }),
+
   // ——— Gym & kondition ———
   card('cond-steady', 'Lugn kondition', 'Kondition', 'easy', 'Gym & kondition', [45, 0, 0, 0, 0], 0, 'Crosstrainer, roddmaskin eller cykel', {
     purpose: 'Bygger grundkondition utan att slita. Grunden som gör att du orkar de hårda passen.',
@@ -402,7 +470,7 @@ export const CARDS: TrainingCard[] = [
   }),
 ]
 
-export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'Gym & kondition', 'Tävling & övrigt']
+export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'CrossFit', 'Gym & kondition', 'Tävling & övrigt']
 
 export const cardById = (id: string) => CARDS.find((c) => c.id === id)
 
@@ -418,7 +486,7 @@ export const ZONE_SYSTEMS: Record<ZoneSystem, { title: string; labels: string[];
 
 export const fillZones = (text: string, labels: string[]) => text.replace(/\{z([1-5])\}/g, (_, n) => labels[+n - 1])
 
-export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Tävling', 'Vila', 'Övrigt'] as const
+export const SPORTS = ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'CrossFit', 'Rörlighet', 'Tävling', 'Vila', 'Övrigt'] as const
 
 export const CATEGORY_COLOR: Record<Category, string> = {
   easy: 'var(--c-easy)',
@@ -474,6 +542,30 @@ const EX: Record<string, [Exercise[], Exercise[]?]> = {
   ],
   'strength-stability': [list(['step-down', 3, '10 per ben'], ['balance', 3, '30 s per ben'], ['hip-abd', 3, '12 per ben'], ['monster', 3, '12 steg per håll'], ['nordic', 3, '5'], ['copenhagen', 3, '20 s per sida'])],
   mobility: [list(['plank', 2, '45 s'], ['side-plank', 2, '30 s per sida'], ['dead-bug', 2, '10 per sida'], ['bridge', 2, '12'])],
+  'cf-amrap': [
+    list(['pullup', 8, '5'], ['pushup', 8, '10'], ['squat', 8, '15']).map((e) => ({ ...e, rest: 0 })),
+    list(['inverted-row', 8, '5'], ['pushup', 8, '10'], ['squat', 8, '15']).map((e) => ({ ...e, rest: 0 })),
+  ],
+  'cf-emom': [
+    list(['kb-swing', 4, '15'], ['burpee', 4, '10'], ['wall-ball', 4, '12'], ['rower', 4, '12 kal']).map((e) => ({ ...e, rest: 0 })),
+    list(['squat-jump', 4, '10'], ['burpee', 4, '10'], ['push-press', 4, '10'], ['double-under', 4, '40 s']).map((e) => ({ ...e, rest: 0 })),
+  ],
+  'cf-fortime': [
+    list(['thruster', 3, '21–15–9'], ['pullup', 3, '21–15–9']).map((e) => ({ ...e, rest: 0 })),
+    list(['thruster', 3, '21–15–9'], ['burpee', 3, '21–15–9']).map((e) => ({ ...e, rest: 0 })),
+  ],
+  'cf-chipper': [
+    list(['wall-ball', 1, '50'], ['kb-swing', 1, '40'], ['box-jump', 1, '30'], ['burpee', 1, '20'], ['pullup', 1, '10']).map((e) => ({ ...e, rest: 0 })),
+    list(['squat', 1, '50'], ['kb-swing', 1, '40'], ['lunge', 1, '30'], ['burpee', 1, '20'], ['pushup', 1, '10']).map((e) => ({ ...e, rest: 0 })),
+  ],
+  'cf-strength-wod': [
+    [...list(['clean', 5, '3']), ...list(['toes-to-bar', 5, '8'], ['wall-ball', 5, '12'], ['double-under', 5, '30']).map((e) => ({ ...e, rest: 0 }))],
+    [...list(['push-press', 5, '5']), ...list(['sit-up', 5, '15'], ['burpee', 5, '10'], ['double-under', 5, '30']).map((e) => ({ ...e, rest: 0 }))],
+  ],
+  'cf-intervals': [
+    list(['rower', 5, '250 m'], ['thruster', 5, '10'], ['burpee', 5, '10']).map((e, i) => ({ ...e, rest: i === 2 ? 120 : 0 })),
+    list(['high-knees', 5, '40 s'], ['thruster', 5, '10'], ['burpee', 5, '10']).map((e, i) => ({ ...e, rest: i === 2 ? 90 : 0 })),
+  ],
   'hiit-circuit': [
     list(['kb-swing', 4, '40 s'], ['rower', 4, '40 s'], ['lunge', 4, '40 s'], ['pushup', 4, '40 s'], ['box-jump', 4, '40 s'], ['plank', 4, '40 s']).map((e) => ({ ...e, rest: 20 })),
     list(['squat', 4, '40 s'], ['pushup', 4, '40 s'], ['lunge', 4, '40 s'], ['mountain-climber', 4, '40 s'], ['bridge', 4, '40 s'], ['plank', 4, '40 s']).map((e) => ({ ...e, rest: 20 })),

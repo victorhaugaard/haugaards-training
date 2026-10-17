@@ -11,6 +11,7 @@ export type Sport =
   | 'Rörlighet'
   | 'Tävling'
   | 'Kondition'
+  | 'CrossFit'
   | 'Övrigt'
 
 export type Category = 'easy' | 'quality' | 'hard' | 'strength' | 'race' | 'other' | 'rest'
@@ -20,10 +21,10 @@ export type Technique = 'classic' | 'skate' | 'pole' // klassiskt, fristil, ren 
 export type RunMode = 'none' | 'little' // löpning: ingen (skonsamt för knän) eller lite då och då
 export type SportFocus = 'balanced' | 'ski' // blandat upplägg, eller mer ren längdskidåkning/rullskidor istället för cykel/Zwift
 // Sporterna man väljer när man skapar sin plan. Med längdskidor byggs skidplanen, annars Styrka & kondition.
-export type TrainSport = 'ski' | 'run' | 'strength' | 'hiit' | 'bike'
+export type TrainSport = 'ski' | 'run' | 'strength' | 'hiit' | 'crossfit' | 'bike'
 export type PlanType = 'ski' | 'fitness'
 
-export type Group = 'Mina pass' | 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Gym & kondition' | 'Tävling & övrigt'
+export type Group = 'Mina pass' | 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'CrossFit' | 'Gym & kondition' | 'Tävling & övrigt'
 
 // Coachens beskrivning av ett pass. {z1}–{z5} ersätts med aktuellt zonsystem.
 export interface Coach {

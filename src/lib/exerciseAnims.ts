@@ -476,6 +476,30 @@ const A: Record<string, Anim> = {
     { dur: 1.6 },
   ),
 
+  // ——— CrossFit ———
+  thruster: side(
+    [
+      { hip: [38, 73], sh: [55, 53], hand: [62, 52], foot: [52, 91] },
+      stand({ hand: [52, 1] }),
+    ],
+    { eq: [{ t: 'bar', at: 'hand' }], elbow: [1, 1], dur: 2 },
+  ),
+  clean: side(
+    [
+      { hip: [35, 66], sh: [60, 55], hand: [57, 82], foot: [50, 91] },
+      stand({ hip: [50, 52], sh: [52, 26], hand: [52, 54], foot: [50, 89], toe: [56, 92] }),
+      { hip: [44, 62], sh: [50, 37], hand: [57, 36], foot: [52, 91] },
+    ],
+    { eq: [{ t: 'bar', at: 'hand' }], elbow: [1, 0.6], dur: 2.6 },
+  ),
+  'sit-up': side(
+    [
+      { hip: [44, 86], sh: [18, 86], hand: [10, 82], foot: [64, 91] },
+      { hip: [44, 86], sh: [56, 62], hand: [68, 80], foot: [64, 91] },
+    ],
+    { knee: [0, -1], elbow: [0, 1], dur: 2 },
+  ),
+
   // ——— Stabilitet ———
   'step-down': side(
     [
@@ -557,6 +581,10 @@ const A: Record<string, Anim> = {
 const ALIAS: Record<string, string> = {
   'hammer-curl': 'curl',
   'ohp': 'shoulder-press',
+  'push-press': 'shoulder-press',
+  'wall-ball': 'med-ball',
+  'toes-to-bar': 'hanging-leg',
+  'double-under': 'jump-rope',
 }
 
 export const animFor = (id: string): Anim | undefined => A[id] ?? A[ALIAS[id] ?? '']

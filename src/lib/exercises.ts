@@ -4,8 +4,8 @@
 // Man stannar 1–3 reps före failure (RIR).
 import type { Exercise } from '../types'
 
-export type ExGroup = 'Ben' | 'Rygg' | 'Bröst' | 'Axlar' | 'Armar' | 'Bål' | 'Explosivt' | 'Stabilitet' | 'Kondition'
-export const EX_GROUPS: ExGroup[] = ['Ben', 'Rygg', 'Bröst', 'Axlar', 'Armar', 'Bål', 'Explosivt', 'Stabilitet', 'Kondition']
+export type ExGroup = 'Ben' | 'Rygg' | 'Bröst' | 'Axlar' | 'Armar' | 'Bål' | 'Explosivt' | 'CrossFit' | 'Stabilitet' | 'Kondition'
+export const EX_GROUPS: ExGroup[] = ['Ben', 'Rygg', 'Bröst', 'Axlar', 'Armar', 'Bål', 'Explosivt', 'CrossFit', 'Stabilitet', 'Kondition']
 
 export interface ExerciseDef {
   id: string
@@ -94,6 +94,14 @@ export const EXERCISES: ExerciseDef[] = [
   ex('med-ball', 'Medicinbollskast', 'Explosivt', false, 3, '8', 75, 'Från knäböj, kasta bollen högt med hela kroppen.'),
   ex('burpee', 'Burpees', 'Explosivt', true, 3, '10', 75, 'Ner i planka, upp och hoppa med armarna över huvudet.'),
   ex('squat-jump', 'Hopp upp från knäböj', 'Explosivt', true, 3, '8', 75, 'Explosivt upp, landa mjukt och gå direkt ner igen.'),
+
+  ex('thruster', 'Thrusters', 'CrossFit', true, 3, '10', 90, 'Frontböj ner och pressa stången över huvudet i samma rörelse när du reser dig.'),
+  ex('clean', 'Frivändning', 'CrossFit', false, 5, '3', 120, 'Lyft från golvet, sträck explosivt i höften och ta emot stången på axlarna.'),
+  ex('push-press', 'Push press', 'CrossFit', true, 3, '8', 90, 'En kort dipp i knäna och driv vikten upp över huvudet med benen.'),
+  ex('wall-ball', 'Wall balls', 'CrossFit', false, 3, '15', 75, 'Knäböj med bollen mot bröstet och kasta den mot målet på väggen när du reser dig.'),
+  ex('sit-up', 'Sit-ups', 'CrossFit', true, 3, '15', 45, 'Rulla upp hela vägen till sittande och rör tårna, ner kontrollerat.'),
+  ex('toes-to-bar', 'Toes to bar', 'CrossFit', false, 3, '8–12', 75, 'Häng i stången och lyft fötterna upp till stången med spänd mage.'),
+  ex('double-under', 'Double unders', 'CrossFit', true, 3, '30', 45, 'Lite högre hopp och snabba handleder, repet passerar två gånger per hopp.'),
 
   ex('step-down', 'Step-down', 'Stabilitet', true, 3, '10 per ben', 60, 'Sänk långsamt det fria benet mot golvet, knät rakt fram.'),
   ex('balance', 'Enbensbalans', 'Stabilitet', true, 3, '30 s per ben', 30, 'Stå stilla på ett ben, blunda för mer utmaning.'),

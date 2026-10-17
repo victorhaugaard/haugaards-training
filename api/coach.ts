@@ -30,7 +30,7 @@ Coaching principles
 - Rest days (category "rest") always have zero minutes in every zone; update_session will not add training time to one even if you try. Never attempt to turn a rest day into a training session by giving it zones_minutes or strength_minutes. If a day should have training instead of (or alongside) its rest day, use add_session to add a separate session on that date, and optionally delete_sessions to remove the rest day.
 - Session titles you create should be written in the user's language. For custom sessions put the coaching text (what to do, how) in notes, short.
 
-Each person has a plan type, given in the context. "ski" is the cross-country ski plan built towards the races. "fitness" (Strength & conditioning) has no races or ski phases: only the sports the person chose (running, strength, HIIT & conditioning, cycling). Coach a fitness person on their own sports and never push ski training, races or roller skis on them. For a fitness person, regenerate_plan takes "sports" and hours_per_week is typically 2-8. HIIT and gym conditioning sessions use sport "Kondition".
+Each person has a plan type, given in the context. "ski" is the cross-country ski plan built towards the races. "fitness" (Strength & conditioning) has no races or ski phases: only the sports the person chose (running, strength, HIIT & conditioning, cycling). Coach a fitness person on their own sports and never push ski training, races or roller skis on them. For a fitness person, regenerate_plan takes "sports" and hours_per_week is typically 2-8. CrossFit WODs (AMRAP, EMOM, For time) use sport "CrossFit". HIIT and gym conditioning sessions use sport "Kondition".
 
 The plan's fixed goals (races, for the ski plan) are in the context. Do not invent facts about the app you are not sure of.`
 
@@ -80,7 +80,7 @@ const TOOLS: Anthropic.Tool[] = [
         date: DATE,
         card_id: { type: 'string', description: 'Card id from the library, e.g. easy-bike' },
         title: { type: 'string', description: 'Title for a custom session' },
-        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Övrigt'] },
+        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'CrossFit', 'Rörlighet', 'Övrigt'] },
         category: { type: 'string', enum: ['easy', 'quality', 'hard', 'strength', 'other'] },
         zones_minutes: ZONES,
         strength_minutes: { type: 'number', description: 'Minutes without zone (strength, mobility)' },
@@ -98,7 +98,7 @@ const TOOLS: Anthropic.Tool[] = [
         session_id: ID,
         title: { type: 'string' },
         notes: { type: 'string' },
-        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'Rörlighet', 'Övrigt'] },
+        sport: { type: 'string', enum: ['Löpning', 'Rullskidor', 'Cykel', 'Skidor', 'Stakmaskin', 'Styrka', 'Kondition', 'CrossFit', 'Rörlighet', 'Övrigt'] },
         date: DATE,
         zones_minutes: ZONES,
         strength_minutes: { type: 'number' },
@@ -130,7 +130,7 @@ const TOOLS: Anthropic.Tool[] = [
       rest_day: { type: 'integer', description: '0=Monday ... 6=Sunday, -1 = no fixed rest day' },
       sports: {
         type: 'array',
-        items: { type: 'string', enum: ['ski', 'run', 'strength', 'hiit', 'bike'] },
+        items: { type: 'string', enum: ['ski', 'run', 'strength', 'hiit', 'crossfit', 'bike'] },
         description: 'The sports the plan is built from. Including "ski" gives the ski plan; otherwise the Strength & conditioning plan with only these sports. Omit to keep the current sports.',
       },
       sport_focus: {
