@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Exercise, Location } from '../types'
-import { EXERCISES, EX_GROUPS, estimateMinutes, exerciseById, type ExGroup } from '../lib/exercises'
+import { estimateMinutes, exerciseById } from '../lib/exercises'
+import { ExerciseEditor } from './ExerciseList'
 import { tr } from '../i18n/core'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
@@ -27,7 +28,6 @@ export function StrengthBuilder({ date: initialDate, initial, editing, onSave, o
   const [title, setTitle] = useState(initial?.title ?? tr('Eget styrkepass'))
   const [location, setLocation] = useState<Location>(initial?.location ?? 'gym')
   const [chosen, setChosen] = useState<Exercise[]>(initial?.exercises ?? [])
-  const [group, setGroup] = useState<ExGroup | 'all'>('all')
   const [date, setDate] = useState(initialDate)
   const [minutes, setMinutes] = useState(initial?.minutes ?? 45)
   const [manual, setManual] = useState(Boolean(initial?.minutes))
@@ -37,17 +37,10 @@ export function StrengthBuilder({ date: initialDate, initial, editing, onSave, o
     if (!manual && chosen.length) setMinutes(estimateMinutes(chosen))
   }, [chosen, manual])
 
-  const list = useMemo(() => EXERCISES.filter((e) => (group === 'all' || e.group === group) && (location === 'gym' || e.home)), [group, location])
-
-  const toggle = (id: string) => {
-    const def = exerciseById(id)!
-    setChosen((cur) => (cur.some((c) => c.id === id) ? cur.filter((c) => c.id !== id) : [...cur, { id, sets: def.sets, reps: def.reps }]))
-  }
-  const patch = (id: string, p: Partial<Exercise>) => setChosen((cur) => cur.map((c) => (c.id === id ? { ...c, ...p } : c)))
   const changeLocation = (l: Location) => {
     setLocation(l)
     // hemma: ta bort övningar som kräver gym
-    if (l === 'home') setChosen((cur) => cur.filter((c) => exerciseById(c.id)?.home))
+    if (l === 'home') setChosen((cur) => cur.filter((c) => c.name !== undefined || exerciseById(c.id)?.home))
   }
 
   return (
@@ -104,37 +97,9 @@ export function StrengthBuilder({ date: initialDate, initial, editing, onSave, o
         />
       </div>
 
-      <div className="pf-filter">
-        <button className={group === 'all' ? 'on' : ''} onClick={() => setGroup('all')}>
-          {tr('Alla')}
-        </button>
-        {EX_GROUPS.map((g) => (
-          <button key={g} className={group === g ? 'on' : ''} onClick={() => setGroup(g)}>
-            {tr(g)}
-          </button>
-        ))}
-      </div>
-
-      <div className="ex-list">
-        {list.map((e) => {
-          const c = chosen.find((x) => x.id === e.id)
-          return (
-            <div key={e.id} className={'ex-row' + (c ? ' on' : '')}>
-              <label className="ex-name">
-                <input type="checkbox" checked={Boolean(c)} onChange={() => toggle(e.id)} />
-                <span>{tr(e.name)}</span>
-                <em>{tr(e.group)}</em>
-              </label>
-              {c && (
-                <div className="ex-sets">
-                  <input type="number" min={1} max={10} value={c.sets} onChange={(ev) => patch(e.id, { sets: Math.max(1, +ev.target.value || 1) })} aria-label={tr('Set')} />
-                  <span>×</span>
-                  <input value={c.reps} onChange={(ev) => patch(e.id, { reps: ev.target.value })} aria-label={tr('Reps')} />
-                </div>
-              )}
-            </div>
-          )
-        })}
+      <div className="field">
+        <span>{tr('Övningar')}</span>
+        <ExerciseEditor items={chosen} onChange={setChosen} homeOnly={location === 'home'} openPicker />
       </div>
     </Modal>
   )

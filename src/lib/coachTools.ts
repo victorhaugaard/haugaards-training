@@ -1,6 +1,6 @@
 // Verktygen Coach Smirnov kan använda. De körs i appen mot personens pass och returnerar en ny lista.
 import type { Category, Person, PlanParams, RunMode, Session, Sport, SportFocus, TrainSport, Zones } from '../types'
-import { CARDS, SPORTS, cardById } from './cards'
+import { CARDS, SPORTS, cardById, cardExercises } from './cards'
 import { addDays, parse, startOfWeek, today, weekdayShort } from './dates'
 import { PLAN_END } from './generator'
 import { buildPlan } from './buildPlan'
@@ -80,6 +80,7 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
           notes: typeof input.notes === 'string' ? input.notes : '',
           done: false,
           ...(c.home ? { location: 'gym' as const } : {}),
+          ...(cardExercises(c, 'gym') ? { exercises: cardExercises(c, 'gym') } : {}),
         }
       } else {
         const title = typeof input.title === 'string' ? input.title.trim() : ''

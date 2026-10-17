@@ -4,9 +4,15 @@ import type { AppState, Location, Person, PlanParams, PlanRecord, Session, Techn
 import { db } from './firebase'
 import { PLAN_END, generatePlan } from './lib/generator'
 import { uid } from './lib/id'
+import { cardExercises } from './lib/cards'
 import { endActivePlan, ensurePlans, newPlanRecord } from './lib/plans'
 
 const KEY = 'haugaards-training:v1'
+
+const withExercises = (c: TrainingCard, location?: Location) => {
+  const ex = cardExercises(c, c.home ? (location ?? 'gym') : undefined)
+  return ex ? { exercises: ex } : {}
+}
 const ACTIVE_KEY = 'haugaards-training:active'
 
 export type Action =
@@ -76,10 +82,11 @@ const reducer = (state: AppState, a: Action): AppState => {
         category: c.category,
         zones: [...c.zones],
         nonZone: c.nonZone,
-        notes: '',
+        notes: c.notes ?? '',
         done: false,
         ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
         ...(a.technique !== undefined ? { technique: a.technique } : {}),
+        ...withExercises(c, a.location),
       }
       // Infoga före ett visst pass om det angetts, annars sist på dagen
       const day = state.sessions.filter((x) => x.personId === s.personId && x.date === a.date).sort((x, y) => x.order - y.order)
@@ -154,10 +161,11 @@ const reducer = (state: AppState, a: Action): AppState => {
                 category: c.category,
                 zones: [...c.zones] as Session['zones'],
                 nonZone: c.nonZone,
-                notes: '',
+                notes: c.notes ?? '',
                 done: false,
                 ...(c.home ? { location: a.location ?? ('gym' as const) } : {}),
                 ...(a.technique !== undefined ? { technique: a.technique } : {}),
+                ...withExercises(c, a.location),
               }
             : s,
         ),

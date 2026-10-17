@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Session } from '../types'
-import { CATEGORY_COLOR, cardById } from '../lib/cards'
+import { CATEGORY_COLOR, cardById, cardExercises } from '../lib/cards'
 import { cap, fullDate } from '../lib/dates'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { CoachNote } from './CoachNote'
@@ -9,7 +9,7 @@ import { Modal } from './Modal'
 import { tr } from '../i18n/core'
 import { SportIcon } from './SportIcon'
 import { ZoneRows } from './ZoneRows'
-import { exerciseById } from '../lib/exercises'
+import { ExerciseEditor, ExerciseRunner } from './ExerciseList'
 import { StravaMark } from './StravaMark'
 import { techniqueSuffix } from '../lib/technique'
 
@@ -19,14 +19,14 @@ interface Props {
   onToggle: () => void
   onDelete: () => void
   onDuplicate: () => void
-  onEditExercises?: () => void
   readOnly?: boolean // bara information (t.ex. exempelvecka på landningssidan)
   onClose: () => void
 }
 
 // Träningsinformation som kort. Redigering öppnas med knappen uppe till höger.
-export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, onEditExercises, readOnly, onClose }: Props) {
+export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplicate, readOnly, onClose }: Props) {
   const [editing, setEditing] = useState(false)
+  const [editEx, setEditEx] = useState(false)
   const card = cardById(s.cardId)
   const isRest = s.category === 'rest'
 
@@ -43,6 +43,14 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
     )
 
   const total = sessionMinutes(s)
+  // Äldre pass saknar egen lista: visa kortets, och spara den på passet först när något ändras
+  const exercises = s.exercises ?? (card ? cardExercises(card, s.location) : undefined)
+  const canHaveExercises = !isRest && (s.sport === 'Styrka' || s.sport === 'Kondition' || s.sport === 'Rörlighet' || Boolean(exercises?.length))
+  const changeLocation = (l: 'gym' | 'home') => {
+    const ids = (x?: { id: string }[]) => (x ?? []).map((e) => e.id).join()
+    const untouched = card && ids(exercises) === ids(cardExercises(card, s.location)) && !exercises?.some((e) => e.done)
+    onPatch({ location: l, ...(untouched && cardExercises(card, l) ? { exercises: cardExercises(card, l) } : {}) })
+  }
   return (
     <Modal
       title={tr(s.title)}
@@ -86,24 +94,22 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
 
       <ZoneRows zones={s.zones} nonZone={s.nonZone} sport={s.sport} />
 
-      {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={(l) => onPatch({ location: l })} />}
+      {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={readOnly ? undefined : changeLocation} />}
 
-      {s.exercises && s.exercises.length > 0 && (
-        <div className="sc-ex">
-          <div className="stat-label">{tr('Övningar')}</div>
-          {s.exercises.map((e, i) => (
-            <div key={i} className="sc-ex-row">
-              <span>{tr(exerciseById(e.id)?.name ?? e.id)}</span>
-              <em>
-                {e.sets} × {e.reps}
-              </em>
-            </div>
-          ))}
+      {editEx && !readOnly ? (
+        <div className="field">
+          <ExerciseEditor items={exercises ?? []} onChange={(ex) => onPatch({ exercises: ex })} homeOnly={s.location === 'home'} openPicker />
+          <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={() => setEditEx(false)}>
+            {tr('Klar')}
+          </button>
         </div>
+      ) : (
+        exercises &&
+        exercises.length > 0 && <ExerciseRunner items={exercises} onChange={readOnly ? undefined : (ex) => onPatch({ exercises: ex })} />
       )}
-      {!readOnly && onEditExercises && s.cardId === 'strength-custom' && (
-        <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={onEditExercises}>
-          {tr('Redigera övningar')}
+      {!readOnly && !editEx && canHaveExercises && (
+        <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={() => setEditEx(true)}>
+          {tr(exercises?.length ? 'Redigera övningar' : '+ Lägg till övningar')}
         </button>
       )}
 

@@ -23,7 +23,7 @@ export type SportFocus = 'balanced' | 'ski' // blandat upplägg, eller mer ren l
 export type TrainSport = 'ski' | 'run' | 'strength' | 'hiit' | 'bike'
 export type PlanType = 'ski' | 'fitness'
 
-export type Group = 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Gym & kondition' | 'Tävling & övrigt'
+export type Group = 'Mina pass' | 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'Gym & kondition' | 'Tävling & övrigt'
 
 // Coachens beskrivning av ett pass. {z1}–{z5} ersätts med aktuellt zonsystem.
 export interface Coach {
@@ -44,13 +44,32 @@ export interface TrainingCard {
   group: Group
   coach: Coach
   home?: Coach // alternativ version hemma med lätta redskap
+  exercises?: Exercise[] // färdig övningslista (gym, eller enda versionen)
+  homeExercises?: Exercise[] // övningslista för hemmaversionen
+  notes?: string // följer med till passet (egna pass)
 }
 
-// En vald övning i ett eget styrkepass
+// En övning i ett pass. id pekar på övningsbiblioteket, eller 'custom' med eget namn.
 export interface Exercise {
   id: string
   sets: number
   reps: string
+  rest?: number // vila mellan set i sekunder
+  name?: string // eget namn (egna övningar)
+  done?: number // avklarade set
+}
+
+// Ett eget pass som personen sparat i sidovyn under Mina pass
+export interface CustomTemplate {
+  id: string
+  name: string
+  sport: Sport
+  category: Category
+  zones: Zones
+  nonZone: number
+  notes: string
+  exercises: Exercise[]
+  createdAt: number
 }
 
 export interface Session {
@@ -85,6 +104,7 @@ export interface Person {
   ownerEmail?: string // kontot som personen tillhör, så att rätt person väljs vid inloggning
   photoUrl?: string // profilbild
   stravaAthleteId?: number // satt när personen kopplat sitt Strava-konto (själva token ligger bara på servern)
+  templates?: CustomTemplate[] // egna pass i sidovyn
 }
 
 // Ett avklarat pass i kompakt form, sparas i historiken när en plan avslutas

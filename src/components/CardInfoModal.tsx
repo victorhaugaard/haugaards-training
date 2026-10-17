@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import type { Location, Technique, TrainingCard } from '../types'
-import { CATEGORY_COLOR } from '../lib/cards'
+import { CATEGORY_COLOR, cardExercises } from '../lib/cards'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { tr } from '../i18n/core'
 import { hasTechnique, techniqueOptions } from '../lib/technique'
 import { CoachNote } from './CoachNote'
+import { ExerciseRunner } from './ExerciseList'
 import { Modal } from './Modal'
 import { Segmented } from './Segmented'
 import { SportIcon } from './SportIcon'
@@ -25,6 +26,7 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actio
   const [date, setDate] = useState(defaultDate)
   const [location, setLocation] = useState<Location>('gym')
   const [technique, setTechnique] = useState<Technique | ''>('')
+  const exercises = cardExercises(card, card.home ? location : undefined)
 
   return (
     <Modal
@@ -58,7 +60,8 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actio
           <SportIcon sport={card.sport} size={18} />
         </span>
         {tr(card.sport)}
-        {card.category !== 'rest' && <> · {fmtDuration(sessionMinutes(card))}</>} · {tr(card.hint)}
+        {card.category !== 'rest' && <> · {fmtDuration(sessionMinutes(card))}</>}
+        {card.hint && <> · {tr(card.hint)}</>}
       </div>
       {hasTechnique(card.sport) && (
         <div className="field">
@@ -67,7 +70,17 @@ export function CardInfoModal({ card, defaultDate, onAdd, onClose, onBack, actio
         </div>
       )}
       <ZoneRows zones={card.zones} nonZone={card.nonZone} sport={card.sport} />
-      <CoachNote card={card} location={location} onLocation={setLocation} />
+      {card.group === 'Mina pass' ? (
+        card.notes && (
+          <div className="sc-notes">
+            <span className="stat-label">{tr('Anteckningar')}</span>
+            <p>{card.notes}</p>
+          </div>
+        )
+      ) : (
+        <CoachNote card={card} location={location} onLocation={setLocation} />
+      )}
+      {exercises && <ExerciseRunner items={exercises} />}
     </Modal>
   )
 }

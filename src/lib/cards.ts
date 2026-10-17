@@ -1,4 +1,5 @@
-import type { Category, Coach, Group, Sport, TrainingCard, Zones } from '../types'
+import type { Category, Coach, Exercise, Group, Sport, TrainingCard, Zones } from '../types'
+import { list } from './exercises'
 
 type C = (
   id: string,
@@ -218,6 +219,50 @@ export const CARDS: TrainingCard[] = [
       tip: 'Sänk farten i nedfarten, 3 sekunder, så blir det tungt nog.',
     },
   }),
+  card('strength-push', 'Push: bröst, axlar & triceps', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 60, 'Press uppåt och framåt', {
+    purpose: 'Pressövningar för bröst, axlar och triceps. Tillsammans med Pull och Ben + bål blir det en komplett vecka.',
+    how: ['Värm upp 5–10 minuter och kör två lätta set på första övningen', 'Flerledsövningarna först: 3–4 set om 6–10 reps med 2–3 minuters vila', 'Avsluta med isoleringsövningar: 2–3 set om 10–15 reps med 60–90 s vila'],
+    tip: 'Stanna 1–3 reps före failure. Klarar du översta repsiffran i alla set, öka vikten nästa gång.',
+  }, {
+    home: {
+      purpose: 'Push hemma med kroppsvikt och lätta vikter.',
+      how: ['Armhävningar, pike push-ups och dips mot en stol eller soffa', 'Gör svårare genom att höja fötterna eller ta 3 sekunder ner', 'Sidolyft med vattenflaskor eller gummiband'],
+      tip: 'Klarar du mer än 15 reps, gör övningen svårare i stället för att köra fler.',
+    },
+  }),
+  card('strength-pull', 'Pull: rygg & biceps', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 55, 'Drag och rodd', {
+    purpose: 'Dragövningar för rygg, bakre axlar och biceps. Balanserar pressövningarna och ger en rak hållning.',
+    how: ['Värm upp 5–10 minuter, gärna på roddmaskin', 'Chins eller latsdrag och skivstångsrodd: 3–4 set om 6–10 reps', 'Kabelrodd, face pulls och curls: 2–3 set om 10–15 reps'],
+    tip: 'Starta varje drag med skulderbladen och låt armarna komma efter.',
+  }, {
+    home: {
+      purpose: 'Pull hemma med bord, hantlar och gummiband.',
+      how: ['Inverterad rodd under ett stadigt bord', 'Hantelrodd (eller en ryggsäck) och superman', 'Face pulls och curls med gummiband'],
+      tip: 'Håll en sekund i toppläget på varje rep, så räcker lätta vikter långt.',
+    },
+  }),
+  card('strength-legs-core', 'Ben + bål', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 60, 'Knäböj, marklyft och mage', {
+    purpose: 'Ben, säte och bål. Veckans största pass och grunden för både styrka och kondition.',
+    how: ['Värm upp 10 minuter med lätta knäböj och utfall', 'Knäböj och rumänsk marklyft: 3–4 set om 6–10 reps med 2–3 minuters vila', 'Bulgarisk split squat, lårcurl och vader, avsluta med bålen'],
+    tip: 'Djup och kontroll före vikt. Gå aldrig till failure på knäböj och marklyft.',
+  }, {
+    home: {
+      purpose: 'Ben och bål hemma med kroppsvikt och en vikt.',
+      how: ['Goblet squat med kettlebell, hantel eller ryggsäck', 'Enbens marklyft, bulgarisk split squat och höftlyft', 'Avsluta med dead bug och sidoplanka'],
+      tip: 'Ta tre sekunder ner på varje rep, så blir även lätta vikter tunga.',
+    },
+  }),
+  card('strength-fb2', 'Styrka helkropp B', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 55, 'Andra helkroppspasset', {
+    purpose: 'Det andra helkroppspasset i veckan, med andra övningar än A. Två helkroppspass i veckan tränar varje muskel två gånger.',
+    how: ['Värm upp 10 minuter', 'Marklyft, lutande press och latsdrag: 3 set om 6–10 reps', 'Utfall, sidolyft och pallof press avslutar'],
+    tip: 'Stanna 1–3 reps före failure och öka vikten lite i taget.',
+  }, {
+    home: {
+      purpose: 'Helkropp B hemma.',
+      how: ['Enbens marklyft och utfall', 'Armhävningar, inverterad rodd och pike push-ups', 'Sidoplanka avslutar'],
+      tip: 'Kör passet som en lugn cirkel om tiden är knapp.',
+    },
+  }),
   card('strength-upper', 'Styrka överkropp & bål', 'Styrka', 'strength', 'Styrka', [0, 0, 0, 0, 0], 45, 'Stakstyrka, bål', {
     purpose: 'Bygger stakstyrka och stabil bål. Det viktigaste för skidåkare.',
     how: ['Kabeldrag eller skivstångsrodd 4×8', 'Triceps och latsdrag 3×10', 'Ryggresningar och rotationsövningar 3×12'],
@@ -383,4 +428,74 @@ export const CATEGORY_COLOR: Record<Category, string> = {
   race: 'var(--c-race)',
   other: 'var(--c-other)',
   rest: 'var(--c-rest)',
+}
+
+// Färdiga övningslistor per pass, för gym (eller enda versionen) och hemma
+const EX: Record<string, [Exercise[], Exercise[]?]> = {
+  strength: [
+    list(['squat', 4, '5'], ['pullup', 4, '6'], ['barbell-row', 3, '8'], ['single-squat', 3, '8 per ben'], ['plank', 3, '45 s']),
+    list(['single-squat', 4, '8 per ben'], ['pushup', 4, '12'], ['db-row', 3, '12 per arm'], ['plank', 3, '45 s'], ['side-plank', 3, '45 s per sida']),
+  ],
+  'strength-push': [
+    list(['bench', 4, '6–8'], ['incline-press', 3, '8–10'], ['shoulder-press', 3, '8–10'], ['lateral-raise', 3, '12–15'], ['pushdown', 3, '10–12'], ['overhead-ext', 2, '10–12']),
+    list(['pushup', 4, '8–15'], ['pike-pushup', 3, '6–10'], ['bench-dip', 3, '10–12'], ['lateral-raise', 3, '15'], ['close-pushup', 2, '8–12']),
+  ],
+  'strength-pull': [
+    list(['pullup', 4, '5–8'], ['barbell-row', 3, '6–8'], ['cable-row', 3, '10–12'], ['face-pull', 3, '12–15'], ['curl', 3, '10–12'], ['hammer-curl', 2, '10–12']),
+    list(['inverted-row', 4, '8–12'], ['db-row', 3, '10 per arm'], ['superman', 3, '12'], ['face-pull', 3, '15'], ['curl', 3, '12']),
+  ],
+  'strength-legs-core': [
+    list(['squat', 4, '6–8'], ['rdl2', 3, '8–10'], ['bulgarian', 3, '8 per ben'], ['leg-curl', 3, '10–12'], ['calf', 3, '12–15'], ['hanging-leg', 3, '8–12'], ['plank', 3, '45 s']),
+    list(['goblet-squat', 4, '12'], ['rdl', 3, '10 per ben'], ['bulgarian', 3, '10 per ben'], ['bridge', 3, '15'], ['calf', 3, '15'], ['dead-bug', 3, '10 per sida'], ['side-plank', 3, '30 s per sida']),
+  ],
+  'strength-fb2': [
+    list(['deadlift', 3, '5'], ['incline-press', 3, '8–10'], ['lat', 3, '8–12'], ['lunge', 3, '10 per ben'], ['lateral-raise', 2, '12–15'], ['pallof', 3, '10 per sida']),
+    list(['rdl', 3, '10 per ben'], ['pushup', 3, '10–15'], ['inverted-row', 3, '8–12'], ['lunge', 3, '10 per ben'], ['pike-pushup', 2, '8'], ['side-plank', 3, '30 s per sida']),
+  ],
+  'strength-upper': [
+    list(['barbell-row', 4, '8'], ['lat', 3, '10'], ['pushdown', 3, '10'], ['back-ext', 3, '12'], ['core-rot', 3, '12 per sida']),
+    list(['band-pole', 4, '15'], ['pushup', 3, '12'], ['db-row', 3, '10 per arm'], ['back-ext', 3, '12'], ['core-rot', 3, '12 per sida']),
+  ],
+  'strength-legs': [
+    list(['squat', 4, '5'], ['lunge', 3, '8 per ben'], ['bridge', 3, '12'], ['calf', 3, '12']),
+    list(['bulgarian', 4, '8 per ben'], ['step-up', 3, '10 per ben'], ['bridge', 3, '15'], ['calf', 3, '15']),
+  ],
+  'strength-back': [
+    list(['barbell-row', 4, '8'], ['pullup', 3, '8'], ['back-ext', 3, '12'], ['face-pull', 3, '15'], ['superman', 2, '12']),
+    list(['db-row', 4, '10 per arm'], ['back-ext', 3, '12'], ['superman', 3, '12'], ['face-pull', 3, '15']),
+  ],
+  'strength-core': [
+    list(['plank', 3, '45 s'], ['side-plank', 3, '45 s per sida'], ['dead-bug', 3, '10 per sida'], ['pallof', 3, '10 per sida'], ['hanging-leg', 3, '12']),
+    list(['plank', 3, '40 s'], ['side-plank', 3, '40 s per sida'], ['hollow', 3, '40 s'], ['dead-bug', 3, '12 per sida'], ['russian', 3, '12 per sida'], ['core-rot', 3, '12 per sida']),
+  ],
+  'strength-explosive': [
+    list(['box-jump', 3, '6'], ['lateral-hop', 3, '10'], ['kb-swing', 3, '15'], ['med-ball', 3, '8'], ['burpee', 3, '10']),
+    list(['lateral-hop', 3, '10'], ['burpee', 3, '10'], ['squat-jump', 3, '8']),
+  ],
+  'strength-stability': [list(['step-down', 3, '10 per ben'], ['balance', 3, '30 s per ben'], ['hip-abd', 3, '12 per ben'], ['monster', 3, '12 steg per håll'], ['nordic', 3, '5'], ['copenhagen', 3, '20 s per sida'])],
+  mobility: [list(['plank', 2, '45 s'], ['side-plank', 2, '30 s per sida'], ['dead-bug', 2, '10 per sida'], ['bridge', 2, '12'])],
+  'hiit-circuit': [
+    list(['kb-swing', 4, '40 s'], ['rower', 4, '40 s'], ['lunge', 4, '40 s'], ['pushup', 4, '40 s'], ['box-jump', 4, '40 s'], ['plank', 4, '40 s']).map((e) => ({ ...e, rest: 20 })),
+    list(['squat', 4, '40 s'], ['pushup', 4, '40 s'], ['lunge', 4, '40 s'], ['mountain-climber', 4, '40 s'], ['bridge', 4, '40 s'], ['plank', 4, '40 s']).map((e) => ({ ...e, rest: 20 })),
+  ],
+  'hiit-tabata': [
+    list(['rower', 8, '20 s'], ['burpee', 8, '20 s'], ['kb-swing', 8, '20 s'], ['mountain-climber', 8, '20 s']).map((e) => ({ ...e, rest: 10 })),
+    list(['burpee', 8, '20 s'], ['squat-jump', 8, '20 s'], ['mountain-climber', 8, '20 s'], ['high-knees', 8, '20 s']).map((e) => ({ ...e, rest: 10 })),
+  ],
+  'hiit-amrap': [
+    list(['kb-swing', 5, '10'], ['burpee', 5, '10'], ['squat', 5, '15'], ['rower', 5, '200 m']).map((e) => ({ ...e, rest: 0 })),
+    list(['burpee', 5, '10'], ['squat', 5, '15'], ['pushup', 5, '10'], ['mountain-climber', 5, '20']).map((e) => ({ ...e, rest: 0 })),
+  ],
+}
+for (const c of CARDS) {
+  const e = EX[c.id]
+  if (!e) continue
+  c.exercises = e[0]
+  if (e[1]) c.homeExercises = e[1]
+}
+
+// Övningslistan som ett nytt pass får (kopior, så att avbockningar inte delas)
+export const cardExercises = (c: Pick<TrainingCard, 'exercises' | 'homeExercises'>, location?: 'gym' | 'home'): Exercise[] | undefined => {
+  const src = location === 'home' && c.homeExercises ? c.homeExercises : c.exercises
+  return src?.length ? src.map(({ done: _d, ...e }) => ({ ...e })) : undefined
 }

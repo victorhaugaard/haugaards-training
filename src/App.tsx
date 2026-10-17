@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type DragEvent, type Dispatch } from 'react'
-import type { AppState, Person, Session, TrainingCard, View } from './types'
+import type { AppState, CustomTemplate, Person, Session, TrainingCard, View } from './types'
 import { useStore, type Action } from './store'
 import { useAuth, type AuthState } from './auth'
 import { useZones } from './lib/zones'
@@ -16,6 +16,8 @@ import { buildPlan } from './lib/buildPlan'
 import { personPlanType, personSports } from './lib/trainSports'
 import { isAdmin } from './lib/access'
 import { AccessModal } from './components/AccessModal'
+import { WorkoutBuilder } from './components/WorkoutBuilder'
+import { templateCard, upsertTemplate } from './lib/templates'
 import { uid } from './lib/id'
 import { Board } from './components/Board'
 import { CardLibrary } from './components/CardLibrary'
@@ -44,7 +46,6 @@ import { NoticeToast, type Notice } from './components/NoticeToast'
 import { useFeed } from './lib/feed'
 import { findCheers, pickCheer } from './lib/cheers'
 import { StrengthBuilder, type StrengthValue } from './components/StrengthBuilder'
-import { sessionMinutes } from './lib/stats'
 import { TabBar } from './components/TabBar'
 import { LegalPage } from './components/LegalPage'
 
@@ -213,7 +214,7 @@ function Workspace({
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
   const [swapId, setSwapId] = useState<string | null>(null)
   const [planOpen, setPlanOpen] = useState<string | null>(null)
-  const [editExId, setEditExId] = useState<string | null>(null)
+  const [tpl, setTpl] = useState<{ t?: CustomTemplate; date: string } | null>(null)
   const [backView, setBackView] = useState<View>('week')
   const [toast, setToast] = useState<ToastData | null>(null)
 
@@ -314,6 +315,15 @@ function Workspace({
   const subtitle =
     view === 'profile' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])}${fitness ? '' : ' · ' + tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? (fitness ? '' : tr(PHASE_LABEL[phaseFor(cursor)])) : ''
 
+  // Egna pass (Mina pass) hör till personen
+  const templates = person.templates ?? []
+  const findCard = (id: string) => {
+    const t = templates.find((x) => x.id === id)
+    return t ? templateCard(t) : cardById(id)
+  }
+  const saveTemplate = (t: CustomTemplate) => dispatch({ type: 'updatePerson', id: person.id, patch: { templates: upsertTemplate(person.templates, t) } })
+  const deleteTemplate = (id: string) => dispatch({ type: 'updatePerson', id: person.id, patch: { templates: templates.filter((x) => x.id !== id) } })
+
   const handleDrop = (e: DragEvent, date: string, beforeId?: string) => {
     e.preventDefault()
     try {
@@ -321,7 +331,7 @@ function Workspace({
       if (data.kind === 'session') {
         if (data.id !== beforeId) dispatch({ type: 'move', id: data.id, date, beforeId })
       } else {
-        const card = cardById(data.id)
+        const card = findCard(data.id)
         if (card) dispatch({ type: 'addFromCard', card, date, beforeId })
       }
     } catch {
@@ -595,7 +605,7 @@ function Workspace({
               </button>
             </div>
             <p className="muted small">{tr('Dra till en dag, eller tryck på ett kort för att se detaljerna.')}</p>
-            <CardLibrary onPick={setInfoCard} />
+            <CardLibrary onPick={setInfoCard} templates={templates} onNewTemplate={() => setTpl({ date: cursor })} onPickTemplate={(t) => setTpl({ t, date: cursor })} />
           </aside>
         )}
       </div>
@@ -611,25 +621,10 @@ function Workspace({
           onToggle={() => dispatch({ type: 'toggleDone', id: editing.id })}
           onDelete={() => deleteWithUndo(editing)}
           onDuplicate={() => dispatch({ type: 'duplicate', id: editing.id })}
-          onEditExercises={() => (setEditId(null), setEditExId(editing.id))}
         />
       )}
       {infoCard?.id === 'strength-custom' && (
         <StrengthBuilder date={cursor} onSave={buildStrength} onClose={() => setInfoCard(null)} />
-      )}
-      {editExId && mine.find((s) => s.id === editExId) && (
-        <StrengthBuilder
-          editing
-          date={mine.find((s) => s.id === editExId)!.date}
-          initial={{
-            title: mine.find((s) => s.id === editExId)!.title,
-            exercises: mine.find((s) => s.id === editExId)!.exercises,
-            minutes: sessionMinutes(mine.find((s) => s.id === editExId)!),
-            location: mine.find((s) => s.id === editExId)!.location,
-          }}
-          onSave={(v) => dispatch({ type: 'update', id: editExId, patch: { title: v.title, exercises: v.exercises, nonZone: v.minutes, location: v.location } })}
-          onClose={() => setEditExId(null)}
-        />
       )}
       {infoCard && infoCard.id !== 'strength-custom' && (
         <CardInfoModal
@@ -683,6 +678,19 @@ function Workspace({
           onClose={() => setPickDate(null)}
           onPick={(card: TrainingCard, date, location, technique) => dispatch({ type: 'addFromCard', card, date, location, technique })}
           onBuild={buildStrength}
+          templates={templates}
+          onNewTemplate={() => setTpl({ date: pickDate })}
+        />
+      )}
+      {tpl && (
+        <WorkoutBuilder
+          key={tpl.t?.id ?? 'new'}
+          initial={tpl.t}
+          date={tpl.date}
+          onSave={saveTemplate}
+          onAddToDay={(t, date) => dispatch({ type: 'addFromCard', card: templateCard(t), date })}
+          onDelete={tpl.t ? () => deleteTemplate(tpl.t!.id) : undefined}
+          onClose={() => setTpl(null)}
         />
       )}
       {dialog === 'person' && (

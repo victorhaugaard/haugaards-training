@@ -1,5 +1,5 @@
 import type { RunMode, Session, SportFocus, Zones } from '../types'
-import { cardById } from './cards'
+import { cardById, cardExercises } from './cards'
 import { RACES, type RaceDef } from './races'
 import { addDays, parse, startOfWeek } from './dates'
 import { uid } from './id'
@@ -262,6 +262,7 @@ export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, rest
         notes: '',
         done: false,
         ...(c.home ? { location: 'gym' as const } : {}),
+        ...(cardExercises(c, 'gym') ? { exercises: cardExercises(c, 'gym') } : {}),
       })
     }
     weekStart = addDays(weekStart, 7)

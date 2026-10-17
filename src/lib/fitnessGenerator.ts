@@ -1,7 +1,7 @@
 // Plan-typen "Styrka & kondition": inga lopp eller skidfaser, bara en jämn vecka med valda sporter
 // som byggs upp i fyraveckorscykler (tre veckor uppåt, en lättare).
 import type { Session, TrainSport, Zones } from '../types'
-import { cardById } from './cards'
+import { cardById, cardExercises } from './cards'
 import { addDays, startOfWeek } from './dates'
 import { CYCLE } from './generator'
 import { uid } from './id'
@@ -12,7 +12,7 @@ export const FITNESS_DEFAULT_HOURS = 5
 // Passen varje sport bidrar med, i prioritetsordning. En lista = varianter som roterar vecka för vecka.
 type Item = string | string[]
 const POOL: Record<Exclude<TrainSport, 'ski'>, Item[]> = {
-  strength: [['strength', 'strength-legs'], ['strength-upper', 'strength-back'], ['strength-core', 'strength-explosive'], 'mobility', 'strength-stability'],
+  strength: ['S', 'S', 'S', 'mobility', 'strength-stability'], // S byts mot helkropp eller Push/Pull/Ben nedan
   run: ['easy-run', ['int-4x8', 'fartlek', 'tempo', 'int-short'], 'long-run', 'easy-run'],
   hiit: [['hiit-circuit', 'hiit-amrap'], 'cond-steady', ['hiit-tabata', 'cond-threshold', 'cond-intervals'], 'cond-steady'],
   bike: ['easy-bike', ['zw-sst', 'zw-vo2'], 'long-bike', 'zw-endu'],
@@ -45,13 +45,21 @@ const pickWeek = (sports: TrainSport[], n: number, w: number) => {
       const item = POOL[sp][round]
       if (!item) continue
       const id = Array.isArray(item) ? item[(w + ids.length) % item.length] : item
+      if (id === 'S') {
+        ids.push(id)
+        continue
+      }
       const c = cardById(id)!
       if (isQ(c.category) && hard >= MAX_HARD) continue
       if (isQ(c.category)) hard++
       ids.push(id)
     }
   }
-  return ids.map((id) => cardById(id)!)
+  // Två styrkepass: helkropp A och B (varje muskel två gånger i veckan). Tre eller fler: Push, Pull och Ben + bål.
+  const k = ids.filter((id) => id === 'S').length
+  const split = k >= 3 ? ['strength-push', 'strength-pull', 'strength-legs-core'] : k === 2 ? ['strength', 'strength-fb2'] : ['strength']
+  let i = 0
+  return ids.map((id) => cardById(id === 'S' ? split[i++ % split.length] : id)!)
 }
 
 export const generateFitnessPlan = ({ personId, start, end, hoursPerWeek, restDay = 0, sports }: FitnessOptions): Session[] => {
@@ -107,6 +115,7 @@ export const generateFitnessPlan = ({ personId, start, end, hoursPerWeek, restDa
         notes: '',
         done: false,
         ...(c.home ? { location: 'gym' as const } : {}),
+        ...(cardExercises(c, 'gym') ? { exercises: cardExercises(c, 'gym') } : {}),
       })
     }
     for (const { day, c } of placed.sort((a, b) => a.day - b.day)) add(day, c, c.flex ? flexScale : isQ(c.category) ? qScale : 1)
