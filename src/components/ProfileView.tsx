@@ -11,7 +11,7 @@ import { ZoneBar } from './ZoneBar'
 import { ZoneLegend } from './Overview'
 import { Avatar } from './Avatar'
 import { resizeToSquare, uploadAvatar } from '../lib/avatar'
-import { connectStrava, disconnectStrava } from '../lib/strava'
+import { STRAVA_ENABLED, connectStrava, disconnectStrava } from '../lib/strava'
 import { StravaMark } from './StravaMark'
 import { SportBreakdown } from './SportBreakdown'
 
@@ -263,7 +263,7 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
         <SportBreakdown sessions={list} />
       )}
 
-      {getToken && (
+      {STRAVA_ENABLED && getToken && (
         <section className="ov-card pf-strava">
           <StravaMark size={26} />
           <div className="pf-strava-text">

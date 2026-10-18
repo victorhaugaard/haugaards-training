@@ -54,6 +54,8 @@ Bilden beskärs till en kvadrat på 256 px och sparas som `avatars/<personId>.jp
 
 ## Koppla Strava
 
+> **Tillfälligt avstängt** i appen (`STRAVA_ENABLED = false` i [src/lib/strava.ts](src/lib/strava.ts)) tills API-åtkomsten hos Strava är klar. Serverfunktionerna finns kvar.
+
 Passen kan synkas automatiskt från Strava: när du avslutar ett pass i Strava dyker det upp i appen inom någon minut, matchat mot rätt planerat pass (bockas av och skalas till din faktiska tid) eller, om inget passar, som ett nytt pass märkt med Stravas orange märke.
 
 **1. Skapa en Strava-app** (gratis, en per hushåll räcker):

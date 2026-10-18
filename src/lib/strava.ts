@@ -1,4 +1,7 @@
 // Klientsidan av Strava-anslutningen. Själva token-hanteringen sker på servern (api/strava-*.ts).
+
+// Tillfälligt avstängt tills vi fått API-åtkomst hos Strava. Sätt till true för att visa anslutningen i profilen igen.
+export const STRAVA_ENABLED = false
 export const connectStrava = async (personId: string, getToken: () => Promise<string | undefined>) => {
   const token = await getToken()
   const r = await fetch('/api/strava-connect', {
