@@ -23,14 +23,23 @@ export const verifyUser = async (req: IncomingMessage, allowedEnv: string, token
     const allowed = (process.env[allowedEnv] || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
     const email = String(payload.email || '').toLowerCase()
     if (!payload.email_verified || !email) return { ok: false, status: 403, error: 'forbidden' }
-    if (ADMIN_EMAILS.includes(email) || allowed.includes(email) || (await inAccessList(email))) return { ok: true, email }
+    if (ADMIN_EMAILS.includes(email) || allowed.includes(email) || (await inAccessList(email, token, projectId))) return { ok: true, email }
     return { ok: false, status: 403, error: 'forbidden' }
   } catch {
     return { ok: false, status: 401, error: 'unauthorized' }
   }
 }
 
-const inAccessList = async (email: string) => {
+// Finns kontot i åtkomstlistan (Hantera åtkomst)? Läses med användarens egen token via Firestore REST,
+// eftersom reglerna låter varje konto läsa sin egen rad. Då behövs inget tjänstkonto. Admin SDK som reserv.
+const inAccessList = async (email: string, idToken: string, projectId: string) => {
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/access/${encodeURIComponent(email)}`
+    const r = await fetch(url, { headers: { authorization: `Bearer ${idToken}` } })
+    if (r.ok) return true
+  } catch {
+    /* prova Admin SDK nedan */
+  }
   if (!adminEnabled) return false
   try {
     return (await getAdminDb().collection('access').doc(email).get()).exists
