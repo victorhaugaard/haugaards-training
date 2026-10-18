@@ -6,6 +6,9 @@ import { adminEnabled, getAdminDb } from './_admin'
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'))
 
+// Samma admin-konton som i src/lib/access.ts och firestore.rules. De står inte i åtkomstlistan.
+const ADMIN_EMAILS = ['victortomashaugaard@gmail.com', 'ohaug01@gmail.com']
+
 export type AuthResult = { ok: true; email: string } | { ok: false; status: number; error: string }
 
 // allowedEnv: namnet på miljövariabeln med kommaseparerade e-postadresser (t.ex. COACH_ALLOWED_EMAILS)
@@ -18,10 +21,9 @@ export const verifyUser = async (req: IncomingMessage, allowedEnv: string, token
   try {
     const { payload } = await jwtVerify(token, JWKS, { issuer: `https://securetoken.google.com/${projectId}`, audience: projectId })
     const allowed = (process.env[allowedEnv] || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean)
-    if (!allowed.length && !adminEnabled) return { ok: false, status: 403, error: 'allowlist_missing' }
     const email = String(payload.email || '').toLowerCase()
     if (!payload.email_verified || !email) return { ok: false, status: 403, error: 'forbidden' }
-    if (allowed.includes(email) || (await inAccessList(email))) return { ok: true, email }
+    if (ADMIN_EMAILS.includes(email) || allowed.includes(email) || (await inAccessList(email))) return { ok: true, email }
     return { ok: false, status: 403, error: 'forbidden' }
   } catch {
     return { ok: false, status: 401, error: 'unauthorized' }
