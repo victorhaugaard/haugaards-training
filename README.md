@@ -12,7 +12,7 @@ Utan Firebase-nycklar körs appen lokalt (localStorage). Med nycklar synkas allt
 ## Koppla Firebase
 
 1. Skapa projekt på console.firebase.google.com.
-2. **Build → Authentication → Sign-in method**: aktivera *Google*.
+2. **Build → Authentication → Sign-in method**: aktivera *Google* och *Email/Password* (för den som inte har Google-konto, t.ex. hotmail). Under *Templates* kan språket på mejlen ställas till svenska.
 3. **Build → Firestore Database**: skapa databas (production mode).
 4. **Firestore → Rules**: klistra in [firestore.rules](firestore.rules) och publicera. Admin-kontona står i reglerna (och i [src/lib/access.ts](src/lib/access.ts)).
 5. **Project settings → Your apps → Web (`</>`)**: registrera en webbapp och kopiera config.

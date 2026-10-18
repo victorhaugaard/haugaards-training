@@ -5025,3 +5025,52 @@ body {
 .field .xp-search {
   background: var(--bg);
 }
+
+/* Inloggning med e-post */
+.login-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+}
+.login-or::before,
+.login-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.login-form input {
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  color: var(--text);
+  font-size: 16px;
+}
+.login-form input:focus {
+  outline: 0;
+  border-color: var(--accent);
+}
+.login-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+}
+.login-links button {
+  background: none;
+  border: 0;
+  padding: 2px;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+}

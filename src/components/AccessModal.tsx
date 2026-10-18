@@ -29,7 +29,7 @@ export function AccessModal({ me, onClose }: { me: string; onClose: () => void }
   return (
     <Modal title={tr('Hantera åtkomst')} onClose={onClose}>
       <p className="muted small">
-        {tr('Lägg till Google-kontot (e-postadressen) för den som ska få logga in. Alla med åtkomst ser och kan ändra hela familjens planer. Första gången de loggar in får de skapa sin egen plan.')}
+        {tr('Lägg till e-postadressen för den som ska få logga in. Det kan vara ett Google-konto eller vilken e-post som helst (då skapar de ett konto med lösenord på inloggningssidan). Alla med åtkomst ser och kan ändra hela familjens planer.')}
       </p>
       <form
         className="access-add"

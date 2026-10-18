@@ -16,6 +16,7 @@ import { buildPlan } from './lib/buildPlan'
 import { personPlanType, personSports } from './lib/trainSports'
 import { isAdmin } from './lib/access'
 import { AccessModal } from './components/AccessModal'
+import { Login, VerifyEmail } from './components/Login'
 import { WorkoutBuilder } from './components/WorkoutBuilder'
 import { templateCard, upsertTemplate } from './lib/templates'
 import { uid } from './lib/id'
@@ -140,27 +141,9 @@ export function App() {
       />
     )
   if (auth.enabled && !auth.ready) return <div className="splash" />
-  if (auth.enabled && !auth.user) return <Login onSignIn={auth.signIn} />
+  if (auth.enabled && !auth.user) return <Login auth={auth} />
+  if (auth.enabled && auth.user && !auth.user.emailVerified) return <VerifyEmail auth={auth} />
   return <Planner auth={auth} />
-}
-
-function Login({ onSignIn }: { onSignIn: () => Promise<void> }) {
-  const [err, setErr] = useState('')
-  return (
-    <div className="splash">
-      <div className="login">
-        <img className="login-logo" src="/haugaards_training_logo.png" alt="Haugaards training" draggable={false} />
-        <p className="muted">{tr('Logga in för att se och planera träningen.')}</p>
-        <button className="btn primary big" onClick={() => onSignIn().catch((e: Error) => setErr(e.message))}>
-          {tr('Fortsätt med Google')}
-        </button>
-        {err && <p className="error">{err}</p>}
-        <p className="muted small">
-          <a href="#/privacy">{tr('Integritetspolicy')}</a> · <a href="#/terms">{tr('Användarvillkor')}</a>
-        </p>
-      </div>
-    </div>
-  )
 }
 
 function Planner({ auth }: { auth: AuthState }) {
