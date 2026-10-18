@@ -2,7 +2,7 @@
 // API-nyckeln ligger bara här på servern. Planändringarna görs i appen via verktygsanrop.
 import Anthropic from '@anthropic-ai/sdk'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { verifyUser } from './_auth'
+import { verifyUser } from './_auth.js'
 
 const MODEL = process.env.COACH_MODEL || 'claude-haiku-4-5'
 

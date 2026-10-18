@@ -1,9 +1,9 @@
 // Strava skickar hit efter att man godkänt (eller nekat) anslutningen. Ingen inloggning krävs
 // här (det är Strava som anropar), säkerheten ligger i det signerade state-värdet.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { getAdminDb } from './_admin'
-import { verifyState } from './strava-connect'
-import { exchangeCode, stravaEnabled } from './_strava'
+import { getAdminDb } from './_admin.js'
+import { verifyState } from './strava-connect.js'
+import { exchangeCode, stravaEnabled } from './_strava.js'
 
 const originOf = (req: IncomingMessage) => {
   const proto = (req.headers['x-forwarded-proto'] as string) || 'https'

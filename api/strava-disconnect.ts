@@ -1,8 +1,8 @@
 // Kopplar bort Strava för en person: tar bort de sparade tokens och märket på personen.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { FieldValue } from 'firebase-admin/firestore'
-import { getAdminDb } from './_admin'
-import { verifyUser } from './_auth'
+import { getAdminDb } from './_admin.js'
+import { verifyUser } from './_auth.js'
 
 type Req = IncomingMessage & { body?: unknown }
 

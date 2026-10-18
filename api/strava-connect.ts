@@ -2,8 +2,8 @@
 // Firebase-token kan skickas som header; svaret är en URL som klienten sedan navigerar till.
 import { createHmac } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { verifyUser } from './_auth'
-import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, stravaEnabled } from './_strava'
+import { verifyUser } from './_auth.js'
+import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, stravaEnabled } from './_strava.js'
 
 type Req = IncomingMessage & { body?: unknown }
 

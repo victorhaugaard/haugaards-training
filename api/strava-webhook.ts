@@ -3,7 +3,7 @@
 import { randomUUID } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { FieldValue } from 'firebase-admin/firestore'
-import { getAdminDb } from './_admin'
+import { getAdminDb } from './_admin.js'
 import {
   activityMinutes,
   activitySummary,
@@ -16,7 +16,7 @@ import {
   STRAVA_VERIFY_TOKEN,
   stravaEnabled,
   type StravaTokens,
-} from './_strava'
+} from './_strava.js'
 import type { Session } from '../src/types'
 
 type Req = IncomingMessage & { body?: unknown }

@@ -2,7 +2,7 @@
 // Verifierar Firebase ID-token och kollar mot listan i miljövariabeln eller åtkomstlistan i Firestore (access/{e-post}).
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { IncomingMessage } from 'node:http'
-import { adminEnabled, getAdminDb } from './_admin'
+import { adminEnabled, getAdminDb } from './_admin.js'
 
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'))
 
