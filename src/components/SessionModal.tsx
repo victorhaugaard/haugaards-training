@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Session } from '../types'
-import { CATEGORY_COLOR, cardById, cardExercises } from '../lib/cards'
+import { CATEGORY_COLOR, cardById, cardExercises, cardTests } from '../lib/cards'
+import { TestResultsForm } from './ResultsView'
 import { cap, fullDate } from '../lib/dates'
 import { fmtDuration, sessionMinutes } from '../lib/stats'
 import { CoachNote } from './CoachNote'
@@ -95,6 +96,10 @@ export function SessionModal({ session: s, onPatch, onToggle, onDelete, onDuplic
       <ZoneRows zones={s.zones} nonZone={s.nonZone} sport={s.sport} />
 
       {card && card.id !== 'other' && <CoachNote card={card} location={s.location} onLocation={readOnly ? undefined : changeLocation} />}
+
+      {card && cardTests(card, s.location).length > 0 && !readOnly && (
+        <TestResultsForm key={s.location ?? 'gym'} tests={cardTests(card, s.location)} results={s.results} onChange={(results) => onPatch({ results })} />
+      )}
 
       {editEx && !readOnly ? (
         <div className="field">

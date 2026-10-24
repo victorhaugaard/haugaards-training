@@ -133,6 +133,7 @@ const TOOLS: Anthropic.Tool[] = [
         items: { type: 'string', enum: ['ski', 'run', 'strength', 'hiit', 'crossfit', 'bike'] },
         description: 'The sports the plan is built from. Including "ski" gives the ski plan; otherwise the Strength & conditioning plan with only these sports. Omit to keep the current sports.',
       },
+      days_per_week: { type: 'integer', description: 'Fitness plans: training days per week, 2-6. Omit to keep the current setting.' },
       sport_focus: {
         type: 'string',
         enum: ['balanced', 'ski'],

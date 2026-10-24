@@ -334,6 +334,45 @@ export const CARDS: TrainingCard[] = [
     tip: 'Gör det hemma på mattan. Kort och regelbundet slår långt och sällan.',
   }),
 
+  // ——— Tester ———
+  card('test-strength', 'Styrketest', 'Styrka', 'quality', 'Tester', [0, 0, 0, 0, 0], 60, 'Knäböj, bänkpress, marklyft och chins', {
+    purpose: 'Mäter din styrka så att du kan följa utvecklingen. Gör testet utvilad, gärna samma tid på dagen varje gång.',
+    how: ['Värm upp 10–15 minuter och kör några lätta set av varje övning', 'Bygg upp mot 3RM i 3–5 set: den tyngsta vikten du klarar 3 reps med god teknik', 'Vila 3–4 minuter mellan de tunga seten och avsluta med max chins'],
+    tip: 'Teknik före vikt. Ett godkänt försök är ett med samma form som på uppvärmningen.',
+  }, {
+    home: {
+      purpose: 'Mäter din styrka hemma utan tunga vikter.',
+      how: ['Värm upp 10 minuter', 'Max armhävningar i ett set, vila 3 minuter', 'Knäböj på 2 minuter, vila 3 minuter, och planka så länge du orkar'],
+      tip: 'Gör testet på samma sätt varje gång så blir resultaten jämförbara.',
+    },
+  }),
+  card('test-run', 'Löptest 5 km', 'Löpning', 'quality', 'Tester', [20, 0, 0, 15, 10], 0, 'Så snabbt du kan, samma bana varje gång', {
+    purpose: 'Visar hur din löpkondition utvecklas.',
+    how: ['Jogga lugnt 15 minuter och gör 3–4 korta stegringar', '5 km så snabbt du kan hålla jämnt', 'Jogga ner 10 minuter'],
+    tip: 'Starta lite lugnare än du tror. Öka sista kilometern om du har kvar.',
+  }),
+  card('test-conditioning', 'Konditionstest', 'Kondition', 'quality', 'Tester', [15, 0, 0, 5, 5], 0, '2 km rodd, eller burpees hemma', {
+    purpose: 'Mäter din kondition på ett sätt som går att upprepa exakt.',
+    how: ['Värm upp 10 minuter på roddmaskinen med några korta ryck', '2000 m rodd så snabbt du kan', 'Varva ner 5 minuter'],
+    tip: 'Hitta ett tempo per 500 m som du kan hålla och spurta de sista 300 m.',
+  }, {
+    home: {
+      purpose: 'Konditionstest hemma utan redskap.',
+      how: ['Värm upp 10 minuter', 'Så många burpees du hinner på 5 minuter', 'Varva ner 5 minuter'],
+      tip: 'Hitta en rytm du kan hålla i fem minuter.',
+    },
+  }),
+  card('test-crossfit', 'Benchmark-WOD', 'CrossFit', 'quality', 'Tester', [12, 0, 5, 13, 5], 0, 'AMRAP 20 som du gör om och jämför', {
+    purpose: 'Samma WOD varje gång, så att du ser hur din kapacitet växer.',
+    how: ['Värm upp 10 minuter', '20 minuter: 5 chins, 10 armhävningar, 15 knäböj, så många varv du hinner', 'Skriv upp antal hela varv'],
+    tip: 'Skala på samma sätt varje gång, annars går resultaten inte att jämföra.',
+  }),
+  card('test-bike', 'Cykeltest 20 min', 'Cykel', 'quality', 'Tester', [25, 0, 0, 10, 20], 0, 'Snittwatt på 20 minuter', {
+    purpose: 'Mäter din tröskelkraft på cykeln (ungefär 95 % av snittwatten blir din FTP).',
+    how: ['Värm upp 20 minuter med två korta hårda drag', '20 minuter så hårt du kan hålla jämnt', 'Varva ner 10 minuter'],
+    tip: 'Kör på trainer eller samma backe varje gång.',
+  }),
+
   // ——— CrossFit ———
   card('cf-amrap', 'AMRAP 20: chins, armhävningar, knäböj', 'CrossFit', 'hard', 'CrossFit', [12, 0, 5, 13, 5], 0, 'Så många varv som möjligt på 20 minuter', {
     purpose: 'En klassisk CrossFit-WOD som bygger uthållighet i hela kroppen. Du tävlar mot klockan och dig själv.',
@@ -470,7 +509,7 @@ export const CARDS: TrainingCard[] = [
   }),
 ]
 
-export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'CrossFit', 'Gym & kondition', 'Tävling & övrigt']
+export const CARD_GROUPS: Group[] = ['Distans', 'Kvalitet', 'Stakmaskin', 'Zwift & Tacx', 'Styrka', 'CrossFit', 'Gym & kondition', 'Tester', 'Tävling & övrigt']
 
 export const cardById = (id: string) => CARDS.find((c) => c.id === id)
 
@@ -591,3 +630,20 @@ export const cardExercises = (c: Pick<TrainingCard, 'exercises' | 'homeExercises
   const src = location === 'home' && c.homeExercises ? c.homeExercises : c.exercises
   return src?.length ? src.map(({ done: _d, ...e }) => ({ ...e })) : undefined
 }
+
+const TEST_LISTS: Record<string, [string[], string[]?]> = {
+  'test-strength': [['squat-3rm', 'bench-3rm', 'deadlift-3rm', 'pullups-max'], ['pushups-max', 'squats-2min', 'plank-max']],
+  'test-run': [['run-5k']],
+  'test-conditioning': [['row-2k'], ['burpees-5min']],
+  'test-crossfit': [['wod-amrap20']],
+  'test-bike': [['ftp-20']],
+}
+for (const c of CARDS) {
+  const t = TEST_LISTS[c.id]
+  if (!t) continue
+  c.tests = t[0]
+  if (t[1]) c.homeTests = t[1]
+}
+
+// Testerna ett pass mäter (hemmaversionen om passet görs hemma)
+export const cardTests = (c: Pick<TrainingCard, 'tests' | 'homeTests'>, location?: 'gym' | 'home') => (location === 'home' && c.homeTests ? c.homeTests : c.tests) ?? []

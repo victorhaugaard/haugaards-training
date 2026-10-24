@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import type { RunMode, SportFocus, TrainSport } from '../types'
+import type { Person } from '../types'
 import { today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
-import { FITNESS_DEFAULT_HOURS } from '../lib/fitnessGenerator'
-import { planTypeOf } from '../lib/trainSports'
+import { DEFAULT_PREFS, prefsHours } from '../lib/fitnessGenerator'
+import { personSports, planTypeOf } from '../lib/trainSports'
 import { GenerateForm, sportsPatch, type GenValue } from './GenerateForm'
 import { Modal } from './Modal'
 import { SportPicker } from './SportPicker'
@@ -12,33 +12,34 @@ import { tr } from '../i18n/core'
 export type GenerateChoice = GenValue
 
 interface Props {
-  name: string
-  initialRunMode: RunMode
-  initialRestDay: number
-  initialFocus: SportFocus
-  initialSports: TrainSport[]
+  person: Person
+  startStep?: 'sports' | 'plan'
   onGenerate: (o: GenerateChoice) => void
   onClose: () => void
 }
 
-export function GenerateModal({ name, initialRunMode, initialRestDay, initialFocus, initialSports, onGenerate, onClose }: Props) {
-  const [step, setStep] = useState<'sports' | 'plan'>('sports')
+export function GenerateModal({ person, startStep = 'sports', onGenerate, onClose }: Props) {
+  const [step, setStep] = useState<'sports' | 'plan'>(startStep)
+  const initialSports = personSports(person)
+  const fitness = person.fitness ?? DEFAULT_PREFS
   // Från idag som förval: allt före det och redan genomförda pass rör vi inte
   const [v, setV] = useState<GenValue>({
     start: today(),
     end: PLAN_END,
-    hours: planTypeOf(initialSports) === 'fitness' ? FITNESS_DEFAULT_HOURS : 12,
-    runMode: initialRunMode,
-    restDay: initialRestDay,
-    focus: initialFocus,
+    hours: planTypeOf(initialSports) === 'fitness' ? prefsHours(fitness) : 12,
+    runMode: person.runMode ?? 'little',
+    restDay: person.restDay ?? 0,
+    focus: person.focus ?? 'balanced',
     sports: initialSports,
+    fitness,
+    ...(person.goal ? { goal: person.goal } : {}),
     fresh: false,
   })
 
   return (
     <Modal
       wide
-      title={tr('Autogenerera plan · {name}', { name })}
+      title={tr('Autogenerera plan · {name}', { name: person.name })}
       onClose={onClose}
       footer={
         <>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Person, RunMode, SportFocus, TrainSport } from '../types'
+import type { FitnessPrefs, Goal, Person, RunMode, SportFocus, TrainSport } from '../types'
+import { DEFAULT_PREFS } from '../lib/fitnessGenerator'
 import { startOfWeek, today } from '../lib/dates'
 import { PLAN_END } from '../lib/generator'
 import { planTypeOf } from '../lib/trainSports'
@@ -19,6 +20,8 @@ export type NewPerson = {
   restDay: number
   focus: SportFocus
   sports: TrainSport[]
+  fitness: FitnessPrefs
+  goal?: Goal
   start: string
   end: string
 }
@@ -39,7 +42,7 @@ export function PersonModal({ people, activeId, initialName, onboarding, onCreat
   const [basedOn, setBasedOn] = useState(activeId)
   const [scale, setScale] = useState(80)
   // Skonsamt som förval för nya personer
-  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, focus: 'balanced', sports: [], fresh: false })
+  const [gen, setGen] = useState<GenValue>({ start: startOfWeek(today()), end: PLAN_END, hours: 10, runMode: 'none', restDay: 0, focus: 'balanced', sports: [], fitness: DEFAULT_PREFS, fresh: false })
   const fitness = planTypeOf(gen.sports) === 'fitness'
   const effMode = fitness && mode === 'copy' ? 'generate' : mode // en skidplan går inte att kopiera till en annan plan-typ
 
@@ -67,7 +70,7 @@ export function PersonModal({ people, activeId, initialName, onboarding, onCreat
               <button
                 className="btn primary"
                 onClick={() =>
-                  (onCreate({ name: name.trim(), mode: effMode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, focus: gen.focus, sports: gen.sports, start: gen.start, end: gen.end }), onClose())
+                  (onCreate({ name: name.trim(), mode: effMode, basedOn, scale: scale / 100, hours: gen.hours, runMode: gen.runMode, restDay: gen.restDay, focus: gen.focus, sports: gen.sports, fitness: gen.fitness, ...(gen.goal ? { goal: gen.goal } : {}), start: gen.start, end: gen.end }), onClose())
                 }
               >
                 {tr('Skapa')}

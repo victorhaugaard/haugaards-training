@@ -23,6 +23,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
   feed: FeedMsg[] // peppmeddelanden
   onRead: (coachId: string) => void
+  prompt?: { id: number; text: string } // meddelande som skickas direkt, t.ex. från Ändra plan
 }
 
 interface Ui {
@@ -91,7 +92,7 @@ function Text({ text }: { text: string }) {
   )
 }
 
-export function CoachChat({ person, sessions, plans, dispatch, getToken, viewer, coachId, onCoachChange, open, onOpenChange, feed, onRead }: Props) {
+export function CoachChat({ person, sessions, plans, dispatch, getToken, viewer, coachId, onCoachChange, open, onOpenChange, feed, onRead, prompt }: Props) {
   const [pick, setPick] = useState(false)
   const coach = coachById(coachId)
   const relation = viewer.relation
@@ -227,6 +228,14 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, viewer,
     e.preventDefault()
     void send(input)
   }
+
+  const sentPrompt = useRef(0)
+  useEffect(() => {
+    if (!prompt || prompt.id === sentPrompt.current) return
+    sentPrompt.current = prompt.id
+    void send(prompt.text)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prompt?.id])
 
   return (
     <div className="coach">

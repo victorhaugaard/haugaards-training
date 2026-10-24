@@ -4,6 +4,7 @@ import { addDays, parse, today, weekdayShort } from './dates'
 import { sessionMinutes } from './stats'
 import { getLang } from '../i18n/core'
 import { personPlanType, personSports } from './trainSports'
+import { fmtResult, resultsByTest, testById } from './tests'
 
 // Sammanfattning som Coach Smirnov får med varje fråga
 export const buildContext = (person: Person, sessions: Session[], zoneLabels: string[]) => {
@@ -21,13 +22,19 @@ export const buildContext = (person: Person, sessions: Session[], zoneLabels: st
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((s) => `${s.date} ${s.title}`)
     .join('; ')
+  const tests = [...resultsByTest(sessions)]
+    .map(([id, list]) => `${testById(id)!.name}: ${list.slice(-4).map((p) => `${p.date} ${fmtResult(testById(id)!, p.value)}`).join(', ')}`)
+    .join('; ')
   const weekdayLong = parse(t).toLocaleDateString('en-GB', { weekday: 'long' })
   return [
     `Today: ${t} (${weekdayLong}). Active person: ${person.name}. App language: ${getLang()}.`,
     `Plan type: ${personPlanType(person) === 'fitness' ? 'fitness (Strength & conditioning, no races)' : 'ski (cross-country ski plan towards the races)'}. Sports: ${personSports(person).join(', ')}.`,
+    ...(person.fitness ? [`Fitness settings: ${person.fitness.days} days/week, about ${person.fitness.length} min per session, level ${person.fitness.level}, focus ${person.fitness.aim}, equipment ${person.fitness.equipment}, test week every ${person.fitness.testEvery || 'never'} weeks.`] : []),
+    ...(person.goal ? [`Training goal: ${person.goal.text}${person.goal.date ? ` by ${person.goal.date}` : ''}${person.goal.testId && person.goal.target ? ` (test ${person.goal.testId}, target ${person.goal.target})` : ''}. Keep it in mind and mention progress when relevant.`] : []),
     `Running: ${person.runMode === 'none' ? 'none (knee-friendly)' : 'a little now and then'}. Rest day: ${person.restDay === undefined || person.restDay === 0 ? 'Monday' : person.restDay === -1 ? 'none fixed' : 'weekday index ' + person.restDay}.`,
     `Zone labels shown to the user: ${zoneLabels.join(', ')} (data is always [I1..I5]).`,
     `Upcoming races: ${races || 'none'}.`,
+    `Test results (oldest first): ${tests || 'none yet'}.`,
     `Last 7 days (id | date | title | sport | category | minutes | zones | status):\n${window(addDays(t, -7), addDays(t, -1))}`,
     `Next 14 days:\n${window(t, addDays(t, 13))}`,
     `Card library (id | name | sport | category | default minutes):\n${CARDS.map((c) => `${c.id} | ${c.name} | ${c.sport} | ${c.category} | ${sessionMinutes(c)}`).join('\n')}`,

@@ -13,6 +13,7 @@ import { Avatar } from './Avatar'
 import { resizeToSquare, uploadAvatar } from '../lib/avatar'
 import { STRAVA_ENABLED, connectStrava, disconnectStrava } from '../lib/strava'
 import { StravaMark } from './StravaMark'
+import { GoalCard } from './ResultsView'
 import { SportBreakdown } from './SportBreakdown'
 
 interface Props {
@@ -24,6 +25,8 @@ interface Props {
   onOpenPlan: (plan: PlanRecord) => void
   onGuide: () => void
   onGenerate: () => void
+  onChangePlan: () => void
+  onEditGoal: () => void
   getToken?: () => Promise<string | undefined>
 }
 
@@ -101,7 +104,7 @@ function PlanCard({ plan, stats, active, onOpen }: { plan: PlanRecord; stats: Re
   )
 }
 
-export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan, onGuide, onGenerate, getToken }: Props) {
+export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, onOpenPlan, onGuide, onGenerate, onChangePlan, onEditGoal, getToken }: Props) {
   const [stravaBusy, setStravaBusy] = useState(false)
   const [stravaError, setStravaError] = useState(false)
   const connectedToStrava = Boolean(person.stravaAthleteId)
@@ -335,6 +338,14 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
               <button
                 onClick={() => {
                   setPlanMenu(false)
+                  onChangePlan()
+                }}
+              >
+                {tr('Ändra plan')}
+              </button>
+              <button
+                onClick={() => {
+                  setPlanMenu(false)
                   onGuide()
                 }}
               >
@@ -352,6 +363,7 @@ export function ProfileView({ person, sessions, plans, onUpdatePerson, onBack, o
           )}
         </div>
       </div>
+      <GoalCard goal={person.goal} sessions={sessions} onEdit={onEditGoal} />
       {active ? (
         <PlanCard plan={active} stats={planStats(sessions, active)} active onOpen={() => onOpenPlan(active)} />
       ) : (

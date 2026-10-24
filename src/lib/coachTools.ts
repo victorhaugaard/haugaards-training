@@ -197,14 +197,15 @@ export const runTool = (name: string, input: Record<string, unknown>, ctx: ToolC
       const restDay = typeof input.rest_day === 'number' ? Math.max(-1, Math.min(6, Math.round(input.rest_day))) : (ctx.person.restDay ?? 0)
       const focus: SportFocus = input.sport_focus === 'balanced' || input.sport_focus === 'ski' ? input.sport_focus : (ctx.person.focus ?? 'balanced')
       const doneDays = new Set(sessions.filter((s) => s.done).map((s) => s.date))
-      const generated = buildPlan(ctx.personId, { start, end, hours, runMode, restDay, focus, sports }).filter((s) => !doneDays.has(s.date))
+      const fitnessPrefs = fitness && ctx.person.fitness ? { ...ctx.person.fitness, days: typeof input.days_per_week === 'number' ? Math.max(2, Math.min(6, Math.round(input.days_per_week))) : ctx.person.fitness.days } : undefined
+      const generated = buildPlan(ctx.personId, { start, end, hours, runMode, restDay, focus, sports, fitness: fitnessPrefs }).filter((s) => !doneDays.has(s.date))
       const kept = sessions.filter((s) => !(s.date >= start && !s.done && !(s.category === 'race' && !s.raceId)))
       return {
         sessions: [...kept, ...generated],
         result: `Regenerated ${fitness ? 'fitness' : 'ski'} plan from ${start} to ${end}: ${hours} h/week, sports ${sports.join(',')}, run_mode ${runMode}, rest_day ${restDay}, sport_focus ${focus}. ${generated.length} sessions created.`,
         summary: tr('Byggde om planen från {date}', { date: start }),
-        personPatch: { runMode, restDay, focus, sports },
-        newPlan: { start, end, hours, runMode, restDay, focus, sports, source: 'coach' },
+        personPatch: { runMode, restDay, focus, sports, ...(fitnessPrefs ? { fitness: fitnessPrefs } : {}) },
+        newPlan: { start, end, hours, runMode, restDay, focus, sports, ...(fitnessPrefs ? { fitness: fitnessPrefs } : {}), source: 'coach' },
       }
     }
 

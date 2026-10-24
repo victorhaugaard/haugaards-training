@@ -132,7 +132,11 @@ const reducer = (state: AppState, a: Action): AppState => {
     case 'setPerson':
       return { ...state, activePersonId: a.id }
     case 'updatePerson':
-      return { ...state, people: state.people.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)) }
+      // Fält som sätts till undefined tas bort helt (Firestore tål inte undefined)
+      return {
+        ...state,
+        people: state.people.map((p) => (p.id === a.id ? (Object.fromEntries(Object.entries({ ...p, ...a.patch }).filter(([, v]) => v !== undefined)) as unknown as Person) : p)),
+      }
     case 'addPerson':
       return {
         people: [...state.people, a.person],

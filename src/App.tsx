@@ -13,11 +13,17 @@ import { addDays, addMonths, cap, dayMonth, fullDate, iso, monthYear, parse, sta
 import { cardById } from './lib/cards'
 import { PLAN_END, copyPlan, phaseFor, PHASE_LABEL } from './lib/generator'
 import { buildPlan } from './lib/buildPlan'
-import { personPlanType, personSports } from './lib/trainSports'
+import { personPlanType, personSports, planTypeOf } from './lib/trainSports'
 import { isAdmin } from './lib/access'
 import { AccessModal } from './components/AccessModal'
 import { Login, VerifyEmail } from './components/Login'
 import { WorkoutBuilder } from './components/WorkoutBuilder'
+import { ChangePlanModal, type ChangeAction } from './components/ChangePlanModal'
+import { GoalModal, ResultsView } from './components/ResultsView'
+import { GoalField } from './components/GoalField'
+import { goalLabel, testById } from './lib/tests'
+import { CARDS } from './lib/cards'
+import { DEFAULT_PREFS, prefsHours } from './lib/fitnessGenerator'
 import { templateCard, upsertTemplate } from './lib/templates'
 import { uid } from './lib/id'
 import { Board } from './components/Board'
@@ -55,6 +61,7 @@ const VIEWS: [View, string][] = [
   ['week', 'Vecka'],
   ['month', 'Månad'],
   ['overview', 'Översikt'],
+  ['results', 'Resultat'],
 ]
 
 const ENTERED = 'haugaards-training:entered'
@@ -71,7 +78,7 @@ const saveSetting = (k: string, v: string) => {
 const readView = (): View => {
   try {
     const v = localStorage.getItem(VIEW_KEY)
-    if (v === 'day' || v === 'week' || v === 'month' || v === 'overview' || v === 'profile') return v
+    if (v === 'day' || v === 'week' || v === 'month' || v === 'overview' || v === 'results' || v === 'profile') return v
   } catch {
     /* ignorera */
   }
@@ -187,7 +194,9 @@ function Workspace({
   const [cursor, setCursor] = useState(today())
   const [editId, setEditId] = useState<string | null>(null)
   const [pickDate, setPickDate] = useState<string | null>(null)
-  const [dialog, setDialog] = useState<null | 'person' | 'onboard' | 'generate' | 'menu' | 'guide' | 'access'>(null)
+  const [dialog, setDialog] = useState<null | 'person' | 'onboard' | 'generate' | 'menu' | 'guide' | 'access' | 'change' | 'goal'>(null)
+  const [genStep, setGenStep] = useState<'sports' | 'plan'>('sports')
+  const [coachPrompt, setCoachPrompt] = useState<{ id: number; text: string } | undefined>()
   const [libOpen, setLibOpen] = useState(readLibOpen)
   const [sideW, setSideW] = useState(readSideW)
   const [resizing, setResizing] = useState(false)
@@ -288,6 +297,8 @@ function Workspace({
   const title =
     view === 'profile'
       ? tr('Profil')
+      : view === 'results'
+      ? tr('Resultat')
       : view === 'overview'
       ? tr('Översikt')
       : view === 'day'
@@ -295,8 +306,11 @@ function Workspace({
       : view === 'week'
         ? tr('Vecka {n}', { n: weekNumber(cursor) })
         : cap(monthYear(cursor))
+  // Med ett mål visas det (och nedräkningen) i stället för träningsfasen
+  const goalText = person.goal ? goalLabel(person.goal, tr) + (person.goal.date && person.goal.date >= today() ? ` · ${tr('{n} dagar kvar', { n: Math.round((new Date(person.goal.date + 'T12:00').getTime() - new Date(today() + 'T12:00').getTime()) / 86400000) })}` : '') : ''
+  const phaseText = (d: string) => (goalText ? `${tr('Mål')}: ${goalText}` : fitness ? '' : tr(PHASE_LABEL[phaseFor(d)]))
   const subtitle =
-    view === 'profile' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])}${fitness ? '' : ' · ' + tr(PHASE_LABEL[phaseFor(addDays(range[0], 3))])}` : view === 'day' ? (fitness ? '' : tr(PHASE_LABEL[phaseFor(cursor)])) : ''
+    view === 'profile' || view === 'results' ? person.name : view === 'overview' ? tr('Alla månader') : view === 'week' ? `${dayMonth(range[0])} – ${dayMonth(range[1])}${phaseText(addDays(range[0], 3)) ? ' · ' + phaseText(addDays(range[0], 3)) : ''}` : view === 'day' ? phaseText(cursor) : ''
 
   // Egna pass (Mina pass) hör till personen
   const templates = person.templates ?? []
@@ -322,7 +336,7 @@ function Workspace({
     }
   }
 
-  const showSide = view !== 'overview' && view !== 'profile'
+  const showSide = view !== 'overview' && view !== 'profile' && view !== 'results'
   const stepping = showSide
   const noUpcoming = !mine.some((s) => s.date >= today() && s.category !== 'rest')
   // Peppmeddelanden när pass, veckor och milstolpar avklaras
@@ -335,7 +349,8 @@ function Workspace({
       prevDone.current = now
       return
     }
-    const newly = mine.filter((s) => s.done && !prevDone.current!.has(s.id))
+    // Loggade testresultat (utan träningstid) ger ingen pepp
+    const newly = mine.filter((s) => s.done && !prevDone.current!.has(s.id) && (s.zones.some(Boolean) || s.nonZone > 0))
     prevDone.current = now
     if (!newly.length) return
 
@@ -402,7 +417,7 @@ function Workspace({
     const first = sessions.map((s) => s.date).sort()[0] ?? startOfWeek(today())
     dispatch({
       type: 'addPerson',
-      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay, focus: n.focus, sports: n.sports, ...(ownerEmail ? { ownerEmail } : {}) },
+      person: { id, name: n.name, createdAt: Date.now(), runMode: n.runMode, restDay: n.restDay, focus: n.focus, sports: n.sports, ...(planTypeOf(n.sports) === 'fitness' ? { fitness: n.fitness } : {}), ...(n.goal ? { goal: n.goal } : {}), ...(ownerEmail ? { ownerEmail } : {}) },
       sessions,
       plan: {
         start: n.mode === 'copy' ? first : n.start,
@@ -411,6 +426,7 @@ function Workspace({
         restDay: n.restDay,
         focus: n.focus,
         sports: n.sports,
+        ...(planTypeOf(n.sports) === 'fitness' ? { fitness: n.fitness } : {}),
         source: n.mode === 'copy' ? 'copied' : 'generated',
         ...(n.mode === 'generate' ? { hours: n.hours } : {}),
       },
@@ -418,7 +434,8 @@ function Workspace({
   }
 
   const regenerate = (o: GenerateChoice) => {
-    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports } })
+    const isFit = planTypeOf(o.sports) === 'fitness'
+    dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, fitness: isFit ? o.fitness : undefined, goal: o.goal } })
     const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
     const sessions = buildPlan(person.id, o).filter((s) => !doneDays.has(s.date))
     dispatch({
@@ -427,14 +444,81 @@ function Workspace({
       from: o.start,
       sessions,
       fresh: o.fresh,
-      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, source: 'generated' },
+      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, ...(isFit ? { fitness: o.fitness } : {}), source: 'generated' },
+    })
+  }
+
+  // Personens nuvarande planval, som utgångspunkt för ändringar från idag
+  const activePlan = state.plans.find((p) => p.personId === person.id && !p.endedAt)
+  const currentChoice = (): GenerateChoice => {
+    const prefs = person.fitness ?? DEFAULT_PREFS
+    return {
+      start: today(),
+      end: activePlan?.end && activePlan.end > today() ? activePlan.end : PLAN_END,
+      hours: fitness ? prefsHours(prefs) : (activePlan?.hours ?? 12),
+      runMode: person.runMode ?? 'little',
+      restDay: person.restDay ?? 0,
+      focus: person.focus ?? 'balanced',
+      sports: personSports(person),
+      fitness: prefs,
+      ...(person.goal ? { goal: person.goal } : {}),
+      fresh: false,
+    }
+  }
+
+  const changePlan = (a: ChangeAction) => {
+    const t = today()
+    const movable = (s: Session) => s.date >= t && !s.done && s.category !== 'race' && !s.raceId
+    if (a.kind === 'scale') {
+      dispatch({ type: 'setPersonSessions', personId: person.id, sessions: scaleUpcoming(mine, t, a.factor) })
+      if (activePlan?.hours) dispatch({ type: 'updatePlan', id: activePlan.id, patch: { hours: Math.round(activePlan.hours * a.factor * 2) / 2 } })
+      setToast({ id: Date.now(), text: tr('Kommande pass justerade {pct}%', { pct: Math.round(a.factor * 100) }) })
+    } else if (a.kind === 'restDay') {
+      regenerate({ ...currentChoice(), restDay: a.restDay })
+      setToast({ id: Date.now(), text: tr('Planen är ombyggd med ny vilodag') })
+    } else if (a.mode === 'shift') {
+      dispatch({ type: 'setPersonSessions', personId: person.id, sessions: mine.map((s) => (movable(s) ? { ...s, date: addDays(s.date, 7) } : s)) })
+      setToast({ id: Date.now(), text: tr('Kommande pass flyttade en vecka framåt') })
+    } else {
+      const end = addDays(t, 6)
+      const week = (s: Session) => movable(s) && s.date <= end && s.category !== 'rest'
+      const next = mine
+        .filter((s) => !(week(s) && (s.category === 'quality' || s.category === 'hard')))
+        .map((s) => (week(s) ? { ...s, zones: s.zones.map((z) => Math.round(z / 10) * 5) as Session['zones'], nonZone: Math.round(s.nonZone / 10) * 5 } : s))
+      dispatch({ type: 'setPersonSessions', personId: person.id, sessions: next })
+      setToast({ id: Date.now(), text: tr('Veckan är lättare: hårda pass borttagna, övriga halverade') })
+    }
+  }
+
+  // Ett resultat från ett test som gjorts utanför planen sparas som ett avklarat testpass
+  const addResult = (testId: string, value: number, date: string) => {
+    const card = CARDS.find((c) => c.tests?.includes(testId) || c.homeTests?.includes(testId))
+    const home = !card?.tests?.includes(testId)
+    dispatch({
+      type: 'addSession',
+      session: {
+        id: uid(),
+        personId: person.id,
+        date,
+        order: 0,
+        cardId: card?.id ?? 'other',
+        title: testById(testId)?.name ?? card?.name ?? 'Test',
+        sport: card?.sport ?? 'Övrigt',
+        category: 'quality',
+        zones: [0, 0, 0, 0, 0],
+        nonZone: 0,
+        notes: '',
+        done: true,
+        ...(card?.home ? { location: home ? ('home' as const) : ('gym' as const) } : {}),
+        results: { [testId]: value },
+      },
     })
   }
 
   return (
     <DragProvider>
     <div className="app">
-      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} viewer={viewer} coachId={coachId} onCoachChange={changeCoach} open={chatOpen} onOpenChange={setChatOpen} feed={feed} onRead={markRead} />
+      <CoachChat person={person} sessions={mine} plans={state.plans.filter((p) => p.personId === person.id)} dispatch={dispatch} getToken={auth.user ? () => auth.user!.getIdToken() : undefined} viewer={viewer} coachId={coachId} onCoachChange={changeCoach} open={chatOpen} onOpenChange={setChatOpen} feed={feed} onRead={markRead} prompt={coachPrompt} />
       <div className="aurora" aria-hidden="true">
         <i />
         <i />
@@ -508,7 +592,7 @@ function Workspace({
       <div className={'layout' + (libOpen ? ' with-lib' : '')}>
         <div className="content">
         {showSide && <StatsBar sessions={inRange} label={tr(view === 'day' ? 'Dag' : view === 'week' ? 'Vecka' : 'Månad')} />}
-        <main className="main" key={view + (view === 'overview' || view === 'profile' ? '' : cursor)}>
+        <main className="main" key={view + (view === 'overview' || view === 'profile' || view === 'results' ? '' : cursor)}>
           {view === 'profile' ? (
             <ProfileView
               person={person}
@@ -519,12 +603,32 @@ function Workspace({
               onOpenPlan={(pl) => setPlanOpen(pl.id)}
               onGuide={() => setDialog('guide')}
               onGenerate={() => setDialog('generate')}
+              onChangePlan={() => setDialog('change')}
+              onEditGoal={() => setDialog('goal')}
               getToken={auth.user ? () => auth.user!.getIdToken() : undefined}
             />
+          ) : view === 'results' ? (
+            <ResultsView person={person} sessions={mine} onEditGoal={() => setDialog('goal')} onAddResult={addResult} onOpenSession={(id) => setEditId(id)} />
           ) : view === 'overview' ? (
             <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
           ) : (
           <>
+          {!noUpcoming && (
+            <div className="plan-bar">
+              {person.goal ? (
+                <button className="plan-goal" onClick={() => setView('results')} title={tr('Visa resultat')}>
+                  <span aria-hidden>⚑</span> {goalText}
+                </button>
+              ) : (
+                <button className="plan-goal muted" onClick={() => setDialog('goal')}>
+                  <span aria-hidden>⚑</span> {tr('Sätt ett mål')}
+                </button>
+              )}
+              <button className="btn small primary plan-change" onClick={() => setDialog('change')}>
+                {tr('Ändra plan')}
+              </button>
+            </div>
+          )}
           {noUpcoming && (
             <div className="empty-plan">
               <div>
@@ -691,15 +795,23 @@ function Workspace({
       )}
       {dialog === 'access' && email && <AccessModal me={email} onClose={() => setDialog(null)} />}
       {dialog === 'generate' && (
-        <GenerateModal
-          name={person.name}
-          initialRunMode={person.runMode ?? 'little'}
-          initialRestDay={person.restDay ?? 0}
-          initialFocus={person.focus ?? 'balanced'}
-          initialSports={personSports(person)}
-          onGenerate={regenerate}
-          onClose={() => setDialog(null)}
+        <GenerateModal person={person} startStep={genStep} onGenerate={regenerate} onClose={() => (setDialog(null), setGenStep('sports'))} />
+      )}
+      {dialog === 'change' && (
+        <ChangePlanModal
+          person={person}
+          coachName={coachLabel(coachById(coachId), viewer.relation)}
+          onApply={changePlan}
+          onRebuild={() => setDialog('generate')}
+          onGoal={() => setDialog('goal')}
+          onAskCoach={(text) => (setChatOpen(true), setCoachPrompt({ id: Date.now(), text }))}
+          onClose={() => setDialog((d) => (d === 'change' ? null : d))}
         />
+      )}
+      {dialog === 'goal' && (
+        <GoalModal goal={person.goal} onSave={(goal) => dispatch({ type: 'updatePerson', id: person.id, patch: { goal } })} onClose={() => setDialog(null)}>
+          {(g, set) => <GoalField value={g} sports={personSports(person)} onChange={set} />}
+        </GoalModal>
       )}
       {dialog === 'guide' && (
         <Modal wide title={tr('Om planen · {name}', { name: person.name })} onClose={() => setDialog(null)}>

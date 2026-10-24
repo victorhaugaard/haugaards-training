@@ -16,6 +16,7 @@ const ICONS: Record<View, React.ReactNode> = {
     </>
   ),
   overview: <path d="M6 20V12M12 20V5M18 20v-6" />,
+  results: <path d="M4 17l5-5 4 3 7-8M15 7h5v5" />,
   profile: (
     <>
       <circle cx="12" cy="8.5" r="3.5" />
@@ -29,6 +30,7 @@ const TABS: [View, string][] = [
   ['week', 'Vecka'],
   ['month', 'Månad'],
   ['overview', 'Översikt'],
+  ['results', 'Resultat'],
   ['profile', 'Profil'],
 ]
 

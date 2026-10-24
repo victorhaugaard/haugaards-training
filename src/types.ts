@@ -24,7 +24,28 @@ export type SportFocus = 'balanced' | 'ski' // blandat upplägg, eller mer ren l
 export type TrainSport = 'ski' | 'run' | 'strength' | 'hiit' | 'crossfit' | 'bike'
 export type PlanType = 'ski' | 'fitness'
 
-export type Group = 'Mina pass' | 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'CrossFit' | 'Gym & kondition' | 'Tävling & övrigt'
+// Inställningar för Styrka & kondition
+export type Level = 'beginner' | 'intermediate' | 'advanced'
+export type Aim = 'strength' | 'muscle' | 'conditioning' | 'general'
+export type Equipment = 'gym' | 'home' | 'both'
+export interface FitnessPrefs {
+  days: number // träningsdagar per vecka, 2–6
+  length: number // ungefärlig passlängd i minuter
+  level: Level
+  aim: Aim
+  equipment: Equipment
+  testEvery: number // veckor mellan testveckorna, 0 = inga tester
+}
+
+// Personens träningsmål. Med testId mäts det mot resultaten i det testet.
+export interface Goal {
+  text: string
+  date?: string
+  testId?: string
+  target?: number // i testets enhet (sekunder för tider)
+}
+
+export type Group = 'Mina pass' | 'Tester' | 'Distans' | 'Kvalitet' | 'Stakmaskin' | 'Zwift & Tacx' | 'Styrka' | 'CrossFit' | 'Gym & kondition' | 'Tävling & övrigt'
 
 // Coachens beskrivning av ett pass. {z1}–{z5} ersätts med aktuellt zonsystem.
 export interface Coach {
@@ -48,6 +69,8 @@ export interface TrainingCard {
   exercises?: Exercise[] // färdig övningslista (gym, eller enda versionen)
   homeExercises?: Exercise[] // övningslista för hemmaversionen
   notes?: string // följer med till passet (egna pass)
+  tests?: string[] // testpass: vilka tester som mäts (gym, eller enda versionen)
+  homeTests?: string[]
 }
 
 // En övning i ett pass. id pekar på övningsbiblioteket, eller 'custom' med eget namn.
@@ -92,6 +115,7 @@ export interface Session {
   stravaId?: string // Strava-aktivitetens id, för att undvika dubbletter
   stravaAuto?: boolean // true om passet skapades av synken (inget planerat pass matchade), annars en ihopkopplad matchning
   technique?: Technique | '' // teknik för rullskidor/skidor. '' = ospecificerad (skiljs från "inte satt" så att fältet går att nollställa)
+  results?: Record<string, number> // testresultat per test-id (sekunder för tider)
 }
 
 export interface Person {
@@ -106,6 +130,8 @@ export interface Person {
   photoUrl?: string // profilbild
   stravaAthleteId?: number // satt när personen kopplat sitt Strava-konto (själva token ligger bara på servern)
   templates?: CustomTemplate[] // egna pass i sidovyn
+  fitness?: FitnessPrefs
+  goal?: Goal
 }
 
 // Ett avklarat pass i kompakt form, sparas i historiken när en plan avslutas
@@ -143,6 +169,7 @@ export interface PlanRecord {
   restDay?: number
   focus?: SportFocus
   sports?: TrainSport[]
+  fitness?: FitnessPrefs
   source: 'generated' | 'copied' | 'coach' | 'earlier'
   archive?: PlanArchive
 }
@@ -155,6 +182,7 @@ export interface PlanParams {
   restDay?: number
   focus?: SportFocus
   sports?: TrainSport[]
+  fitness?: FitnessPrefs
   source: PlanRecord['source']
 }
 
@@ -165,4 +193,4 @@ export interface AppState {
   activePersonId: string
 }
 
-export type View = 'day' | 'week' | 'month' | 'overview' | 'profile'
+export type View = 'day' | 'week' | 'month' | 'overview' | 'results' | 'profile'
