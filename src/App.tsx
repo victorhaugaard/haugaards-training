@@ -53,7 +53,7 @@ import { NoticeToast, type Notice } from './components/NoticeToast'
 import { useFeed } from './lib/feed'
 import { findCheers, pickCheer } from './lib/cheers'
 import { StrengthBuilder, type StrengthValue } from './components/StrengthBuilder'
-import { TabBar } from './components/TabBar'
+import { TabBar, ViewIcons } from './components/TabBar'
 import { LegalPage } from './components/LegalPage'
 
 const VIEWS: [View, string][] = [
@@ -579,7 +579,7 @@ function Workspace({
           </div>
         </div>
         <div className="right">
-          <Segmented value={view} options={VIEWS.map(([v, l]) => [v, tr(l)] as [View, string])} onChange={setView} />
+          <ViewIcons view={view} views={VIEWS.map(([v]) => v)} onChange={setView} />
           <button className={'avatar-btn' + (view === 'profile' ? ' on' : '')} onClick={() => (view === 'profile' ? setView(backView) : (setBackView(view), setView('profile')))} title={tr('Profil')} aria-label={tr('Profil')}>
             <Avatar person={person} size={30} />
           </button>
@@ -610,7 +610,7 @@ function Workspace({
           ) : view === 'results' ? (
             <ResultsView person={person} sessions={mine} onEditGoal={() => setDialog('goal')} onAddResult={addResult} onOpenSession={(id) => setEditId(id)} />
           ) : view === 'overview' ? (
-            <Overview sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} />
+            <Overview person={person} sessions={mine} onOpenMonth={(d) => (setCursor(d), setView('month'))} onGoal={() => setDialog('goal')} onResults={() => setView('results')} />
           ) : (
           <>
           {!noUpcoming && (

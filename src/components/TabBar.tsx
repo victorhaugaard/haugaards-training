@@ -1,7 +1,7 @@
 import type { View } from '../types'
 import { tr } from '../i18n/core'
 
-const ICONS: Record<View, React.ReactNode> = {
+export const VIEW_ICONS: Record<View, React.ReactNode> = {
   day: (
     <>
       <rect x="4" y="5" width="16" height="15" rx="3" />
@@ -41,11 +41,27 @@ export function TabBar({ view, onChange }: { view: View; onChange: (v: View) => 
       {TABS.map(([v, l]) => (
         <button key={v} className={view === v ? 'on' : ''} onClick={() => onChange(v)} aria-current={view === v ? 'page' : undefined}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            {ICONS[v]}
+            {VIEW_ICONS[v]}
           </svg>
           <span>{tr(l)}</span>
         </button>
       ))}
     </nav>
+  )
+}
+
+// Vyväljaren i toppraden på större skärmar: bara ikoner, namnet syns vid hovring
+export function ViewIcons({ view, views, onChange }: { view: View; views: View[]; onChange: (v: View) => void }) {
+  const label = (v: View) => tr(TABS.find(([x]) => x === v)?.[1] ?? v)
+  return (
+    <div className="view-icons" role="tablist" aria-label={tr('Vyer')}>
+      {views.map((v) => (
+        <button key={v} role="tab" aria-selected={view === v} className={view === v ? 'on' : ''} onClick={() => onChange(v)} title={label(v)} aria-label={label(v)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            {VIEW_ICONS[v]}
+          </svg>
+        </button>
+      ))}
+    </div>
   )
 }

@@ -158,4 +158,8 @@ export const PLAN_TEXT: [string, string, string][] = [
   ['20 min-test cykel', '20 min-test sykkel', '20 min bike test'],
   ['Snittwatt på 20 minuter så hårt du kan hålla jämnt.', 'Snittwatt på 20 minutter så hardt du klarer å holde jevnt.', 'Average watts over 20 minutes as hard as you can hold evenly.'],
   ['Gör testet igen, så syns utvecklingen här.', 'Ta testen igjen, så vises utviklingen her.', 'Do the test again to see your progress here.'],
+  ['Ditt mål', 'Målet ditt', 'Your goal'],
+  ['Till exempel en vikt, en tid eller ett antal', 'For eksempel en vekt, en tid eller et antall', 'For example a weight, a time or a count'],
+  ['Personbästa {v}', 'Personlig rekord {v}', 'Personal best {v}'],
+  ['Vyer', 'Visninger', 'Views'],
 ]

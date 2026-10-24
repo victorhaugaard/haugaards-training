@@ -3624,7 +3624,8 @@ body {
   .people::-webkit-scrollbar {
     display: none;
   }
-  .right .seg {
+  .right .seg,
+  .right .view-icons {
     display: none;
   }
   .nav {
@@ -5444,39 +5445,7 @@ body {
   color: var(--muted);
 }
 
-/* Minimalistisk topprad: textflikar med understrykning, diskreta knappar */
-.topbar .right .seg {
-  background: transparent;
-  padding: 0;
-  gap: 2px;
-}
-.topbar .right .seg-thumb {
-  top: auto;
-  bottom: -1px;
-  left: 0;
-  height: 2px;
-  width: calc(100% / var(--n));
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
-.topbar .right .seg-thumb::after {
-  content: '';
-  display: block;
-  height: 100%;
-  margin: 0 30%;
-  border-radius: 2px;
-  background: var(--text);
-}
-.topbar .right .seg button {
-  padding: 6px 10px 8px;
-  font-size: 13px;
-  border-radius: 8px;
-  transition: color 0.2s;
-}
-.topbar .right .seg button:hover {
-  color: var(--text);
-}
+/* Minimalistisk topprad: diskreta knappar */
 .topbar .today-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -5519,4 +5488,69 @@ body {
   background: transparent;
   color: var(--text);
   box-shadow: inset 0 0 0 1px var(--border);
+}
+
+/* Målkort i översikten (samma form som tävlingarna) */
+button.race {
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+button.race:hover {
+  box-shadow: inset 0 0 0 1px var(--border), var(--shadow);
+}
+.race.goal {
+  box-shadow: inset 0 0 0 1.5px var(--accent), var(--shadow);
+}
+.race.goal.empty {
+  box-shadow: inset 0 0 0 1.5px var(--border), var(--shadow);
+  border: 0;
+}
+.race.goal.empty .race-days b {
+  color: var(--muted);
+}
+.race-bar {
+  margin-top: 10px;
+  height: 6px;
+}
+
+/* Vyväljaren i toppraden: ikoner */
+.view-icons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.view-icons button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.view-icons button:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+.view-icons button.on {
+  color: var(--text);
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.view-icons svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
-import type { Session, Zones } from '../types'
+import type { Person, Session, Zones } from '../types'
+import { personPlanType } from '../lib/trainSports'
 import { addDays, cap, monthYear, startOfWeek, today, weekNumber } from '../lib/dates'
 import { upcomingRaces } from '../lib/races'
-import { RaceStrip } from './RaceStrip'
+import { GoalStrip, RaceStrip } from './RaceStrip'
 import { computeStats, fmtDuration, fmtHours, type Stats } from '../lib/stats'
 import { useZones } from '../lib/zones'
 import { Num } from './Num'
@@ -10,8 +11,11 @@ import { ZoneBar } from './ZoneBar'
 import { tr } from '../i18n/core'
 
 interface Props {
+  person: Person
   sessions: Session[]
   onOpenMonth: (date: string) => void
+  onGoal: () => void
+  onResults: () => void
 }
 
 const monthKey = (d: string) => d.slice(0, 7)
@@ -39,7 +43,9 @@ export function ZoneLegend({ st }: { st: Pick<Stats, 'zones' | 'nonZone'> }) {
   )
 }
 
-export function Overview({ sessions, onOpenMonth }: Props) {
+export function Overview({ person, sessions: allSessions, onOpenMonth, onGoal, onResults }: Props) {
+  // Resultat som loggats utanför planen (utan träningstid) räknas inte som pass här
+  const sessions = useMemo(() => allSessions.filter((s) => !(s.results && !s.zones.some(Boolean) && !s.nonZone)), [allSessions])
   const { labels } = useZones()
 
   const { months, weeks, all, weekMax } = useMemo(() => {
@@ -78,7 +84,9 @@ export function Overview({ sessions, onOpenMonth }: Props) {
 
   return (
     <div className="overview">
-      <RaceStrip races={races} />
+      {/* Utan längdskidor: målen i stället för loppen. Skidåkare med ett mål ser det före loppen. */}
+      {(personPlanType(person) === 'fitness' || person.goal) && <GoalStrip goal={person.goal} sessions={allSessions} onGoal={onGoal} onResults={onResults} />}
+      {personPlanType(person) !== 'fitness' && <RaceStrip races={races} />}
       <section className="ov-card total">
         <div className="ov-head">
           <div>
