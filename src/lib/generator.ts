@@ -196,12 +196,17 @@ export interface GenerateOptions {
   runMode: RunMode
   restDay?: number // 0 = måndag … 6 = söndag, -1 = ingen fast vilodag
   focus?: SportFocus // 'ski' byter cykel/Zwift mot rullskidor där det går
+  anchor?: string // den pågående planens start: en ombyggnad fortsätter i samma fyraveckorscykel
 }
 
-export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, restDay = 0, focus = 'balanced' }: GenerateOptions): Session[] => {
+// Antal hela veckor mellan två datum (från veckans måndag)
+export const weeksSince = (anchor: string | undefined, start: string) =>
+  anchor && anchor < start ? Math.max(0, Math.round((parse(startOfWeek(start)).getTime() - parse(startOfWeek(anchor)).getTime()) / 604800000)) : 0
+
+export const generatePlan = ({ personId, start, end, hoursPerWeek, runMode, restDay = 0, focus = 'balanced', anchor }: GenerateOptions): Session[] => {
   const out: Session[] = []
   let weekStart = startOfWeek(start)
-  let w = 0
+  let w = weeksSince(anchor, start)
 
   // Tävlingar och nedtrappning styr sina dagar. Efter ett lopp tas kvalitetspassen bort en stund.
   const races = raceSessions(personId, start, end)

@@ -4,7 +4,7 @@ import type { Exercise, FitnessPrefs, Session, TrainSport, TrainingCard, Zones }
 import { cardById, cardExercises } from './cards'
 import { estimateMinutes } from './exercises'
 import { addDays, startOfWeek } from './dates'
-import { CYCLE } from './generator'
+import { CYCLE, weeksSince } from './generator'
 import { uid } from './id'
 import { sessionMinutes } from './stats'
 import { TRAIN_SPORTS } from './trainSports'
@@ -38,6 +38,7 @@ export interface FitnessOptions {
   restDay?: number
   sports: TrainSport[]
   prefs?: FitnessPrefs // dagar, passlängd, nivå, fokus, utrustning och tester (annars styr timmarna)
+  anchor?: string // den pågående planens start: en ombyggnad fortsätter i samma cykel och testrytm
 }
 
 // Testpasset som ersätter en sports första pass i en testvecka
@@ -103,10 +104,10 @@ const pickWeek = (sports: TrainSport[], n: number, w: number, maxHard = MAX_HARD
   return ids.map((id) => cardById(id === 'S' ? split[i++ % split.length] : id)!)
 }
 
-export const generateFitnessPlan = ({ personId, start, end, hoursPerWeek, restDay = 0, sports, prefs }: FitnessOptions): Session[] => {
+export const generateFitnessPlan = ({ personId, start, end, hoursPerWeek, restDay = 0, sports, prefs, anchor }: FitnessOptions): Session[] => {
   const out: Session[] = []
   let weekStart = startOfWeek(start)
-  let w = 0
+  let w = weeksSince(anchor, start)
   const freeDays = [0, 1, 2, 3, 4, 5, 6].filter((d) => d !== restDay)
 
   while (weekStart <= end) {
@@ -157,7 +158,7 @@ export const generateFitnessPlan = ({ personId, start, end, hoursPerWeek, restDa
       let exercises = cardExercises(c, location)
       let nonZone = c.nonZone
       if (prefs && exercises && c.category === 'strength') exercises = adjustExercises(exercises, prefs)
-      if (prefs && c.category === 'strength' && c.nonZone) nonZone = Math.max(20, round5(prefs.length * (recovery ? 0.85 : 1)))
+      if (prefs && c.category === 'strength' && c.sport === 'Styrka' && c.nonZone) nonZone = Math.max(20, round5(prefs.length * (recovery ? 0.85 : 1)))
       out.push({
         id: uid(),
         personId,

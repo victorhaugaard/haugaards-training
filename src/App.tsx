@@ -437,14 +437,18 @@ function Workspace({
     const isFit = planTypeOf(o.sports) === 'fitness'
     dispatch({ type: 'updatePerson', id: person.id, patch: { runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, fitness: isFit ? o.fitness : undefined, goal: o.goal } })
     const doneDays = new Set(o.fresh ? [] : mine.filter((s) => s.done).map((s) => s.date))
-    const sessions = buildPlan(person.id, o).filter((s) => !doneDays.has(s.date))
+    // Ombyggnad mitt i en plan fortsätter i samma fyraveckorscykel och testrytm i stället för att börja om
+    const prev = state.plans.find((p) => p.personId === person.id && !p.endedAt)
+    const anchor = !o.fresh && prev ? (prev.cycleStart ?? prev.start) : undefined
+    const cycleStart = anchor && anchor < o.start ? anchor : undefined
+    const sessions = buildPlan(person.id, { ...o, anchor: cycleStart }).filter((s) => !doneDays.has(s.date))
     dispatch({
       type: 'regenerate',
       personId: person.id,
       from: o.start,
       sessions,
       fresh: o.fresh,
-      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, ...(isFit ? { fitness: o.fitness } : {}), source: 'generated' },
+      plan: { start: o.start, end: o.end, hours: o.hours, runMode: o.runMode, restDay: o.restDay, focus: o.focus, sports: o.sports, ...(isFit ? { fitness: o.fitness } : {}), ...(cycleStart ? { cycleStart } : {}), source: 'generated' },
     })
   }
 

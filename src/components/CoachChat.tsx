@@ -186,7 +186,7 @@ export function CoachChat({ person, sessions, plans, dispatch, getToken, viewer,
         const uses = res.content.filter((b) => b.type === 'tool_use')
         if (res.stop_reason === 'tool_use' && uses.length) {
           const results = uses.map((b) => {
-            const out = runTool(b.name ?? '', b.input ?? {}, { personId: person.id, person: latest.current.person, sessions: working })
+            const out = runTool(b.name ?? '', b.input ?? {}, { personId: person.id, person: latest.current.person, sessions: working, cycleStart: (() => { const p = latest.current.plans.find((x) => !x.endedAt); return p ? (p.cycleStart ?? p.start) : undefined })() })
             if (!out.error && out.sessions !== working) {
               working = out.sessions
               if (out.summary) actions.push(out.summary)

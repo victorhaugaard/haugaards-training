@@ -170,6 +170,7 @@ export interface PlanRecord {
   focus?: SportFocus
   sports?: TrainSport[]
   fitness?: FitnessPrefs
+  cycleStart?: string // där fyraveckorscykeln och testrytmen räknas från (överlever ombyggnader)
   source: 'generated' | 'copied' | 'coach' | 'earlier'
   archive?: PlanArchive
 }
@@ -183,6 +184,7 @@ export interface PlanParams {
   focus?: SportFocus
   sports?: TrainSport[]
   fitness?: FitnessPrefs
+  cycleStart?: string
   source: PlanRecord['source']
 }
 
